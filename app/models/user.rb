@@ -15,15 +15,15 @@
 class User < ApplicationRecord
 	has_secure_password
 
-	validate :name, presence: true
-	validate :username, presence: true, 
+	validates :name, presence: true
+	validates :username, presence: true, 
 		uniqueness: { case_sensitive: false, message: "Este usuario ya se encuentra registrado" },
     length: { in: 3..15 },
     format: {
       with: /\A[a-z-0-9-A-Z]+\z/,
       message: :invalid
     }
-	validate :password, presence: true, uniqueness: true, length: { minimum: 6 }
+	validates :password, presence: true, uniqueness: true, length: { minimum: 6 }
 	validates :email, presence: true, 
 		uniqueness: { case_sensitive: false, message: "Este email ya se encuentra en uso" },
     format: {
