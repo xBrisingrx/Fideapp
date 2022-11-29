@@ -3,6 +3,6 @@ Rails.application.routes.draw do
   get 'main/welcome'
 
   namespace :authentication, path: '', as: '' do
-    resource :users, only: [:index,:new, :create]
+    resources :users, only: [:index,:new, :create]
   end
 end
