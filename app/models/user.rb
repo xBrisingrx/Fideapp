@@ -16,8 +16,28 @@ class User < ApplicationRecord
 	has_secure_password
 
 	validate :name, presence: true
-	validate :username, presence: true, uniqueness: { case_sensitive: false, message: "Este usuario ya se encuentra registrado" }
+	validate :username, presence: true, 
+		uniqueness: { case_sensitive: false, message: "Este usuario ya se encuentra registrado" },
+    length: { in: 3..15 },
+    format: {
+      with: /\A[a-z-0-9-A-Z]+\z/,
+      message: :invalid
+    }
 	validate :password, presence: true, uniqueness: true, length: { minimum: 6 }
-	validates :email, presence: true, uniqueness: { case_sensitive: false, message: "Este email ya se encuentra en uso" }
+	validates :email, presence: true, 
+		uniqueness: { case_sensitive: false, message: "Este email ya se encuentra en uso" },
+    format: {
+      with: /\A([\w+\-].?)+@[a-z\d\-]+(\.[a-z]+)*\.[a-z]+\z/i,
+      message: :invalid
+    }
+
+  before_save :downcase_attributes
+
+  private
+
+  def downcase_attributes
+    self.username = username.downcase
+    self.email = email.downcase
+  end
 
 end
