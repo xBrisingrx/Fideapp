@@ -5,9 +5,10 @@ class Authentication::SessionsController < ApplicationController
   end
 
   def create
+    user = User.find_by_username(params[:username])
     if user&.authenticate(params[:password])
       session[:user_id] = user.id
-      redirect_to root_url, notice: "Sessión iniciada!"
+      redirect_to root_path, notice: "Sessión iniciada!"
     else
       flash.now[:alert] = "Nombre de usuario o contraseña invalido"
       render "new"
