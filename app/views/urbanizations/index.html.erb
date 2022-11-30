@@ -1,0 +1,53 @@
+<h1>Urbanizaciones</h1>
+<%= link_to "<i class='fa fa-plus'> </i> Agregar urbanización", new_urbanization_path, {:remote => true, 'data-toggle' =>  "modal",
+      'data-target' => '#modal-urbanization', 'class' => 'btn u-btn-teal justify-content-end mb-2'} %>
+<table id="urbanizations_table" class="table hover dt-responsive w-100">
+  <thead>
+    <tr>
+      <th>Nombre</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody> <!-- popuate with ajax --></tbody>
+</table>  
+<!-- Modal alta de urbanizacion -->
+<div class="modal fade" id="modal-urbanizacion" role="dialog"
+     aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+</div>
+<!-- End modal -->
+
+
+<!-- Modal para eliminar urbanizacion -->
+<div class="modal fade" id="modal-disable-urbanizacion" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">¿ Esta seguro de quitar el urbanizacion ?</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-danger" role="alert">
+          Tenga en cuenta que todos los registros asociados tambien seran dados de baja.
+          <span data-toggle="collapse" href="#multiCollapseExample1" 
+                role="button" aria-expanded="false" aria-controls="multiCollapseExample1"  
+                class="badge badge-info">Leer mas...</span>
+            <div class="collapse multi-collapse" id="multiCollapseExample1">
+              Registros afectados:
+              <ul>
+                <li>Manzanas del urbanizacion</li>
+                <li>Lotes del urbanizacion</li>
+              </ul>
+            </div>
+        </div>
+        <%= form_with(url: urbanization_disable_path, id: 'form-disable-urbanizacion') do |form| %>
+          <%= form.hidden_input :id %>
+          <%= form.submit 'Eliminar', class: 'btn u-btn-red g-mr-10' %>
+          <button type="button" data-dismiss="modal" class="btn u-btn-teal g-mr-10"> Cerrar </button>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Fin modal eliminar urbanizacion -->
