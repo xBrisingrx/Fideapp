@@ -1,4 +1,4 @@
-class Authentication::SessiosController < ApplicationController
+class Authentication::SessionsController < ApplicationController
 	skip_before_action :no_login
   def new
 
