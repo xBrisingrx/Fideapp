@@ -1,5 +1,5 @@
 <h1>Urbanizaciones</h1>
-<%= link_to "<i class='fa fa-plus'> </i> Agregar urbanización", new_urbanization_path, {:remote => true, 'data-toggle' =>  "modal",
+<%= link_to "<i class='fa fa-plus'> </i> Agregar urbanización".html_safe, new_urbanization_path, {:remote => true, 'data-toggle' =>  "modal",
       'data-target' => '#modal-urbanization', 'class' => 'btn u-btn-teal justify-content-end mb-2'} %>
 <table id="urbanizations_table" class="table hover dt-responsive w-100">
   <thead>
