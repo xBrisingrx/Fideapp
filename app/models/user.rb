@@ -20,7 +20,7 @@ class User < ApplicationRecord
 		uniqueness: { case_sensitive: false, message: "Este usuario ya se encuentra registrado" },
     length: { in: 3..15 },
     format: {
-      with: /\A[a-z-0-9-A-Z]+\z/,
+      with: /\A[a-z0-9A-Z]+\z/,
       message: :invalid
     }
 	validates :password, presence: true, uniqueness: true, length: { minimum: 6 }
