@@ -21,9 +21,9 @@
 //= require unify/hs.toastr
 //= require unify/hs.popup
 //= require unify/noty.min
-
 //= require plugins/datatables.min
 //= require plugins/select2.full.min
+//= require custom
 
 // require_tree .
 
