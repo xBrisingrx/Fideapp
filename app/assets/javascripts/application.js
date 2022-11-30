@@ -25,6 +25,9 @@
 //= require plugins/select2.full.min
 //= require custom
 
+
+//= require urbanizations
+
 // require_tree .
 
 

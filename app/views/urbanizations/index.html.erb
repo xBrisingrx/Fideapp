@@ -18,7 +18,7 @@
 
 
 <!-- Modal para eliminar urbanizacion -->
-<div class="modal fade" id="modal-disable-urbanizacion" tabindex="-1" role="dialog">
+<div class="modal fade" id="modal-disable-urbanization" tabindex="-1" role="dialog">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -36,13 +36,14 @@
             <div class="collapse multi-collapse" id="multiCollapseExample1">
               Registros afectados:
               <ul>
-                <li>Manzanas del urbanizacion</li>
-                <li>Lotes del urbanizacion</li>
+                <li>Sector de la urbanización</li>
+                <li>Manzanas de la urbanización</li>
+                <li>Lotes de la urbanización</li>
               </ul>
             </div>
         </div>
-        <%= form_with(url: disable_urbanization_path, id: 'form-disable-urbanizacion') do |form| %>
-          <%= form.hidden_field :id %>
+        <%= form_with(url: disable_urbanization_path, id: 'form-disable-urbanization') do |form| %>
+          <%= form.hidden_field :urbanization_id %>
           <%= form.submit 'Eliminar', class: 'btn u-btn-red g-mr-10' %>
           <button type="button" data-dismiss="modal" class="btn u-btn-teal g-mr-10"> Cerrar </button>
         <% end %>
