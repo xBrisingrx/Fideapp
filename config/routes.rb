@@ -10,5 +10,5 @@ Rails.application.routes.draw do
   end
 
   resources :urbanizations, except: [:destroy]
-   get 'disable_urbanization', to: 'urbanizations#disable', as: 'disable_urbanization'
+  post 'disable_urbanization', to: 'urbanizations#disable', as: 'disable_urbanization'
 end
