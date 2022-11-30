@@ -23,7 +23,7 @@ class User < ApplicationRecord
       with: /\A[a-z0-9A-Z]+\z/,
       message: :invalid
     }
-	validates :password, presence: true, uniqueness: true, length: { minimum: 6 }
+	validates :password, presence: true, length: { minimum: 6 }
 	validates :email, presence: true, 
 		uniqueness: { case_sensitive: false, message: "Este email ya se encuentra en uso" },
     format: {
