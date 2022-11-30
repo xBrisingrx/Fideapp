@@ -8,7 +8,7 @@
         </header>
 
         <!-- Form -->
-        <%= form_with(url: sessions_path, class: 'g-py-15') do |form| %>
+        <%= form_with(url: sessions_path, class: 'g-py-15', data: { remote: false }) do |form| %>
           <div class="mb-4">
             <div class="input-group g-brd-primary--focus">
               <div class="input-group-prepend">
