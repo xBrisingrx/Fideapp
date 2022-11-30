@@ -42,7 +42,7 @@
             </div>
         </div>
         <%= form_with(url: urbanization_disable_path, id: 'form-disable-urbanizacion') do |form| %>
-          <%= form.hidden_input :id %>
+          <%= form.hidden_field :id %>
           <%= form.submit 'Eliminar', class: 'btn u-btn-red g-mr-10' %>
           <button type="button" data-dismiss="modal" class="btn u-btn-teal g-mr-10"> Cerrar </button>
         <% end %>
