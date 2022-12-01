@@ -1,5 +1,4 @@
 Rails.application.routes.draw do
-  resources :lands
   root 'main#welcome'
   get 'main/welcome'
 
@@ -23,4 +22,6 @@ Rails.application.routes.draw do
   post 'disable_land', to: 'lands#disable', as: 'disable_land'
   resources :clients, except: [:destroy, :show]
   post 'disable_client', to: 'clients#disable', as: 'disable_client'
+  resources :providers, except: [:destroy, :show]
+  post 'disable_provider', to: 'providers#disable', as: 'disable_provider'
 end
