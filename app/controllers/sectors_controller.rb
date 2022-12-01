@@ -5,8 +5,6 @@ class SectorsController < ApplicationController
     @sectors = Sector.actives.includes(:urbanization)
   end
 
-  def show; end
-
   def new
     @sector = Sector.new
     @urbanizations = Urbanization.actives
