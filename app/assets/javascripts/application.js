@@ -33,6 +33,7 @@
 //= require clients
 //= require lands
 //= require providers
+//= require materials
 
 // require_tree .
 

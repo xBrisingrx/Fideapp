@@ -24,4 +24,6 @@ Rails.application.routes.draw do
   post 'disable_client', to: 'clients#disable', as: 'disable_client'
   resources :providers, except: [:destroy, :show]
   post 'disable_provider', to: 'providers#disable', as: 'disable_provider'
+  resources :materials, except: [:destroy, :show]
+  post 'disable_material', to: 'materials#disable', as: 'disable_material'
 end
