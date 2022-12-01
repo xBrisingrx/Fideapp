@@ -1,0 +1,63 @@
+<h1><i class="fa fa-users"></i> Clientes</h1>
+<%= link_to 'Nuevo cliente', new_client_path, {:remote => true, 'data-toggle' =>  "modal",
+      'data-target' => '#modal-client', 'class' => 'btn u-btn-teal justify-content-end mb-2'} %>
+<table id="clients_table" class="table hover dt-responsive w-100">
+  <thead>
+    <tr>
+      <th>Legajo</th>
+      <th>Apellido</th>
+      <th>Nombre</th>
+      <th>DNI</th>
+      <th>Estado civil</th>
+      <th>Direccion</th>
+      <th>Email</th>
+      <th>Telefono</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+  </tbody>
+</table>
+
+
+<!-- Modal alta de client -->
+<div class="modal fade" id="modal-client" role="dialog"
+     aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+</div>
+<!-- End modal -->
+
+
+<!-- Modal para eliminar client -->
+<div class="modal fade" id="modal-disable-client" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">¿ Esta seguro de dar de baja al cliente ?</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-danger" role="alert">
+          Tenga en cuenta que todos los registros asociados tambien seran dados de baja.
+          <span data-toggle="collapse" href="#multiCollapseExample1" 
+                role="button" aria-expanded="false" aria-controls="multiCollapseExample1"  
+                class="badge badge-info">Leer mas...</span>
+            <div class="collapse multi-collapse" id="multiCollapseExample1">
+              Registros afectados:
+              <ul>
+                <li>Manzanas del cliente</li>
+                <li>Lotes del cliente</li>
+              </ul>
+            </div>
+        </div>
+        <%= form_with(url: disable_client_path, id: 'form-disable-client') do |form| %>
+          <%= form.hidden_field :client_id %>
+          <%= form.submit 'Eliminar', class: 'btn u-btn-red g-mr-10' %>
+          <button type="button" data-dismiss="modal" class="btn u-btn-teal g-mr-10"> Cerrar </button>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Fin modal eliminar client -->

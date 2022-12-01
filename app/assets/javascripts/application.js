@@ -30,6 +30,7 @@
 //= require sectors
 //= require condominia
 //= require apples
+//= require clients
 
 // require_tree .
 
