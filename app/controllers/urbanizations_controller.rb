@@ -39,7 +39,8 @@ class UrbanizationsController < ApplicationController
   end
 
   def disable
-    @urbanization = Urbanization.find(params[:urbanization][:id])
+    pp params[:urbanization_id]
+    @urbanization = Urbanization.find(params[:urbanization_id])
     if @urbanization.update(active:false)
       render json: { status: 'success', msg: 'Urbanización eliminada' }, status: :ok
     else
