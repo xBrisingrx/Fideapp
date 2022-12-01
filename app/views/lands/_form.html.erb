@@ -1,0 +1,59 @@
+<%= form_with(model: @land, id: 'form-land', multipart: true) do |form| %>
+  <%= form.hidden_field :apple_id, value: @land.apple_id %>
+  <div class="form-group">
+    <%= form.label :code, 'Denominación:' ,class: 'col-3' %>
+    <%= form.text_field :code, class: 'form-control form-control-md rounded-0'%>
+    <div class="invalid-feedback field_code"></div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-check-inline u-check g-pl-25">
+      <%= form.check_box :is_green_space, class: 'g-hidden-xs-up g-pos-abs g-top-0 g-left-0' %>
+      <div class="u-check-icon-checkbox-v6 g-absolute-centered--y g-left-0">
+        <i class="fa" data-check-icon="&#xf00c"></i>
+      </div>
+      Es espacio verde 
+    </label>
+    <label class="form-check-inline u-check g-pl-25">
+      <%= form.check_box :is_corner, class: 'g-hidden-xs-up g-pos-abs g-top-0 g-left-0' %>
+      <div class="u-check-icon-checkbox-v6 g-absolute-centered--y g-left-0">
+        <i class="fa" data-check-icon="&#xf00c"></i>
+      </div>
+      Es esquina
+    </label>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :measures, 'Medidas (mts):' ,class: 'col-3' %>
+    <%= form.text_field :measures, class: 'form-control form-control-md rounded-0'%>
+    <div class="invalid-feedback measures"></div>
+  </div>
+  <div class="form-group">
+    <%= form.label :area, 'Superficie (m²):' ,class: 'col-6' %>
+    <%= form.number_field :area, class: 'form-control form-control-md rounded-0', step:'0.0001'%>
+    <div class="invalid-feedback field_surface"></div>
+  </div>
+  <div class="form-group">
+    <%= form.label :ubication, 'Ubicación:' ,class: 'col-3' %>
+    <%= form.text_field :ubication, class: 'form-control form-control-md rounded-0'%>
+    <div class="invalid-feedback field_ubication"></div>
+  </div>
+  <div class="form-group">
+    <%= form.label :price, 'Valor:' ,class: 'col-3' %>
+    <%= form.number_field :price, class: 'form-control form-control-md rounded-0', step:'0.01' %>
+    <div class="invalid-feedback field_price"></div>
+  </div>
+
+  <div class="form-group mb-2">
+    <label class="u-file-attach-v2 g-color-gray-dark-v5 mb-0">
+      <input id="land_blueprint" name="land[blueprint]" type="file">
+      <i class="icon-cloud-upload g-font-size-16 g-pos-rel g-top-2 g-mr-5"></i>
+      <span class="js-value">Adjuntar plano</span>
+    </label>
+  </div>
+
+  <div class="actions">
+    <%= form.submit 'Guardar', class: 'btn u-btn-teal mr-2'  %>
+    <button type="button" class="btn u-btn-darkred" data-dismiss="modal">Cerrar</button>
+  </div>
+<% end %>

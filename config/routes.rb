@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :lands
   root 'main#welcome'
   get 'main/welcome'
 
@@ -15,8 +16,11 @@ Rails.application.routes.draw do
   post 'disable_sector', to: 'sectors#disable', as: 'disable_sector'
   resources :condominia, except: [:destroy, :show]
   post 'disable_condominium', to: 'condominia#disable', as: 'disable_condominium'
-  resources :apples, except: [:destroy, :show]
+  resources :apples, except: [:destroy, :show] do 
+    resources :lands, except: [:show, :destroy]
+  end
   post 'disable_apple', to: 'apples#disable', as: 'disable_apple'
+  post 'disable_land', to: 'lands#disable', as: 'disable_land'
   resources :clients, except: [:destroy, :show]
   post 'disable_client', to: 'clients#disable', as: 'disable_client'
 end

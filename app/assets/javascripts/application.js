@@ -31,6 +31,7 @@
 //= require condominia
 //= require apples
 //= require clients
+//= require lands
 
 // require_tree .
 
