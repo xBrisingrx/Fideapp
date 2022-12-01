@@ -1,0 +1,46 @@
+<h1><i class="fa fa-address-card-o"></i> Proveedores</h1>
+<%= link_to 'Nuevo proveedor', new_provider_path, {:remote => true, 'data-toggle' =>  "modal",
+      'data-target' => '#modal-provider', 'class' => 'btn u-btn-teal justify-content-end mb-2'} %>
+<table id="providers-table" class="table hover dt-responsive w-100">
+  <thead>
+    <tr>
+      <th>Nombre</th>
+      <th>Cuit</th>
+      <th>Actividad</th>
+      <th>Descripción</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+  </tbody>
+</table>
+
+
+<!-- Modal alta de provider -->
+<div class="modal fade" id="modal-provider" role="dialog"
+     aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+</div>
+<!-- End modal -->
+
+
+<!-- Modal para eliminar provider -->
+<div class="modal fade" id="modal-disable-provider" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">¿ Esta seguro de dar de baja al proveedor ?</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <%= form_with(url: disable_provider_path, id: 'form-disable-provider') do |form| %>
+          <%= form.hidden_field :provider_id %>
+          <%= form.submit 'Eliminar', class: 'btn u-btn-red g-mr-10' %>
+          <button type="button" data-dismiss="modal" class="btn u-btn-teal g-mr-10"> Cerrar </button>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Fin modal eliminar provider -->

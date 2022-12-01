@@ -32,6 +32,7 @@
 //= require apples
 //= require clients
 //= require lands
+//= require providers
 
 // require_tree .
 
