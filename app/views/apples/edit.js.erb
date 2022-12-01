@@ -1,0 +1,20 @@
+$("#modal").html("<%= j (render partial: 'shared/modal', locals:{ size: 'lg' } ) %>")
+
+$('.select-2-apple').select2({ width: '100%',theme: "bootstrap4", placeholder: "Seleccione un sector (*)" })
+$('.select-2-condominium').select2({ width: '100%',theme: "bootstrap4", placeholder: "Seleccione un condominio (*)" })
+
+$("#modal").modal('show')
+
+$("#form-apple").on("ajax:success", function(event) {
+    apples_table.ajax.reload(null,false)
+    let msg = JSON.parse(event.detail[2].response)
+    noty_alert(msg.status, msg.msg)
+    $("#modal").modal('hide')
+  }).on("ajax:error", function(event) {
+	let msg = JSON.parse(event.detail[2].response)
+	console.info(msg)
+	$.each( msg, function( key, value ) {
+		$(`#form-apple #apple_${key}`).addClass('is-invalid')
+		$(`#form-apple .apple_${key}`).text( value ).show('slow')
+	})
+})

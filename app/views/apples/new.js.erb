@@ -1,7 +1,7 @@
 $("#modal").html("<%= j (render partial: 'shared/modal', locals:{ size: 'lg' } ) %>")
 
-$('.select-2-apple').select2({ width: '100%',theme: "bootstrap4" })
-$('.select-2-condominium').select2({ width: '100%',theme: "bootstrap4" })
+$('.select-2-apple').select2({ width: '100%',theme: "bootstrap4", placeholder: "Seleccione un sector (*)" })
+$('.select-2-condominium').select2({ width: '100%',theme: "bootstrap4", placeholder: "Seleccione un condominio (*)" })
 
 $("#modal").modal('show')
 

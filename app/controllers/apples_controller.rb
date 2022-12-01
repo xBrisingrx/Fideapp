@@ -2,7 +2,7 @@ class ApplesController < ApplicationController
   before_action :set_apple, only: %i[ show edit update destroy ]
 
   def index
-    @apples = Apple.actives.includes(:sector).includes(:urbanization)
+    @apples = Apple.actives.includes(:sector)
   end
 
   def show
@@ -48,7 +48,7 @@ class ApplesController < ApplicationController
   end
 
   def disable
-    @apple = Apple.find(params[:apple][:id])
+    @apple = Apple.find(params[:apple_id])
     if @apple.update!(active: false)
       render json: { status: 'success', msg: 'Manzana eliminada' }, status: :ok
     else
