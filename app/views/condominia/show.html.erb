@@ -1,0 +1,19 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Name:</strong>
+  <%= @condominium.name %>
+</p>
+
+<p>
+  <strong>Description:</strong>
+  <%= @condominium.description %>
+</p>
+
+<p>
+  <strong>Active:</strong>
+  <%= @condominium.active %>
+</p>
+
+<%= link_to 'Edit', edit_condominium_path(@condominium) %> |
+<%= link_to 'Back', condominia_path %>

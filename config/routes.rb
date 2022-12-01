@@ -11,6 +11,9 @@ Rails.application.routes.draw do
 
   resources :urbanizations, except: [:destroy, :show]
   post 'disable_urbanization', to: 'urbanizations#disable', as: 'disable_urbanization'
-  resources :sectors, except: [:destroy]
+  resources :sectors, except: [:destroy, :show]
   post 'disable_sector', to: 'sectors#disable', as: 'disable_sector'
+  resources :condominia, except: [:destroy, :show]
+  post 'disable_condominium', to: 'condominia#disable', as: 'disable_condominium'
+
 end
