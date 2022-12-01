@@ -12,4 +12,6 @@
 class Urbanization < ApplicationRecord
 	validates :name, presence: true
 	validates :name, uniqueness: { case_sensitive: false, message: "Ya existe una urbanización con este nombre" }
+
+	scope :actives, -> { where(active: true) }
 end
