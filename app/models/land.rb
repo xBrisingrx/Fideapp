@@ -12,7 +12,7 @@
 #  measure                                                            :string(255)
 #  price                                                              :decimal(15, 2)   default(0.0)
 #  space_not_available(Espacio de el lote que no puede ser utilizado) :decimal(15, 2)   default(0.0)
-#  status                                                             :integer          default(0)
+#  status                                                             :integer          default("available")
 #  ubication                                                          :string(255)
 #  created_at                                                         :datetime         not null
 #  updated_at                                                         :datetime         not null
