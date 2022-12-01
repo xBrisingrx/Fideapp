@@ -26,6 +26,7 @@
 class Apple < ApplicationRecord
   belongs_to :condominium
   belongs_to :sector
+  has_one :urbanization, through: :sector
   has_one_attached :blueprint
 
   validates :code, presence: true,
