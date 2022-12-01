@@ -3,7 +3,7 @@ class ClientsController < ApplicationController
   before_action :marital_status, only: %i[new edit]
 
   def index
-    @clients = Client.all
+    @clients = Client.actives
   end
 
   def show;end
@@ -40,7 +40,7 @@ class ClientsController < ApplicationController
   end
 
   def disable
-    @client = Client.find(params[:client][:id])
+    @client = Client.find(params[:client_id])
     if @client.update(active:false)
       render json: { status: 'success', msg: 'Cliente eliminado' }, status: :ok
     else
