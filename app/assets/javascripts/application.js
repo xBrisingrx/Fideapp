@@ -27,6 +27,7 @@
 
 
 //= require urbanizations
+//= require sectors
 
 // require_tree .
 

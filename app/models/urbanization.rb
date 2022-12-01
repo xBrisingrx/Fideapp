@@ -10,6 +10,8 @@
 #  updated_at :datetime         not null
 #
 class Urbanization < ApplicationRecord
+	has_many :sectors
+	
 	validates :name, presence: true
 	validates :name, uniqueness: { case_sensitive: false, message: "Ya existe una urbanización con este nombre" }
 

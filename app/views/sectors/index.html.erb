@@ -1,0 +1,57 @@
+<h1>Sectores</h1>
+<%= link_to "<i class='fa fa-plus'> </i> Agregar sector".html_safe, new_sector_path, {:remote => true, 'data-toggle' =>  "modal",
+      'data-target' => '#modal-sector', 'class' => 'btn u-btn-teal justify-content-end mb-2'} %>
+<table id="sectors_table" class="table hover dt-responsive w-100">
+  <thead>
+    <tr>
+      <th>Urbanización</th>
+      <th>Nombre</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+
+  <tbody>
+
+  </tbody>
+</table>  
+<!-- Modal alta de sector -->
+<div class="modal fade" id="modal-sector" role="dialog"
+     aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+</div>
+<!-- End modal -->
+
+
+<!-- Modal para eliminar sector -->
+<div class="modal fade" id="modal-disable-sector" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">¿ Esta seguro de quitar el sector ?</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-danger" role="alert">
+          Tenga en cuenta que todos los registros asociados tambien seran dados de baja.
+          <span data-toggle="collapse" href="#multiCollapseExample1" 
+                role="button" aria-expanded="false" aria-controls="multiCollapseExample1"  
+                class="badge badge-info">Leer mas...</span>
+            <div class="collapse multi-collapse" id="multiCollapseExample1">
+              Registros afectados:
+              <ul>
+                <li>Manzanas del sector</li>
+                <li>Lotes del sector</li>
+              </ul>
+            </div>
+        </div>
+        <%= form_with(url: disable_sector_path, id: 'form-disable-sector') do |form| %>
+          <%= form.hidden_field :sector_id %>
+          <%= form.submit 'Eliminar', class: 'btn u-btn-red g-mr-10' %>
+          <button type="button" data-dismiss="modal" class="btn u-btn-teal g-mr-10"> Cerrar </button>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Fin modal eliminar sector -->

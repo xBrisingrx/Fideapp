@@ -1,0 +1,15 @@
+$("#modal").html("<%= j (render partial: 'shared/modal', locals:{ size: 'lg' } ) %>")
+$("#modal").modal('show')
+
+$("#form-sector").on("ajax:success", function(event) {
+    sector_table.ajax.reload(null,false)
+    let msg = JSON.parse(event.detail[2].response)
+    noty_alert(msg.status, msg.msg)
+    $("#modal").modal('hide')
+  }).on("ajax:error", function(event) {
+		let msg = JSON.parse(event.detail[2].response)
+		$.each( msg, function( key, value ) {
+			$(`#form-sector #sector_${key}`).addClass('is-invalid')
+			$(`#form-sector .sector_${key}`).text( value ).show('slow')
+		})
+})
