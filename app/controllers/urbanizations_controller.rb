@@ -5,8 +5,6 @@ class UrbanizationsController < ApplicationController
     @urbanizations = Urbanization.where(active: true)
   end
 
-  def show;end
-
   def new
     @title_modal = "Registrar urbanización"
     @urbanization = Urbanization.new

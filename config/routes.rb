@@ -9,6 +9,6 @@ Rails.application.routes.draw do
     get 'logout', to: 'sessions#destroy', as: 'logout'
   end
 
-  resources :urbanizations, except: [:destroy]
+  resources :urbanizations, except: [:destroy, :show]
   post 'disable_urbanization', to: 'urbanizations#disable', as: 'disable_urbanization'
 end
