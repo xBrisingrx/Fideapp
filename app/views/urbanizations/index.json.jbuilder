@@ -4,8 +4,8 @@ json.data @urbanizations do |u|
   								 :remote => true, 'data-toggle' =>  'modal',
       							'data-target' => '#modal-urbanization', 
       							'class' => 'u-link-v5 g-color-gray-light-v6 g-color-secondary--hover g-text-underline--none--hover g-ml-12', title: 'Editar'}
-  							<a class='u-link-v5 g-color-gray-light-v6 g-color-secondary--hover g-text-underline--none--hover g-ml-12' 
+  							<a class='btn btn-sm u-btn-red g-color-white' 
   								title='Eliminar' 
   								onclick='modal_disable_urbanization( #{ u.id } )'>
-									<i class='hs-admin-trash' aria-hidden='true'></i></a>"
+									<i class='fa fa-trash-o' aria-hidden='true'></i></a>"
 end
