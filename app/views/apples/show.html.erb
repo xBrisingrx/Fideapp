@@ -1,0 +1,39 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Code:</strong>
+  <%= @apple.code %>
+</p>
+
+<p>
+  <strong>Hectares:</strong>
+  <%= @apple.hectares %>
+</p>
+
+<p>
+  <strong>Value:</strong>
+  <%= @apple.value %>
+</p>
+
+<p>
+  <strong>Space not available:</strong>
+  <%= @apple.space_not_available %>
+</p>
+
+<p>
+  <strong>Condominium:</strong>
+  <%= @apple.condominium %>
+</p>
+
+<p>
+  <strong>Sector:</strong>
+  <%= @apple.sector %>
+</p>
+
+<p>
+  <strong>Active:</strong>
+  <%= @apple.active %>
+</p>
+
+<%= link_to 'Edit', edit_apple_path(@apple) %> |
+<%= link_to 'Back', apples_path %>

@@ -15,5 +15,6 @@ Rails.application.routes.draw do
   post 'disable_sector', to: 'sectors#disable', as: 'disable_sector'
   resources :condominia, except: [:destroy, :show]
   post 'disable_condominium', to: 'condominia#disable', as: 'disable_condominium'
-
+  resources :apples
+  post 'disable_apple', to: 'apples#disable', as: 'disable_apple'
 end

@@ -29,6 +29,7 @@
 //= require urbanizations
 //= require sectors
 //= require condominia
+//= require apples
 
 // require_tree .
 

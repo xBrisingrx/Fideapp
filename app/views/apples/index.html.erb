@@ -1,0 +1,65 @@
+<h1>Manzanas</h1>
+
+<%= link_to 'Agregar manzana', new_apple_path, {:remote => true, 'data-toggle' =>  "modal",
+      'data-target' => '#modal-apple', 'class' => 'btn u-btn-teal justify-content-end mb-2'} %>
+
+<%= link_to 'Condominios', condominia_path, class: 'btn u-btn-blue justify-content-end mb-2 ml-4', title: 'Ver condominios registrados' %>
+
+<table id="apples-table" class="table hover dt-responsive w-100">
+  <thead>
+    <tr>
+      <th>Denominacion</th>
+      <th>Hectareas</th>
+      <th>Merma</th>
+      <th>Ubicacion</th>
+      <th>Valor</th>
+      <th>Sector</th>
+      <th>Condominio</th>
+      <th>Acciones</th>
+  </thead>
+  <tbody>
+  </tbody>
+</table> 
+
+<!-- Modal alta de apple -->
+<div class="modal fade" id="modal-apple" role="dialog"
+     aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+</div>
+<!-- End modal -->
+
+
+<!-- Modal para eliminar apple -->
+<div class="modal fade" id="modal-disable-apple" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">¿ Esta seguro de quitar la manzana ?</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-danger" role="alert">
+          Tenga en cuenta que todos los registros asociados tambien seran dados de baja.
+          <span data-toggle="collapse" href="#multiCollapseExample1" 
+                role="button" aria-expanded="false" aria-controls="multiCollapseExample1"  
+                class="badge badge-info">Leer mas...</span>
+            <div class="collapse multi-collapse" id="multiCollapseExample1">
+              Registros afectados:
+              <ul>
+                <li>Lotes de la manzana</li>
+              </ul>
+            </div>
+        </div>
+        <%= form_with(url: disable_apple_path, id: 'form-disable-apple') do |form| %>
+          <%= form.hidden_field :apple_id %>
+          <%= form.submit 'Eliminar', class: 'btn u-btn-red g-mr-10' %>
+          <button type="button" data-dismiss="modal" class="btn u-btn-teal g-mr-10"> Cerrar </button>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Fin modal eliminar apple -->
+
+
