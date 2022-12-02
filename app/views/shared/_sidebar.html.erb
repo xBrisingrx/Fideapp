@@ -19,12 +19,17 @@
               <li class="u-sidebar-navigation-v1-menu-item u-side-nav--second-level-menu-item">
                 <%= link_to '<span class="d-flex align-self-center g-mr-15 g-mt-minus-1"> <i class="hs-admin-infinite"></i> </span>
                   <span class="media-body align-self-center">Urbanizaciónes</span>'.html_safe, urbanizations_path, 
-                  class:"media u-side-nav--second-level-menu-link g-px-15 g-py-12 active" %>
+                  class:"media u-side-nav--second-level-menu-link g-px-15 g-py-12 #{ active_class(urbanizations_path) }" %>
               </li>
               <li class="u-sidebar-navigation-v1-menu-item u-side-nav--second-level-menu-item">
                 <%= link_to '<span class="d-flex align-self-center g-mr-15 g-mt-minus-1"> <i class="hs-admin-infinite"></i> </span>
                   <span class="media-body align-self-center">Sectores</span>'.html_safe, sectors_path, 
-                  class:"media u-side-nav--second-level-menu-link g-px-15 g-py-12 active" %>
+                  class:"media u-side-nav--second-level-menu-link g-px-15 g-py-12 #{ active_class(sectors_path) }" %>
+              </li>
+              <li class="u-sidebar-navigation-v1-menu-item u-side-nav--second-level-menu-item">
+                <%= link_to '<span class="d-flex align-self-center g-mr-15 g-mt-minus-1"> <i class="hs-admin-apple"></i> </span>
+                  <span class="media-body align-self-center">Manzanas</span>'.html_safe, apples_path, 
+                  class:"media u-side-nav--second-level-menu-link g-px-15 g-py-12 #{ active_class(apples_path) }" %>
               </li>
             </ul>
          </li>
