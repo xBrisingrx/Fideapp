@@ -9,8 +9,8 @@ $(document).ready(function(){
 	sector_table = $("#sectors_table").DataTable({
     'ajax':'sectors',
     'columns': [
-    {'data': 'urbanization'},
     {'data': 'name'},
+    {'data': 'urbanization'},
     {'data': 'actions'}
     ],
     'language': {'url': "/assets/plugins/datatables_lang_spa.json"}
