@@ -1,0 +1,42 @@
+<h1>Proyectos</h1>
+<%= link_to 'Agregar projecto', new_project_path,'class' => 'btn u-btn-primary justify-content-end mb-2' %>
+
+<table class="table table-responsive">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Nombre</th>
+      <th>Invervinientes/Funcion</th>
+      <th>Materiales</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @projects.each do |project| %>
+      <tr>
+        <td><%= project.number %></td>
+        <td><%= project.name %></td>
+        <td><% project.project_providers.each do |provider| %>
+              <%= provider.provider.name %> <%= provider.provider_role.name%>
+            <% end %>
+        </td>
+        <td><% project.project_materials.each do |material| %>
+            <%= material.material.name  %>
+            <ul>
+              <li>Cantidad: <%= material.units  %></li>
+              <li>Precio unidad: <%= material.price  %></li>
+            </ul>
+          <% end %>
+        </td>
+        <td></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<!-- Modal alta de apple -->
+<div class="modal fade" id="modal-project" role="dialog"
+     aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+</div>
+<!-- End modal -->
