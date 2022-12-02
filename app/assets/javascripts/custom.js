@@ -55,3 +55,13 @@ function setInputDate(_id){
 function roundToTwo(num) {
     return +(Math.round(num + "e+2")  + "e-2")
 }
+
+function addClassValid( input ) {
+  input.classList.remove('is-invalid')
+  input.classList.add('is-valid')
+}
+
+function addClassInvalid( input ) {
+  input.classList.remove('is-valid')
+  input.classList.add('is-invalid')
+}
