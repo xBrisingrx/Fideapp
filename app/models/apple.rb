@@ -35,4 +35,7 @@ class Apple < ApplicationRecord
 
   scope :actives, -> { where(active: true) }
 
+  def has_corner
+    self.lands.where(is_corner: true).count > 0
+  end
 end

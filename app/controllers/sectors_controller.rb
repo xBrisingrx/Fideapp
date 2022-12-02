@@ -5,6 +5,10 @@ class SectorsController < ApplicationController
     @sectors = Sector.actives.includes(:urbanization)
   end
 
+  def filter_for_urbanization
+    @sectors = Sector.where( urbanization_id: params[:urbanization_id] ).where( active: true )
+  end
+
   def new
     @sector = Sector.new
     @urbanizations = Urbanization.actives

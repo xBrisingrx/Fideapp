@@ -8,7 +8,7 @@ class CreateClients < ActiveRecord::Migration[5.2]
       t.string :email, limit: 100
       t.string :direction
       t.string :marital_status, limit: 30
-      t.string :phone, limit: 20
+      t.string :phone, limit: 60
       t.boolean :active, null: false, default: true
 
       t.timestamps

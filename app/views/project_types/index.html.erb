@@ -1,0 +1,44 @@
+<h1><i class="fa fa-address-card-o"></i> Tipos de proyectos </h1>
+<%= link_to 'Agregar', new_project_type_path, {:remote => true, 'data-toggle' =>  "modal",
+      'data-target' => '#modal-project_type', 'class' => 'btn u-btn-teal justify-content-end mb-2'} %>
+<table id="project-types-table" class="table hover dt-responsive w-100">
+  <thead>
+    <tr>
+      <th>Nombre</th>
+      <th>Descripción</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+  </tbody>
+</table>
+
+
+<!-- Modal alta de project_type -->
+<div class="modal fade" id="modal-project_type" role="dialog"
+     aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+</div>
+<!-- End modal -->
+
+
+<!-- Modal para eliminar project_type -->
+<div class="modal fade" id="modal-disable-project-type" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">¿ Esta seguro de dar de baja este tipo de proyecto ?</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <%= form_with(url: disable_project_type_path, id: 'form-disable-project-type') do |form| %>
+          <%= form.hidden_field :project_type_id %>
+          <%= form.submit 'Eliminar', class: 'btn u-btn-red g-mr-10' %>
+          <button type="button" data-dismiss="modal" class="btn u-btn-teal g-mr-10"> Cerrar </button>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Fin modal eliminar project_type -->

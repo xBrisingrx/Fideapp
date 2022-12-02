@@ -1,5 +1,5 @@
 class LandsController < ApplicationController
-  before_action :set_land, only: %i[ show edit update destroy ]
+  before_action :set_land, only: %i[ show edit update detail_sales]
   before_action :set_apple, only: %i[ index new edit ]
   before_action :set_name_enums, only: %i[ index new edit ]
 
@@ -53,6 +53,12 @@ class LandsController < ApplicationController
     rescue => e
         @response = e.message.split(':')
         render json: { @response[0] => @response[1] }, status: 402
+  end
+
+  def detail_sales
+    @sales = @land.sales
+    @land_sale = @land.sale_products.where( product_type: :Land).first
+    @status = { 'pendiente' => 'Pendiente', 'pagado' => 'Pagada', 'pago_parcial' => 'Pago parcial'}
   end
 
   private

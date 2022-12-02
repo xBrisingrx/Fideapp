@@ -51,6 +51,11 @@ function setInputDate(_id){
     _dat.value = data;
 }
 
+function format_date(date) {
+  let d = date.split('-')
+  return `${d[2]}-${d[1]}-${d[0]}`
+}
+
 // Redondeo un numero a 2 decimales
 function roundToTwo(num) {
     return +(Math.round(num + "e+2")  + "e-2")

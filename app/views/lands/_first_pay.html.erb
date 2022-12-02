@@ -1,0 +1,39 @@
+<div>
+  <% if sale.fees.where(number: 0).count > 0 %>
+    <p><strong>Detalle primer entrega:</strong></p>
+    <div class="row">
+      <table class="table table-sm mx-4">
+        <thead class="thead-light">
+          <tr>
+            <th>Fecha</th>
+            <th>Moneda</th>
+            <th>Ingresado</th>
+            <th>Tomado en</th>
+            <th>Total</th>
+            <th>Detalle</th>
+            <th>Adjunto</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% sale.fees.where(number: 0).first.fee_payments.each do |payment|%>
+            <tr>
+              <td> <%= payment.date.strftime('%d-%m-%y') %> </td>
+              <td><%= payment.currency.name %></td>
+              <td><%= format_currency( payment.payment ) %></td>
+              <td><%= "$#{format_currency( payment.tomado_en ) }" %></td>
+              <td><%= "$#{format_currency( payment.total ) }" %></td>
+              <td><%= payment.detail %></td>
+              <td>
+                <%payment.images.each do |img| %>
+                  <%= link_to img, target: '_blank' do %>
+                    <%= image_tag img.variant(resize: "100x100"), class: 'img-thumbnail m-2' %>
+                  <%end%>
+                <% end %>
+              </td>
+            </tr>
+          <%end%>
+        </tbody>  
+      </table>
+    </div>
+  <% end %>
+</div>

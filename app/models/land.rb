@@ -8,7 +8,7 @@
 #  code(denominacion)                                                 :string(255)      not null
 #  is_corner                                                          :boolean          default(FALSE)
 #  is_green_space                                                     :boolean          default(FALSE)
-#  land_type                                                          :integer
+#  land_type                                                          :integer          default(0)
 #  measure                                                            :string(255)
 #  price                                                              :decimal(15, 2)   default(0.0)
 #  space_not_available(Espacio de el lote que no puede ser utilizado) :decimal(15, 2)   default(0.0)
@@ -28,6 +28,9 @@
 #
 class Land < ApplicationRecord
   belongs_to :apple
+  has_many :sales
+  has_many :sale_products, through: :sales
+  has_many :land_projects
   has_one_attached :blueprint
 
   validates :code, 
@@ -36,4 +39,17 @@ class Land < ApplicationRecord
 
   enum status: [:available, :bought, :canceled]
 
+  def land_sale_date
+    sp = SaleProduct.where(product_type: :Land, product_id: self.id ).first
+    sp.sale.date.strftime('%d-%m-%y')
+  end
+
+  def get_all_pay
+    total_pay = 0
+    self.sales.each do |sale|
+      total_pay +=  sale.fee_payments.sum(:total)
+    end
+
+    total_pay
+  end
 end

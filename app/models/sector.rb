@@ -20,7 +20,8 @@
 #
 class Sector < ApplicationRecord
 	belongs_to :urbanization
-
+	has_many :apples
+	
 	validates :name, presence: true, 
 		uniqueness: { scope: :urbanization_id, case_sensitive: false, message: "Ya existe un sector con este nombre en esta urbanización" }
 

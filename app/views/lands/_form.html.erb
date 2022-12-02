@@ -1,4 +1,4 @@
-<%= form_with(model: @land, id: 'form-land', multipart: true) do |form| %>
+<%= form_with(model: [@apple, @land], id: 'form-land', multipart: true) do |form| %>
   <%= form.hidden_field :apple_id, value: @land.apple_id %>
   <div class="form-group">
     <%= form.label :code, 'Denominación:' ,class: 'col-3' %>
@@ -24,9 +24,9 @@
   </div>
 
   <div class="form-group">
-    <%= form.label :measures, 'Medidas (mts):' ,class: 'col-3' %>
-    <%= form.text_field :measures, class: 'form-control form-control-md rounded-0'%>
-    <div class="invalid-feedback measures"></div>
+    <%= form.label :measure, 'Medidas (mts):' ,class: 'col-3' %>
+    <%= form.text_field :measure, class: 'form-control form-control-md rounded-0'%>
+    <div class="invalid-feedback measure"></div>
   </div>
   <div class="form-group">
     <%= form.label :area, 'Superficie (m²):' ,class: 'col-6' %>

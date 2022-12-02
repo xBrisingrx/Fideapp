@@ -11,7 +11,7 @@
 #  last_name      :string(255)      not null
 #  marital_status :string(30)
 #  name           :string(255)      not null
-#  phone          :string(20)
+#  phone          :string(60)
 #  created_at     :datetime         not null
 #  updated_at     :datetime         not null
 #

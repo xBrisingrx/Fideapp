@@ -34,6 +34,9 @@
 //= require lands
 //= require providers
 //= require materials
+//= require sales
+//= require project_types
+//= require projects
 
 // require_tree .
 

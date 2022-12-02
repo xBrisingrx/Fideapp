@@ -1,4 +1,7 @@
 Rails.application.routes.draw do
+  resources :payment_methods
+  resources :provider_roles
+  resources :projects
   root 'main#welcome'
   get 'main/welcome'
 
@@ -26,4 +29,12 @@ Rails.application.routes.draw do
   post 'disable_provider', to: 'providers#disable', as: 'disable_provider'
   resources :materials, except: [:destroy, :show]
   post 'disable_material', to: 'materials#disable', as: 'disable_material'
+  resources :sales
+  post 'disable_sale', to: 'sales#disable', as: 'disable_sale'
+  resources :project_types
+  post 'disable_project_type', to: 'project_types#disable', as: 'disable_project_type'
+  # detalle de las ventas de un lote (venta de tierra y projectos)
+  get 'detail_sales', to: 'lands#detail_sales', as: 'land_detail_sales'
+  get '/sectors/filter_for_urbanization/:urbanization_id', to: 'sectors#filter_for_urbanization'
+  get '/apples/filter_for_sector/:sector_id', to: 'apples#filter_for_sector'
 end
