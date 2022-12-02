@@ -37,6 +37,8 @@
 //= require sales
 //= require project_types
 //= require projects
+//= require fees
+//= require fee_payments
 
 // require_tree .
 

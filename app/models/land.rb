@@ -52,4 +52,20 @@ class Land < ApplicationRecord
 
     total_pay
   end
+
+  def projects_not_aprobed
+    self.land_projects.where(status: :pending).count > 0
+  end
+
+  def update_project_status project_id
+    byebug
+    project = self.land_projects.where(project_id).first
+    project.update(status: :process)
+  end
+
+  # def sale_projects
+  #   sales = Sales.where(land_id: self.id)
+  #   projects
+  # end
+
 end

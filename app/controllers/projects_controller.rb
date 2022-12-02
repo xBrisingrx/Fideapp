@@ -69,7 +69,6 @@ class ProjectsController < ApplicationController
       end
       # raise 'cantidades'
       apple = Apple.find(params[:apple_id])
-      byebug
       AppleProject.create(apple_id: apple.id, project_id: @project.id)
       apple.lands.each do |land|
         if land.is_corner

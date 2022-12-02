@@ -32,4 +32,6 @@
 class ProjectProvider < ApplicationRecord
   belongs_to :project
   belongs_to :provider
+  belongs_to :payment_method
+  belongs_to :provider_role
 end

@@ -27,6 +27,7 @@
 class Project < ApplicationRecord
 	has_many :project_providers
   has_many :project_materials
+  belongs_to :project_type
 
   has_many :providers, through: :project_providers
   has_many :materials, through: :project_materials

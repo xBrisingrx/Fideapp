@@ -31,8 +31,6 @@ class SaleProduct < ApplicationRecord
       when 'Land'
         product = Land.find self.product_id
         product.update(status: :bought)
-      else 
-        raise "model sale_product: producto no reconocido"
     end
   end
   

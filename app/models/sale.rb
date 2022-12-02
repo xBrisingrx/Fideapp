@@ -116,5 +116,15 @@ class Sale < ApplicationRecord
 			first_pay.payment
 		end
 	end
+
+	def product_name
+		product = self.sale_products.first
+		if product.product_type == 'Land'
+			name = 'Tierra'
+		else
+			name = Project.find(product.product_id).project_type.name
+		end
+		name
+	end
 	
 end

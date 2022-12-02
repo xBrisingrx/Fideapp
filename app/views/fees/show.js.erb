@@ -1,0 +1,262 @@
+$("#modal-sale-product").html("<%= j (render partial: 'shared/modal', locals:{ size: 'lg' } ) %>")
+$("#modal-sale-product").modal('show')
+
+fee_data.valor_cuota = parseFloat(<%= @fee.total_value%>)
+fee_data.total_a_pagar = parseFloat(<%= @fee.total_value %>)
+fee_data.ajuste = parseFloat(document.getElementById('fee_adjust').value)
+fee_data.adeuda = parseFloat(<%= @adeuda %>)
+fee_data.reset()
+
+document.getElementById('fee_aply_interest').checked = <%= @fee.apply_arrear? %>
+setInputDate("#fee_pay_date")
+if (!<%= @fee.apply_arrear? %>) {
+	// Si no corresponde aplicar interes solo se paga la cuota 
+	document.getElementById('esta_vencido').style.display = 'none'
+} else {
+	// Si corresponde, manejamos los campos del interes/recargo sugerido
+	fee_data.recargo_sugerido = parseFloat(<%= @interes_sugerido %>)
+	document.getElementById('fee_interest').value = fee_data.recargo_sugerido
+	document.getElementById('fee_aply_interest').addEventListener('click', function(event) {
+		$( '#fee_interest').prop("disabled", !this.checked )
+		if ( this.checked ) {
+			fee_data.recargo_sugerido = parseFloat(<%= @interes_sugerido %>)
+			fee_data.total_a_pagar = fee_data.sumar_todo()
+			document.getElementById('fee_interest').value = <%= @interes_sugerido %>
+			document.getElementById('fee_total_to_pay').value = fee_data.total_a_pagar
+			check_input_payment()
+		} else {
+			fee_data.recargo_sugerido = 0.0
+			fee_data.total_a_pagar = fee_data.sumar_sin_recargo()
+			document.getElementById('fee_interest').value = fee_data.recargo_sugerido
+			document.getElementById('fee_total_to_pay').value = fee_data.total_a_pagar
+			check_input_payment()
+		}
+	})
+}
+
+document.getElementById('fee_interest').addEventListener('change', function(event) {
+	fee_data.recargo_sugerido = parseFloat( this.value )
+	if (!isNaN( fee_data.recargo_sugerido )) {
+		addClassValid(this)
+		document.getElementById('fee_total_to_pay').value = fee_data.sumar_todo()
+	} else {
+		fee_data.recargo_sugerido = 0.0
+		document.getElementById('fee_interest').value = fee_data.recargo_sugerido
+		document.getElementById('fee_total_to_pay').value = fee_data.sumar_sin_recargo()
+	}
+	check_input_payment()
+})
+
+document.getElementById('fee_total_to_pay').addEventListener('change', function(event) {
+	check_input_payment()
+} )
+
+document.getElementById('fee_adjust').addEventListener('change', function(event) {
+	fee_data.ajuste = parseFloat( this.value )
+	if (!isNaN( fee_data.ajuste )) {
+		addClassValid(this)
+		document.getElementById('fee_total_to_pay').value = fee_data.sumar_todo()
+	} else {
+		fee_data.ajuste = 0.0
+		document.getElementById('fee_adjust').value = fee_data.ajuste
+		document.getElementById('fee_total_to_pay').value = fee_data.sumar_sin_ajuste()
+	}
+	check_input_payment()
+})
+
+function check_input_payment(msg) {
+	let input = document.getElementById('fee_total_to_pay')
+	if ( input.value <= 0  ) {
+		input.parentElement.classList.add('u-has-error-v1')
+		noty_alert('error', 'Debe ingresar un valor en pago')
+		$('.btnSubmit').prop("disabled", true)
+	} else {
+		input.parentElement.classList.remove('u-has-error-v1')
+		$('.btnSubmit').prop("disabled", false)
+	}
+}
+
+document.getElementById('currency_id').addEventListener('change', function(e) {
+	const nodo = e.target.parentElement
+	const value_in_pesos = nodo.querySelector('#fee_value_in_pesos')
+	const calculo_en_pesos = nodo.querySelector('#fee_calculo_en_pesos')
+	nodo.querySelector('#fee_name_pay').value = ''
+	value_in_pesos.style.display = 'none'
+	calculo_en_pesos.style.display = 'none'
+	// nodo.querySelector('#fee_name_pay').style.display = 'none'
+	let entrega = parseInt(e.target.value)
+	if (entrega == 2) {
+		value_in_pesos.placeholder = "1 US$ en $"
+		value_in_pesos.style.display = 'block'
+		calculo_en_pesos.style.display = 'block'
+	}
+	if (entrega == 3) {
+		value_in_pesos.placeholder = "1 € en $"
+		value_in_pesos.style.display = 'block'
+		calculo_en_pesos.style.display = 'block'
+	}
+	if (entrega > 3) {
+		// nodo.querySelector('#fee_name_pay').style.display = 'block'
+	}
+})
+
+document.getElementById('fee_payment').addEventListener('change', function(e) {
+	fee_pay( e,this, 'payment' )
+})
+
+document.getElementById('fee_value_in_pesos').addEventListener('change', function(e) {
+	fee_pay( e,this, 'tomado_en' )
+})
+
+function fee_pay( event, input, atributo ) {
+	// ingresa monto pagado o en cuanto toma una moneda 
+	// en caso de error seteo clase invalid
+	let data = parseFloat(event.target.value)
+	if (isNaN( data )) {
+		data = 0.0
+		addClassInvalid(input)
+	} else {
+		addClassValid(input)
+	}
+
+	if (atributo === 'payment') {
+		fee_data.payment = data
+	} else {
+		fee_data.tomado_en = data
+	}
+	calc_valor_en_pesos()
+}
+
+function calc_valor_en_pesos(){
+	let currency = document.getElementById('currency_id').value
+	if (currency == 2 || currency == 3) {
+		fee_data.valor_en_pesos = fee_data.convertir_a_pesos()
+		document.getElementById('fee_calculo_en_pesos').value = fee_data.valor_en_pesos
+	} else {
+		let fee_payment_value = document.getElementById('fee_payment').value
+		document.getElementById('fee_value_in_pesos').value = 1
+		document.getElementById('fee_calculo_en_pesos').value = ( !isNaN( fee_payment_value ) ) ? fee_payment_value : 0.0
+	}
+}
+
+document.getElementById('submit-form-field-pay-quote').addEventListener('click', function(e){
+	e.preventDefault()
+	fee_data.id = <%= @fee.id %>;
+	fee_data.form_data = new FormData()
+	fee_data.form_data.append("aply_interest", document.getElementById('fee_aply_interest').value)
+	fee_data.form_data.append("comment_adjust", document.getElementById('fee_comment_adjust').value )
+	fee_data.form_data.append("currency_id", document.getElementById('currency_id').value)
+	fee_data.form_data.append("name_pay", document.getElementById('fee_name_pay').value)
+	fee_data.form_data.append("comment", document.getElementById('fee_comment').value)
+	// valores numericos
+	fee_data.form_data.append("interest", parseFloat( document.getElementById('fee_interest').value ) )
+	fee_data.form_data.append("adjust",  parseFloat( document.getElementById('fee_adjust').value ) )
+	fee_data.form_data.append("payment", parseFloat( document.getElementById('fee_payment').value ) )
+	fee_data.form_data.append("value_in_pesos", parseFloat( document.getElementById('fee_value_in_pesos').value ) )
+	fee_data.form_data.append("calculo_en_pesos", parseFloat( document.getElementById('fee_calculo_en_pesos').value ) )
+	fee_data.form_data.append("pay_date", document.getElementById('fee_pay_date').value)
+
+	let files = document.getElementById('fee-images')
+  let totalFiles = files.files.length
+  if (totalFiles > 0) {
+  	for (let i = 0; i < totalFiles; i++) {
+	    fee_data.form_data.append("images[]", files.files[i])
+	  }
+  }
+
+  if ( isNaN( fee_data.form_data.get('payment') ) || fee_data.form_data.get('payment') <= 0 ) {
+  	noty_alert('error', 'Datos invalidos')
+  	addClassInvalid(document.getElementById('fee_payment'))
+  	return
+  }
+  if ( isNaN( fee_data.form_data.get('value_in_pesos') ) || fee_data.form_data.get('value_in_pesos') <= 0 ) {
+  	noty_alert('error', 'Datos invalidos')
+  	addClassInvalid(document.getElementById('fee_value_in_pesos'))
+  	return
+  }
+  if ( isNaN( fee_data.form_data.get('calculo_en_pesos') ) || fee_data.form_data.get('calculo_en_pesos') <= 0 ) {
+  	noty_alert('error', 'Datos invalidos')
+  	addClassInvalid(document.getElementById('fee_calculo_en_pesos'))
+  	return
+  }
+
+  if ( isNaN( fee_data.form_data.get('interest') ) ) {
+  	noty_alert('error', 'Datos invalidos')
+  	addClassInvalid(document.getElementById('fee_interest'))
+  	return
+  }
+
+  if ( document.getElementById('fee_aply_interest').checked && fee_data.form_data.get('interest') <= 0 ) {
+  	noty_alert('error', 'Debe ingresar un valor en interes')
+  	addClassInvalid(document.getElementById('fee_interest'))
+  	return
+  }
+
+  if ( isNaN( fee_data.form_data.get('calculo_en_pesos') ) || fee_data.form_data.get('calculo_en_pesos') <= 0 ) {
+  	noty_alert('error', 'Datos invalidos')
+  	addClassInvalid(document.getElementById('fee_calculo_en_pesos'))
+  	return
+  }
+
+  if ( fee_data.form_data.get('pay_date') == ''  ) {
+  	noty_alert('error', 'Debe ingresar una fecha')
+  	addClassInvalid(document.getElementById('fee_pay_date'))
+  	return
+  }
+
+  $("#modal-pay-confirm").html("<%= j (render 'modal_confirm') %>")
+
+  let pay_data = document.querySelector('#pay-data')
+
+  pay_data.innerHTML += `<tr><td>Fecha de pago: ${ format_date(fee_data.form_data.get('pay_date')) }</td></tr>` 
+  if (document.getElementById('fee_aply_interest').checked) {
+  	pay_data.innerHTML += `<tr><td>Interes: $${ numberFormat.format( fee_data.form_data.get('interest') )}</td></tr>` 
+  }
+  if ( fee_data.form_data.get('adjust') > 0 ) {
+  	pay_data.innerHTML += `<tr><td>Ajuste: $${ numberFormat.format( fee_data.form_data.get('adjust') )}</td></tr>` 
+  }
+
+  let currency_name = document.getElementById('currency_id')
+  currency_name = currency_name.options[currency_name.selectedIndex].text
+
+  if ( fee_data.form_data.get('currency_id') == 1 ) {
+  	pay_data.innerHTML += `<tr><td>Pagado: $${numberFormat.format( fee_data.form_data.get('payment') )}</td></tr>` 
+  } 
+
+  if( fee_data.form_data.get('currency_id') == 2 || fee_data.form_data.get('currency_id') == 3 ) {
+  	pay_data.innerHTML += `
+  		<tr><td>Ingresado:  ${currency_name}${numberFormat.format( fee_data.form_data.get('payment') )}</td></tr>
+  		<tr><td>Tomado en:  $${numberFormat.format( fee_data.form_data.get('value_in_pesos') )}</td></tr>
+  		<tr><td>Valor en pesos:  ${numberFormat.format( fee_data.form_data.get('calculo_en_pesos') )}</td></tr>
+  	` 
+  }
+
+  if (fee_data.form_data.get('currency_id') > 3) {
+  	pay_data.innerHTML += `
+  		<tr><td>Forma de pago: ${currency_name}</td></tr>
+  		<tr><td>Ingresado:  $${numberFormat.format( fee_data.form_data.get('payment') )}</td></tr>
+  		<tr><td>Detalle: ${fee_data.form_data.get('name_pay')} </td></tr>
+  	` 
+  }
+	$("#modal-pay-confirm").modal('show')
+	
+})
+
+function pay_fee(){
+	fetch(`/fees/${fee_data.id}`, {
+      method: 'PATCH',
+      headers: {           
+        'X-CSRF-Token': document.getElementsByName('csrf-token')[0].content,
+      },
+      body: fee_data.form_data,
+    }
+  )
+  .then( response => response.json() )
+  .then( response => {
+  	if (response.status === 'success') {
+  		location.reload()
+  	}
+  	noty_alert(response.status, response.msg)
+  } )
+  .catch( error => noty_alert('error', 'Ocurrio un error, no se pudo registrar la venta') )
+}

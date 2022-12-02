@@ -1,0 +1,72 @@
+<div class="modal-dialog modal-xl" role="document">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title"><%= @title_modal%></h5>
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <ul>
+        <% if @cuota.interest > 0 %>
+          <li> Interes pagado: <b>$<%= format_currency(@cuota.interest) %></b> </li>
+        <% end %>
+
+        <% if @cuota.adjust > 0 %>
+          <li> Ajuste: <b>$<%= format_currency(@cuota.adjust) %></b> </li>
+          
+        <% end %>
+
+        <li> Total pagado: <b>$<%= format_currency(@cuota.payment) %></b> </li>
+      </ul>
+      <div class="row mx-2">
+        <p>Pagos realizados</p>
+        <table class="table w-100">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Moneda</th>
+              <th>Ingreso</th>
+              <th>Tomado en</th>
+              <th>Total</th>
+              <th>Adjuntos</th>
+              <th>Detalle pago</th>
+              <th>Comentario</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @cuota.fee_payments.each do |payment|%>
+              <tr>
+                <td>
+                  <% if payment.pay_date %>
+                    <%= payment.pay_date.strftime('%d-%m-%y') %>
+                  <% else %>
+                    <%= payment.created_at.strftime('%d-%m-%y') %>
+                  <% end %>  
+                </td>
+                <td><%= payment.currency.name %></td>
+                <% if payment.currency.id >= 4 %>
+                  <td><%= "$#{format_currency( payment.payment )}" %></td>
+                <%else%>
+                  <td><%= "#{payment.currency.name}#{format_currency( payment.payment )}" %></td>
+                <%end%>
+                <td><%= "$#{format_currency( payment.tomado_en )}" %></td>
+                <td><%= "$#{format_currency( payment.total )}" %></td>
+                <td>
+                  <% payment.images.each do |image| %>
+                    <%= link_to '<i class="hs-admin-image"></i>'.html_safe, image, target: '_blank', class: 'btn u-btn-teal' %>
+                  <% end %>
+                </td>
+                <td> <%= payment.pay_name %> </td>
+                <td> <%= payment.comment %> </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>              
+    </div>
+    <div class="mb-2 ml-2">
+      <button type="button" class="btn u-btn-teal" data-dismiss="modal" aria-label="Close"> Cerrar </button>
+    </div>
+  </div>
+</div>

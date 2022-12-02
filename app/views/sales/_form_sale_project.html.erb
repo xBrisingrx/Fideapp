@@ -1,0 +1,132 @@
+<%= form_with( id: 'form-land-sale', 
+      class: 'needs-validation g-brd-around g-brd-gray-light-v4 g-pa-10 g-mb-10' ) do |form| %>
+  
+  <%= form.hidden_field :land_id, value: @land_id %>
+  <%= form.hidden_field :product_id, value: @product.id %>
+  <%= form.hidden_field :price, value: @product.price %>
+  <%= form.hidden_field :product_type, value: @product_type %>
+
+  <div class="mb-2">
+    <b><u>Valor del proyecto:</u> $ <%= format_currency(@product.price) %></b>
+  </div>
+
+  <div class="form-group row">
+    <div class="col-4 col-lg-3">
+      <%= form.label :date, 'Fecha de la compra (*)' %>
+    </div>
+    <div class="form-group col-8 col-ls-6">
+      <%= form.date_field :date, class: 'form-control rounded-0 col-6' %>
+    </div>
+    <div class="invalid-feedback msg_fecha_compra"></div>
+  </div>
+
+  <div class="mb-2 client-list"></div>
+  <%= form.label :paid, 'Primer entrega:' , class: 'font-weight-bold' %>
+  <div class="form-group row payment-data ml-4" id="payment_detail_1">
+    <select name="currency_id" id="currency_id" class="col-1 mr-2 form-control rounded-0" onchange="cambio_moneda()">
+      <% @currencies.each do |currency| %>
+        <option value="<%= currency.id %>"><%= currency.name %></option>
+      <%end%>
+    </select>
+    <%= form.number_field :paid, class: 'form-control rounded-0 col-2', step:'0.01', onchange: "calculo_de_entrega()" %>
+    <%= form.number_field :value_in_pesos, class: 'form-control rounded-0 col-2 ml-2 ', step:'0.01', placeholder: '', onchange: "calculo_de_entrega()"%>
+    <%= form.number_field :calculo_en_pesos, class: 'form-control rounded-0 col-2 ml-2 ' , placeholder: 'Calculo valor en $', disabled: :true%>
+    <%= form.text_field :name_pay, class: 'form-control rounded-0 col-2 ml-2 ', placeholder: 'Detalle entrega...', value: ''%>
+    <%= form.date_field :pay_date, class: 'form-control rounded-0 col-2 ml-2 '%>
+    <label class="u-file-attach-v2 g-color-gray-dark-v5 mb-0 ml-2">
+      <input id="fileAttachment" name="file-attachment[]" type="file" multiple>
+      <i class="icon-cloud-upload g-font-size-16 g-pos-rel g-top-2 g-mr-5"></i>
+      <span class="js-value"></span>
+    </label>
+    <button id="add-payment" class="btn u-btn-teal ml-2 "> + </button>
+  </div>
+  <div id="payment-list"></div>
+  <p id="valor_restante"></p>
+  
+  <div class="form-group row">
+    <%= form.label :number_of_payments, 'Cantidad de cuotas:' , class: 'col-3' %>
+    <%= form.number_field :number_of_payments, class: 'form-control rounded-0 col-3', step:'0.01' %>
+    <div id="msg_number_of_payment"></div>
+  </div>
+
+  <div class="form-group row">
+    <div class="col-4 col-lg-3">
+      <%= form.label :fee_start_date, 'Cuotas a partir de la fecha' %>
+    </div>
+    <div class="form-group col-8 col-sm-8 col-md-2">
+      <%= form.date_field :fee_start_date, class: 'form-control rounded-0' %>
+    </div>
+    <div class="col-2">
+      <button type="button" class="btn u-btn-cyan btn-sm" title="Click para ayuda" onclick="fee_start_date_info()"><i class="fa fa-question"></i></button>
+    </div>
+    <div class="invalid-feedback msg_fecha_compra"></div>
+  </div>
+
+  <div class="form-group">
+    <label class="d-flex align-items-center">
+      <span class="mr-4">Quiero poner el valor de cada cuota de forma manual</span>
+      <div class="u-check">
+        <input class="g-hidden-xs-up g-pos-abs g-top-0 g-right-0" id="setear_cuotas" type="checkbox">
+        <div class="u-check-icon-radio-v8">
+          <i class="fa" data-check-icon="&#xf00c"></i>
+        </div>
+      </div>
+    </label>
+  </div>
+
+  <div id="cuotas_manual" ></div>
+
+  <div id="cuotas_automaticas">
+    <div class="form-group row">
+      <%= form.label :valor_cuota, 'Valor cuota:' , class: 'col-3' %>
+      <%= form.number_field :valor_cuota, class: 'form-control rounded-0 col-3', step:'0.01' %>
+      <div class="invalid-feedback field_number_of_payments"></div>
+    </div>
+
+    <div class="form-group row">
+      <%= form.label :increase_cuota, 'Aumento de cuota:' , class: 'col-3' %>
+      <%= form.number_field :number_cuota_increase, class: 'form-control rounded-0 col-3 mr-2', placeholder: "aumentar a partir de la cuota" %>
+      <%= form.number_field :valor_cuota_aumentada, class: 'form-control rounded-0 col-3', step:'0.01', placeholder: "aumentar a.." %>
+      <div class="invalid-feedback field_number_of_payments"></div>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-check-inline u-check g-pl-25">
+      <%= form.check_box :apply_arrear, class: 'g-hidden-xs-up g-pos-abs g-top-0 g-left-0' %>
+      <div class="u-check-icon-checkbox-v6 g-absolute-centered--y g-left-0">
+        <i class="fa" data-check-icon="&#xf00c"></i>
+      </div>
+      Aplica mora
+    </label>
+  </div>
+
+  <div class="form-group row">
+    <%= form.label :arrear, 'Mora %:' , class: 'col-3' %>
+    <%= form.number_field :arrear, class: 'form-control rounded-0 col-3', step:'0.01' %>
+    <div class="invalid-feedback field_price"></div>
+  </div>
+
+  <div class="form-group row">
+    <%= form.label :due_day, 'Día vencimiento cuota:' , class: 'col-3' %>
+    <%= form.number_field :due_day, class: 'form-control rounded-0 col-3', step:'0.01' %>
+    <div class="invalid-feedback field_due_date"></div>
+  </div>
+
+  <div id="sale_info">
+   <!-- imprimo la info de la venta a realizar --> 
+   
+   <p id="valor_cuotas"></p>
+  </div>
+
+  <div class="form-group">
+    <%= form.text_area :comment, 
+        class: 'form-control form-control-md u-textarea-expandable g-brd-gray-light-v7 g-brd-gray-light-v3--focus g-rounded-4 g-resize-none g-overflow-hidden', 
+          row: '3', placeholder: 'Comentario...'%>
+  </div>
+
+  <div class="actions">
+    <button id="submit-form-project-sale" type="button" class="btn u-btn-teal mr-2"> Guardar </button>
+    <button type="button" class="btn u-btn-red" data-dismiss="modal" aria-label="Close"> Cancelar </button>
+  </div>
+<% end %>

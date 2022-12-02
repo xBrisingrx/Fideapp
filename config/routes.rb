@@ -37,4 +37,18 @@ Rails.application.routes.draw do
   get 'detail_sales', to: 'lands#detail_sales', as: 'land_detail_sales'
   get '/sectors/filter_for_urbanization/:urbanization_id', to: 'sectors#filter_for_urbanization'
   get '/apples/filter_for_sector/:sector_id', to: 'apples#filter_for_sector'
+
+  # Fees routes
+  get 'fees/:sale_id', to: 'fees#index'
+  get 'fees/detail/:id', to: 'fees#show', as: :fee_detail
+  get 'detalle_pagos/:id', to: 'fees#details', as: 'detalle_pagos'
+  get 'partial_payment/:fee_id', to: 'fee_payments#new', as: 'pago_parcial'
+  resources :fees, only: [:create, :new, :update] do
+    get 'partial_payment/:fee_id', to: 'fee_payments#new', as: 'partial_payment'
+    post 'partial_payment', to: 'fee_payments#create', as: 'register_partial_payment'
+    resources :fee_payments
+  end
+  # End fees routes 
+
+  post '/sale_project', to: "sales#sale_project", as: 'sale_project'
 end
