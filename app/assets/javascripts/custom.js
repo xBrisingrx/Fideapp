@@ -50,3 +50,8 @@ function setInputDate(_id){
     data = y+"-"+m+"-"+d;
     _dat.value = data;
 }
+
+// Redondeo un numero a 2 decimales
+function roundToTwo(num) {
+    return +(Math.round(num + "e+2")  + "e-2")
+}
