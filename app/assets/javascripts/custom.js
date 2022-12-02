@@ -56,6 +56,9 @@ function roundToTwo(num) {
     return +(Math.round(num + "e+2")  + "e-2")
 }
 
+// formato de numero para monedas
+const numberFormat = new Intl.NumberFormat('es-AR')
+
 function addClassValid( input ) {
   input.classList.remove('is-invalid')
   input.classList.add('is-valid')
