@@ -10,9 +10,11 @@ class ProvidersController < ApplicationController
 
   def new
     @provider = Provider.new
+    @title_modal = "Registrar proveedor"
   end
 
   def edit
+    @title_modal = "Editar a #{@provider.name}"
   end
 
   def create
