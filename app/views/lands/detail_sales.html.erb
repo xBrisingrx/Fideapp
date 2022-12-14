@@ -39,10 +39,8 @@
 
 
 
-  <% @land.sales.each do |sale| %>
     <%= render(partial: 'first_pay', locals: { sale: sale }) %>
 
-    <%= render(partial: 'fees_detail_table.html.erb', locals: { sale: sale }) %>
   <% end %>
 
 
