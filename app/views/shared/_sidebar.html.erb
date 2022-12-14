@@ -36,16 +36,16 @@
          <li class="u-sidebar-navigation-v1-menu-item u-side-nav--top-level-menu-item">
                 <%= link_to '<span class="d-flex align-self-center g-mr-15 g-mt-minus-1"> <i class="icon-paper-plane"></i> </span>
                   <span class="media-body align-self-center">Proyectos</span>'.html_safe, projects_path, 
-                  class:"media u-side-nav--top-level-menu-link u-side-nav--hide-on-hidden g-px-15 g-py-12" %>
+                  class:"media u-side-nav--top-level-menu-link u-side-nav--hide-on-hidden g-px-15 g-py-12 #{ active_class(projects_path) }" %>
           </li>
           <li class="u-sidebar-navigation-v1-menu-item u-side-nav--top-level-menu-item">
             <%= link_to '<span class="d-flex align-self-center g-font-size-18 g-mr-18"><i class="hs-admin-user"></i></span><span class="media-body align-self-center">Clientes</span>'.html_safe, clients_path, 
-                class: "media u-side-nav--top-level-menu-link u-side-nav--hide-on-hidden g-px-15 g-py-12 active"%>
+                class: "media u-side-nav--top-level-menu-link u-side-nav--hide-on-hidden g-px-15 g-py-12 #{ active_class(clients_path) }"%>
           </li>
           <li class="u-sidebar-navigation-v1-menu-item u-side-nav--top-level-menu-item">
                 <%= link_to '<span class="d-flex align-self-center g-mr-15 g-mt-minus-1"> <i class="fa fa-handshake-o"></i> </span>
                   <span class="media-body align-self-center">Proveedores</span>'.html_safe, providers_path, 
-                  class:"media u-side-nav--top-level-menu-link u-side-nav--hide-on-hidden g-px-15 g-py-12" %>
+                  class:"media u-side-nav--top-level-menu-link u-side-nav--hide-on-hidden g-px-15 g-py-12 #{ active_class(providers_path) }" %>
           </li>
         </ul>
       </div>
