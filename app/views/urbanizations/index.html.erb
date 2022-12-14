@@ -1,6 +1,10 @@
 <h1>Urbanizaciones</h1>
-<%= link_to "<i class='fa fa-plus'> </i> Agregar urbanización".html_safe, new_urbanization_path, {:remote => true, 'data-toggle' =>  "modal",
-      'data-target' => '#modal-urbanization', 'class' => 'btn u-btn-teal justify-content-end mb-2'} %>
+
+<%= link_to "<i class='fa fa-plus'> </i> Agregar urbanización".html_safe, 
+  new_urbanization_path,  
+  remote: true, data: { toggle:  'modal', target: '#modal-urbanization'}, 
+  class:'btn u-btn-teal justify-content-end mb-2' %>
+
 <table id="urbanizations_table" class="table hover dt-responsive w-100">
   <thead>
     <tr>
@@ -10,12 +14,6 @@
   </thead>
   <tbody> <!-- popuate with ajax --></tbody>
 </table>  
-<!-- Modal alta de urbanizacion -->
-<div class="modal fade" id="modal-urbanizacion" role="dialog"
-     aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-</div>
-<!-- End modal -->
-
 
 <!-- Modal para eliminar urbanizacion -->
 <div class="modal fade" id="modal-disable-urbanization" tabindex="-1" role="dialog">
@@ -28,7 +26,7 @@
         </button>
       </div>
       <div class="modal-body">
-        <div class="alert alert-danger" role="alert">
+        <div class="alert g-bg-red-opacity-0_1 g-color-lightred" role="alert">
           Tenga en cuenta que todos los registros asociados tambien seran dados de baja.
           <span data-toggle="collapse" href="#multiCollapseExample1" 
                 role="button" aria-expanded="false" aria-controls="multiCollapseExample1"  
