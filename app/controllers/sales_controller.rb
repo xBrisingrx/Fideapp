@@ -28,13 +28,7 @@ class SalesController < ApplicationController
     end
   end
 
-
-
-  def edit
-  end
-
   def create
-    return render json: {status: 'error', msg: 'No se han seleccionado clientes'}, status: 422 if params[:clients].blank?
     ActiveRecord::Base.transaction do 
       sale = Sale.new(
         apply_arrear: params[:apply_arrear],
@@ -46,9 +40,16 @@ class SalesController < ApplicationController
         land_id: params[:land_id],
         price: 0 )
       if sale.save! 
-        params[:clients].uniq # me aseguro de que no haya ningun id repetido
-        params[:clients].each do |client| # Generamos los registros de los clientes que hicieron la compra
-          sale.sale_clients.create!(client_id: client)
+        # cuando se vende tierra va son clientes, si es proyecto no
+        if params[:product_type] == 'land'
+          if params[:clients].blank?
+            return render json: {status: 'error', msg: 'No se han seleccionado clientes'}, status: 422
+          else
+            params[:clients].uniq # me aseguro de que no haya ningun id repetido
+            params[:clients].each do |client| # Generamos los registros de los clientes que hicieron la compra
+              sale.sale_clients.create!(client_id: client)
+            end
+          end
         end
 
         sale.sale_products.create!(product_type: params[:product_type].capitalize,product_id: params[:product_id]) # reg venta del producto
@@ -106,30 +107,8 @@ class SalesController < ApplicationController
       render json: {status: 'error', msg: 'No se pudo registrar la venta'}, status: 402
   end #create
 
-  def update
-    respond_to do |format|
-      if @sale.update(sale_params)
-        format.html { redirect_to sale_url(@sale), notice: "Sale was successfully updated." }
-        format.json { render :show, status: :ok, location: @sale }
-      else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @sale.errors, status: :unprocessable_entity }
-      end
-    end
-  end
-
-  def destroy
-    @sale.destroy
-
-    respond_to do |format|
-      format.html { redirect_to sales_url, notice: "Sale was successfully destroyed." }
-      format.json { head :no_content }
-    end
-  end
-
 
   def sale_project
-    pp '=================='
     sale = Sale.new(
       apply_arrear: params[:apply_arrear],
       arrear: params[:arrear],
@@ -142,8 +121,7 @@ class SalesController < ApplicationController
     if sale.save! 
       sale.sale_products.create!(product_type: params[:product_type].capitalize,
         product_id: params[:product_id]) # reg venta del producto
-      land = Land.find params[:land_id]
-      land.update_project_status params[:product_id]
+
       if params[:num_pays].to_i > 0 # Se ingreso un primer pago
           cuota_cero = sale.fees.create(
             due_date: sale.date,

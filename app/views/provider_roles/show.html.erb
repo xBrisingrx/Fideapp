@@ -1,0 +1,19 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Name:</strong>
+  <%= @provider_role.name %>
+</p>
+
+<p>
+  <strong>Description:</strong>
+  <%= @provider_role.description %>
+</p>
+
+<p>
+  <strong>Active:</strong>
+  <%= @provider_role.active %>
+</p>
+
+<%= link_to 'Edit', edit_provider_role_path(@provider_role) %> |
+<%= link_to 'Back', provider_roles_path %>

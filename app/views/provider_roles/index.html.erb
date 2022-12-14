@@ -1,0 +1,31 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Provider Roles</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+      <th>Active</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @provider_roles.each do |provider_role| %>
+      <tr>
+        <td><%= provider_role.name %></td>
+        <td><%= provider_role.description %></td>
+        <td><%= provider_role.active %></td>
+        <td><%= link_to 'Show', provider_role %></td>
+        <td><%= link_to 'Edit', edit_provider_role_path(provider_role) %></td>
+        <td><%= link_to 'Destroy', provider_role, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Provider Rol', new_provider_role_path %>

@@ -29,7 +29,7 @@ Rails.application.routes.draw do
   post 'disable_provider', to: 'providers#disable', as: 'disable_provider'
   resources :materials, except: [:destroy, :show]
   post 'disable_material', to: 'materials#disable', as: 'disable_material'
-  resources :sales
+  resources :sales, except: [:destroy, :show, :edit, :update]
   post 'disable_sale', to: 'sales#disable', as: 'disable_sale'
   resources :project_types
   post 'disable_project_type', to: 'project_types#disable', as: 'disable_project_type'
@@ -39,11 +39,10 @@ Rails.application.routes.draw do
   get '/apples/filter_for_sector/:sector_id', to: 'apples#filter_for_sector'
 
   # Fees routes
-  get 'fees/:sale_id', to: 'fees#index'
-  get 'fees/detail/:id', to: 'fees#show', as: :fee_detail
+  # get 'fees/:sale_id', to: 'fees#index'
   get 'detalle_pagos/:id', to: 'fees#details', as: 'detalle_pagos'
   get 'partial_payment/:fee_id', to: 'fee_payments#new', as: 'pago_parcial'
-  resources :fees, only: [:create, :new, :update] do
+  resources :fees, only: [:show,:create, :new, :update] do
     get 'partial_payment/:fee_id', to: 'fee_payments#new', as: 'partial_payment'
     post 'partial_payment', to: 'fee_payments#create', as: 'register_partial_payment'
     resources :fee_payments

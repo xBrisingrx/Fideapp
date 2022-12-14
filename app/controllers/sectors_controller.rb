@@ -2,6 +2,7 @@ class SectorsController < ApplicationController
   before_action :set_sector, only: %i[ show edit update destroy ]
 
   def index
+    pp params[:sector_id]
     @sectors = Sector.actives.includes(:urbanization)
   end
 

@@ -12,9 +12,8 @@
           <li> Interes pagado: <b>$<%= format_currency(@cuota.interest) %></b> </li>
         <% end %>
 
-        <% if @cuota.adjust > 0 %>
-          <li> Ajuste: <b>$<%= format_currency(@cuota.adjust) %></b> </li>
-          
+        <% if @cuota.adjusts.count > 0 %>
+          <li> Ajuste: <b>$<%= format_currency(@cuota.get_adjusts) %></b> </li>
         <% end %>
 
         <li> Total pagado: <b>$<%= format_currency(@cuota.payment) %></b> </li>
@@ -38,8 +37,8 @@
             <% @cuota.fee_payments.each do |payment|%>
               <tr>
                 <td>
-                  <% if payment.pay_date %>
-                    <%= payment.pay_date.strftime('%d-%m-%y') %>
+                  <% if payment.date %>
+                    <%= payment.date.strftime('%d-%m-%y') %>
                   <% else %>
                     <%= payment.created_at.strftime('%d-%m-%y') %>
                   <% end %>  
@@ -57,7 +56,7 @@
                     <%= link_to '<i class="hs-admin-image"></i>'.html_safe, image, target: '_blank', class: 'btn u-btn-teal' %>
                   <% end %>
                 </td>
-                <td> <%= payment.pay_name %> </td>
+                <td> <%= payment.detail %> </td>
                 <td> <%= payment.comment %> </td>
               </tr>
             <% end %>

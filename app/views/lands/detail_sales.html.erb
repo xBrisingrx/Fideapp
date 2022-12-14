@@ -32,22 +32,18 @@
 
 <div class="row mb-2">
   <%= render(partial: 'card_pay', locals: { color: 'teal-v2', paid: @land.get_all_pay, detail: 'Pagado' })%>
-  <%# render(partial: 'card_pay', locals: { color: 'lightred-v2', paid: @land.get_all_owes, detail: 'Adeuda' })%>
+  <%= render(partial: 'card_pay', locals: { color: 'lightred-v2', paid: @land.get_all_owes, detail: 'Adeuda' })%>
   <%# render(partial: 'card_pay', locals: { color: 'indigo', paid: @land.total_price, detail: 'Valor del lote' })%>
 </div>   
 
 
 
 
-
-
-<% if @land.land_projects.where.not(status:'pending').count > 0 %>
   <% @land.sales.each do |sale| %>
     <%= render(partial: 'first_pay', locals: { sale: sale }) %>
 
     <%= render(partial: 'fees_detail_table.html.erb', locals: { sale: sale }) %>
   <% end %>
-<% end %>
 
 
 <!-- Modal pagar cuota -->

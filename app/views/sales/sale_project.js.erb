@@ -3,7 +3,6 @@ $("#modal").html("<%= j (render partial: 'modal_sale_project') %>")
 document.getElementById('value_in_pesos').style.display = 'none'
 document.getElementById('calculo_en_pesos').style.display = 'none'
 
-
 $("#modal").modal('show')
 
 sale.precio = <%= @product.price %>
@@ -18,7 +17,6 @@ setInputDate("#date")
 function fee_start_date_info(){
 	noty_alert('info', 'Si coloca una fecha las cuotas corren a partir de esa fecha. En caso de colocar día de vencimiento se tomara ese día de vencimiento. Si no coloca fecha se toma como referencia la fecha de venta', 10000)
 }
-
 /*JS payments*/
 document.getElementById('add-payment').addEventListener('click', (e) => {
 	e.preventDefault()
@@ -307,7 +305,7 @@ document.getElementById('submit-form-project-sale').addEventListener('click', (e
 })
 
 function send_sale(){
-	fetch('/sale_project/', {
+	fetch('/sales/', {
       method: 'POST',
       headers: {           
         'X-CSRF-Token': document.getElementsByName('csrf-token')[0].content,

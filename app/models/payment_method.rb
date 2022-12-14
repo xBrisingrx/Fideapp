@@ -11,5 +11,5 @@
 #
 class PaymentMethod < ApplicationRecord
 	validates :name, presence: true, 
-		uniqueness: { case_sensitive: false, message: "Este metodo de pago ya se encuentra registrdo" }
+		uniqueness: { case_sensitive: false, message: "Este metodo de pago ya se encuentra registrado" }
 end
