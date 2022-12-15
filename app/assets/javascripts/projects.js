@@ -9,8 +9,9 @@ let project = {
 	cant_lands:0,
 	apple_has_corner: false,
 	form: new FormData(),
-	add_provider(){
+	add_provider( type_total ){
 		event.preventDefault()
+		console.log( type_total )
 		let table_body = document.querySelector('#provider-list')
 		let provider_id = parseInt( document.getElementById('project_provider_id').value )
 		let role_id = parseInt( document.getElementById('project_provider_role').value )
@@ -29,6 +30,7 @@ let project = {
 				provider_role: role_id,
 				payment_method_id: payment_method_id,
 				provider_price: provider_price,
+				type_total: type_total,
 				provider_iva: provider_iva,
 				provider_price_calculate: precio_proveedor_calculado,
 				provider_porcent: 0
