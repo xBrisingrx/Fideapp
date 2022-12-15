@@ -20,6 +20,7 @@
 #  fk_rails_...  (project_id => projects.id)
 #
 class AppleProject < ApplicationRecord
+  # Esta manzana que proyectos tiene 
   belongs_to :apple
   belongs_to :project
 end

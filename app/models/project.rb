@@ -12,6 +12,7 @@
 #  number                                            :integer          not null
 #  price                                             :decimal(15, 2)   default(0.0), not null
 #  status                                            :integer          default("proceso")
+#  subtotal                                          :decimal(15, 2)   default(0.0), not null
 #  created_at                                        :datetime         not null
 #  updated_at                                        :datetime         not null
 #  project_type_id                                   :bigint

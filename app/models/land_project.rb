@@ -23,6 +23,7 @@
 #  fk_rails_...  (project_id => projects.id)
 #
 class LandProject < ApplicationRecord
+  # Esta tierra que proyectos tiene
   belongs_to :land
   belongs_to :project
 
