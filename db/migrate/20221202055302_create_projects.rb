@@ -5,6 +5,7 @@ class CreateProjects < ActiveRecord::Migration[5.2]
       t.string :name
       t.boolean :active
       t.decimal :price, precision: 15, scale: 2, default: 0, null: false
+      t.decimal :subtotal, precision: 15, scale: 2, default: 0, null: false
       t.decimal :final_price, precision: 15, scale: 2, default: 0, null: false
       t.integer :status, default: 0
       t.text :description
