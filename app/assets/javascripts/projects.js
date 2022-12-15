@@ -3,6 +3,7 @@ let project = {
 	materials_list:[],
 	providers_list:[],
 	price: '',
+	subtotal: 0,
 	final_price: 0,
 	apples:[],
 	sectors:[],
@@ -11,7 +12,6 @@ let project = {
 	form: new FormData(),
 	add_provider( type_total ){
 		event.preventDefault()
-		console.log( type_total )
 		let table_body = document.querySelector('#provider-list')
 		let provider_id = parseInt( document.getElementById('project_provider_id').value )
 		let role_id = parseInt( document.getElementById('project_provider_role').value )
@@ -326,7 +326,7 @@ let project = {
 				this.providers_list[i].provider_porcent = ( ( this.providers_list[i].provider_price_calculate * 100 ) / this.final_price ).toFixed(2)
 			}
 		} else {
-			noty_alert('warning', 'El valor del lote debe ser mayor a 0')
+			noty_alert('warning', 'El valor del proyecto debe ser mayor a 0')
 			return `Valor de proyecto invalido`
 		}
 	},
