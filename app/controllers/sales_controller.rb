@@ -15,6 +15,7 @@ class SalesController < ApplicationController
     @product_type = params[:product_type]
     @product_id = params[:product_id]
     @land_id = params[:land_id]
+    land = Land.find params[:land_id]
     case @product_type
       when 'land'
          @product = Land.select(:id, :price, :code).find(@product_id) 
@@ -22,6 +23,8 @@ class SalesController < ApplicationController
       when 'project'
         @product = Project.find @product_id
         @title_modal = "Proyecto: #{@product.project_type.name}"
+        land_project = LandProject.where(land_id: params[:land_id], project_id: @product.id ).first
+        @price = land_project.price
         render :sale_project
       else 
         raise "No es un producto reconocido"
@@ -46,7 +49,8 @@ class SalesController < ApplicationController
             return render json: {status: 'error', msg: 'No se han seleccionado clientes'}, status: 422
           else
             params[:clients].uniq # me aseguro de que no haya ningun id repetido
-            params[:clients].each do |client| # Generamos los registros de los clientes que hicieron la compra
+            clients = params[:clients][0].split(',')
+            clients.each do |client| # Generamos los registros de los clientes que hicieron la compra
               sale.sale_clients.create!(client_id: client)
             end
           end
@@ -169,7 +173,26 @@ class SalesController < ApplicationController
         render json: {status: 'errors', msg: 'No se pudo registrar la venta'}, status: :unprocessable_entity
     end # end sale save
   end
+  
+  def destroy 
+    sale = Sale.find params[:id]
+    case sale.sale_products.first.product_type
+    when 'Land'
+      product = Land.find sale.sale_products.first.product_id
+    end
 
+    ActiveRecord::Base.transaction do 
+      if sale.destroy && product.reset_status
+        render json: {status: 'success', msg: 'Se elimino la venta'}, status: :ok 
+      else
+        render json: {status: 'errors', msg: 'Ocurrio un error eliminando esta venta'}, status: :unprocessable_entity
+      end
+    end
+    rescue => e
+      puts "Excepcion => #{e.message}"
+      @response = e.message.split(':')
+      render json: {status: 'error', msg: 'Error: no se pudo realizar la eliminacion de venta'}, status: 402
+  end
 
   private
     def set_sale

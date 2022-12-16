@@ -3,11 +3,11 @@
   
   <%= form.hidden_field :land_id, value: @land_id %>
   <%= form.hidden_field :product_id, value: @product.id %>
-  <%= form.hidden_field :price, value: @product.price %>
+  <%= form.hidden_field :price, value: @price %>
   <%= form.hidden_field :product_type, value: @product_type %>
 
   <div class="mb-2">
-    <b><u>Valor del proyecto:</u> $ <%= format_currency(@product.price) %></b>
+    <b><u>Valor del proyecto:</u> $ <%= format_currency(@price) %></b>
   </div>
 
   <div class="form-group row">

@@ -1,7 +1,7 @@
 <h1>Proyectos</h1>
 <%= link_to 'Agregar projecto', new_project_path,'class' => 'btn u-btn-primary justify-content-end mb-2' %>
 
-<table class="table table-responsive">
+<table class="table table-responsive w-100">
   <thead>
     <tr>
       <th>#</th>
@@ -17,9 +17,12 @@
       <tr>
         <td><%= project.number %></td>
         <td><%= project.name %></td>
-        <td><% project.project_providers.each do |provider| %>
-              <%= provider.provider.name %> <%= provider.provider_role.name%>
+        <td>
+          <ul>
+            <% project.project_providers.each do |provider| %>
+              <li><%= provider.provider.name %> - <%= provider.provider_role.name%></li>
             <% end %>
+          </ul>
         </td>
         <td><% project.project_materials.each do |material| %>
             <%= material.material.name  %>

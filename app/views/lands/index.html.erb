@@ -60,4 +60,28 @@
 <!-- Fin modal eliminar field -->
 
 
+<div class="modal fade" id="modal-destroy-sale" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">¿ Esta seguro de eliminar la venta ?</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <h4 id="modal-title"></h4>
+        <div class="alert alert-danger" role="alert">
+          Tenga en cuenta que todos los pagos tambien van a ser eliminados y seran irrecuperables.
+        </div>
+        <%= form_with(url: '#', id: 'form-destroy-sale') %>
+          <input type="hidden" id="sale_id" name="sale[id]" value="">
+          <button type="button" class="btn u-btn-red g-mr-10" onclick="sale.destroy()" >Eliminar</button>
+          <button type="button" data-dismiss="modal" class="btn u-btn-teal g-mr-10"> Cerrar </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
 <input type="hidden" id="apple_id" value="<%= @apple_id %>"> 

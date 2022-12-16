@@ -5,9 +5,9 @@ document.getElementById('calculo_en_pesos').style.display = 'none'
 
 $("#modal").modal('show')
 
-sale.precio = <%= @product.price %>
+sale.precio = <%= @price %>
 sale.cuotas = 0
-sale.resto =  <%= @product.price %>;
+sale.resto =  <%= @price %>;
 sale.cant_payments = 0;
 sale.cant_payment_files = 0;
 sale.entrega = 0;

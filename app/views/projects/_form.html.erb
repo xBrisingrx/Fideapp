@@ -32,7 +32,8 @@
     <div class="col-2 col-md-1">
       <%= form.label :price, 'Precio:'%>
     </div>
-    <%= form.number_field :price, class: 'form-control rounded-0 col-4 col-md-2', step:'0.01', onchange: 'project.validate_price()' %>
+    <%= form.number_field :price, class: 'form-control rounded-0 col-4 col-md-2', step:'0.01', 
+                          onchange: 'project.validate_price()' %>
     <div class="invalid-feedback field_price"></div>
   </div>
 
@@ -78,7 +79,7 @@
   <div class="form-group row">
     <div class="form-group col-3">
       <%= form.select(:provider_id, @providers.collect {|p| [p.name, p.id]}, 
-                      {:include_blank => "Seleccione proveedor"},
+                      {:include_blank => "Seleccione interviniente"},
                       class: 'select-2-project-provider') %>
       <div class="invalid-feedback provider_id"></div>
     </div>
@@ -101,11 +102,12 @@
         <option value="0">Sin IVA</option>
         <option value="21">21</option>
         <option value="10.5">10.5</option>
+        <option value="7">7</option>
         <option value="27">27</option>
       </select>
     </div>
     <div class="col-2">
-       <%= form.number_field :provider_price, class: 'form-control', step:'0.01', placeholder: 'Monto' %>
+       <%= form.number_field :provider_price, class: 'form-control', step:'0.01', placeholder: 'Monto - %' %>
     </div>
     <div class="col-1">
       <button id="add-provider" class="btn u-btn-teal" onclick="project.add_provider('price')"> + </button>
@@ -118,10 +120,12 @@
         <th>Interviniente</th>
         <th>Función</th>
         <th>Metodo de cobro</th>
-        <th>IVA</th>
         <th>Ingresado</th>
-        <th>Calculado</th>
-        <th>Porcentaje que representa</th>
+        <th>Valor</th>
+        <th>IVA</th>
+        <th>Valor IVA</th>
+        <th>Total</th>
+        <th>% que representa</th>
         <th>Acciones</th>
       </tr>
     </thead>
@@ -183,8 +187,78 @@
     <div class="invalid-feedback field_price"></div>
   </div>
 
+  <%= form.label :other_provider_id, 'Otros invervinientes:' %>
+  <div class="form-group row">
+    <div class="form-group col-3">
+      <%= form.select(:other_provider_id, @providers.collect {|p| [p.name, p.id]}, 
+                      {:include_blank => "Seleccione interviniente"},
+                      class: 'select-2-project-other-provider') %>
+      <div class="invalid-feedback other_provider_id"></div>
+    </div>
+
+    <div class="form-group col-2">
+      <%= form.select(:other_provider_role, @provider_roles.collect {|p| [p.name, p.id]}, 
+                      {:include_blank => "Seleccione función"},
+                      class: 'select-2-provider-other-role') %>
+      <div class="invalid-feedback other_provider_role"></div>
+    </div>
+    <div class="form-group col-2">
+      <select name="other_provider_iva" id="other_provider_iva" class="form-control select-2-payment-method">
+        <option value="">Seleccione IVA</option>
+        <option value="0">Sin IVA</option>
+        <option value="21">21</option>
+        <option value="10.5">10.5</option>
+        <option value="27">27</option>
+      </select>
+    </div>
+    <div class="col-2">
+       <%= form.number_field :other_provider_price, class: 'form-control', step:'0.01', placeholder: '%' %>
+    </div>
+    <div class="col-1">
+      <button id="add-other-provider" class="btn u-btn-teal" onclick="project.add_other_provider('subtotal')"> + </button>
+    </div>
+  </div>
+
+  <table id="table_other_provider" class="table table-sm mx-auto mb-4 mt-2 table-striped mb-4 d-none">
+    <thead>
+      <tr>
+        <th>Inverviniente</th>
+        <th>Función</th>
+        <th>Porcentaje</th>
+        <th>Valor</th>
+        <th>IVA</th>
+        <th>Valor IVA</th>
+        <th>Total</th>
+        <th>% representa</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody id="other-provider-list" class="project-other-provider-body"></tbody>
+  </table>
+
   <hr>
   
+  <div class="form-group row">
+    <div class="col-2 col-md-2">
+      <%= form.label :final_price, 'Total:'%>
+    </div>
+    <%= form.text_field :final_price, class: 'form-control rounded-0 col-4 col-md-6', disabled: true %>
+    <div class="invalid-feedback field_price"></div>
+  </div>
+
+  <div id="summary" class="mt-4 mb-4 col-12 col-sm-10 col-md-8">
+    <h3>Resumen</h3>
+    <table class="table table-sm table-hover u-table--v3--borderless u-table--v3--row-border-bottom g-color-black">
+      <thead class="thead-light">
+        <tr>
+          <th>Interviniente</th>
+          <th>% que representa</th>
+          <th>Valor</th>
+        </tr>
+      </thead>
+      <tbody id="summary-body"></tbody>
+    </table>
+  </div>
 
   <div class="form-group row">
     <div class="col-2 col-md-2">
@@ -199,5 +273,9 @@
     <%= link_to "Cancelar", projects_path, class:"btn u-btn-red"%>
   </div>
 <% end %>
+
+<script>
+  document.getElementById('form-project').reset()
+</script>
 
 

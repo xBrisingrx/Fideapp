@@ -30,7 +30,7 @@ json.data @lands do |f|
 	if f.bought? 
 		botones = "#{link_to '<i class="hs-admin-credit-card"></i>'.html_safe, land_detail_sales_path( id: f.id ), 
       							'class' => 'u-link-v5 g-color-gray-dark-v2 g-color-secondary--hover g-text-underline--none--hover g-ml-12', title: 'Ver cuotas'}
-      						<a  onclick='sale.modal_destroy( f.sale_product.sale.id , `#{f.apple.code}`, `#{f.code}`)' class='u-link-v5 g-color-gray-dark-v2 g-color-secondary--hover g-text-underline--none--hover g-ml-12'><i class='hs-admin-trash'></i></a>
+      						<a  onclick='sale.modal_destroy( `#{f.land_sale.sale.id}` , `#{f.apple.code}`, `#{f.code}`)' class='u-link-v5 g-color-gray-dark-v2 g-color-secondary--hover g-text-underline--none--hover g-ml-12'><i class='hs-admin-trash'></i></a>
       						"
       	# if f.land_projects.count > 0
       	# 	f.land_projects.each do |project|

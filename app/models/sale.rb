@@ -28,7 +28,7 @@ class Sale < ApplicationRecord
 	has_many :sale_clients, dependent: :destroy
 	has_many :clients, through: :sale_clients
 	has_many :sale_products, dependent: :destroy
-	has_one :land 
+	belongs_to :land 
 	has_many :fees, dependent: :destroy 
 	has_many :fee_payments, through: :fees
 

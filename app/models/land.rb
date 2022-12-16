@@ -64,4 +64,13 @@ class Land < ApplicationRecord
     self.land_projects.where(status: :pending).count > 0
   end
 
+  def land_sale
+    # obtenemos la venta de tierra
+    self.sale_products.where(product_type: 'Land').first
+  end
+
+  def reset_status
+    self.update(status: :available)
+  end
+
 end

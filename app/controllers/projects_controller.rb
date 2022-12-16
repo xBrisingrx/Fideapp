@@ -32,6 +32,7 @@ class ProjectsController < ApplicationController
         description: params[:description],
         price: params[:price].to_f,
         final_price: params[:final_price].to_f,
+        subtotal: params[:subtotal].to_f,
         status: :proceso,
         land_price: params[:land_price],
         land_corner_price: params[:land_corner_price]
@@ -56,10 +57,12 @@ class ProjectsController < ApplicationController
             provider_id: params["provider_id_#{i}".to_sym].to_i,
             provider_role_id: params["provider_role_id_#{i}".to_sym].to_i,
             payment_method_id: params["payment_method_id_#{i}".to_sym].to_i,
-            price: params["provider_price_#{i}".to_sym].to_i,
+            price: params["provider_price_#{i}".to_sym].to_f,
             iva: params["provider_iva_#{i}".to_sym].to_i,
-            price_calculate: params["provider_price_calculate_#{i}".to_sym].to_i,
-            porcent: params["provider_porcent_#{i}".to_sym].to_i,
+            value_iva: params["provider_iva_#{i}".to_sym].to_f,
+            price_calculate: params["provider_price_calculate_#{i}".to_sym].to_f,
+            porcent: params["provider_porcent_#{i}".to_sym].to_f,
+            porcent: params["type_total_#{i}".to_sym].to_i
           )
           puts @coso
           if !@coso.save!
@@ -70,6 +73,7 @@ class ProjectsController < ApplicationController
       # raise 'cantidades'
       apple = Apple.find(params[:apple_id])
       AppleProject.create(apple_id: apple.id, project_id: @project.id)
+      
       apple.lands.each do |land|
         if land.is_corner
           LandProject.create( land_id: land.id, project_id: @project.id, status: :pending, price: @project.land_corner_price )
