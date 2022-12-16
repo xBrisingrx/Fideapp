@@ -44,6 +44,18 @@ class Land < ApplicationRecord
     sp.sale.date.strftime('%d-%m-%y')
   end
 
+  def total_price
+    # obtenemos el valor de este lote que es valor
+    # si total_price es CERO significa que todavia no se vendio nada del lote (tierra, proyectos)
+    # si no es cero, el valor del lote es valor tierra + valor proyectos 
+    total_price = 0 
+    self.sale_products.each do |product|
+      total_price += product.sale.price
+    end
+
+    return ( total_price  > 0 ) ? total_price : self.price
+  end
+
   def get_all_pay
     total_pay = 0
     self.sales.each do |sale|

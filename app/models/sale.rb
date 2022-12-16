@@ -108,6 +108,10 @@ class Sale < ApplicationRecord
 		self.fees.where(payed: true).sum(:payment)
 	end
 
+	def get_all_owes
+		self.fees.sum(:owes)
+	end
+
 	def get_primer_pago
 		first_pay = self.fees.where(number: 0).first
 		if first_pay.nil?

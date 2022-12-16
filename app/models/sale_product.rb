@@ -32,7 +32,7 @@ class SaleProduct < ApplicationRecord
         product = Land.find self.product_id
         product.update(status: :bought)
       when 'Project'
-        project = LandProyect.where(project_id: self.product_id, land_id: self.sale.land_id ).first
+        project = LandProject.where(project_id: self.product_id, land_id: self.sale.land_id ).first
         project.update(status: :process)
       else
         raise "Producto invalido"

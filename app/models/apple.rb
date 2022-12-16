@@ -38,4 +38,30 @@ class Apple < ApplicationRecord
   def has_corner
     self.lands.where(is_corner: true).count > 0
   end
+
+  def get_all_pay
+    all_pay = 0 
+    self.lands.each do |land|
+      all_pay += land.get_all_pay
+    end
+    all_pay
+  end
+
+  def get_all_owes
+    all_owes = 0 
+    self.lands.each do |land|
+      all_owes += land.get_all_owes
+    end
+    all_owes
+  end
+
+  def total_price
+    total_price = 0
+    pp self.code 
+    pp self.id
+    self.lands.each do |land|
+      total_price += land.total_price
+    end
+    total_price
+  end
 end

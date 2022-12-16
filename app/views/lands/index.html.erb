@@ -2,6 +2,16 @@
 <%= link_to '<i class= "hs-admin-back-left"></i> Volver a manzanas'.html_safe, apples_path, class: 'btn u-btn-blue mb-2 mr-2'%>
 <%= link_to '<i class="hs-admin-plus"></i> Nuevo lote'.html_safe, new_apple_land_path(), {:remote => true, 'data-toggle' =>  "modal",
       'data-target' => '#modal-land', 'class' => 'btn u-btn-teal justify-content-end mb-2'} %>
+
+<div class="row mb-4 mt-4">
+  <%= render(partial: 'lands/card_pay', 
+             locals: { color: 'teal-v2', paid: @apple.get_all_pay, detail: 'Pagado' })%>
+  <%= render(partial: 'lands/card_pay', 
+             locals: { color: 'lightred-v2', paid: @apple.get_all_owes, detail: 'Adeuda' })%>
+  <%= render(partial: 'lands/card_pay', 
+             locals: { color: 'indigo', paid: @apple.total_price, detail: 'Valor' })%>
+</div>
+
 <table id="lands_table" class="table hover dt-responsive w-100">
   <thead>
     <tr>
