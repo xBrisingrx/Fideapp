@@ -28,5 +28,6 @@
 class FeePayment < ApplicationRecord
   belongs_to :fee
   belongs_to :currency
+  belongs_to :payment_type
   has_many_attached :images
 end

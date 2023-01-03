@@ -10,6 +10,8 @@
 #  updated_at :datetime         not null
 #
 class Currency < ApplicationRecord
+	has_many :payments_currencies
+	
 	validates :name, presence: true
 	
 	scope :actives, -> { where(active: true) }

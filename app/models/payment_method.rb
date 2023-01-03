@@ -10,6 +10,7 @@
 #  updated_at  :datetime         not null
 #
 class PaymentMethod < ApplicationRecord
+	# Tipo de metodos de pago que tienen los proveedores
 	validates :name, presence: true, 
 		uniqueness: { case_sensitive: false, message: "Este metodo de pago ya se encuentra registrado" }
 end
