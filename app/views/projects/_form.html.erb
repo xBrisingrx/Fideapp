@@ -192,14 +192,14 @@
     <div class="form-group col-3">
       <%= form.select(:other_provider_id, @providers.collect {|p| [p.name, p.id]}, 
                       {:include_blank => "Seleccione interviniente"},
-                      class: 'select-2-project-other-provider') %>
+                      class: 'select-2-project-other-provider form-control') %>
       <div class="invalid-feedback other_provider_id"></div>
     </div>
 
     <div class="form-group col-2">
       <%= form.select(:other_provider_role, @provider_roles.collect {|p| [p.name, p.id]}, 
                       {:include_blank => "Seleccione función"},
-                      class: 'select-2-provider-other-role') %>
+                      class: 'select-2-provider-other-role form-control') %>
       <div class="invalid-feedback other_provider_role"></div>
     </div>
     <div class="form-group col-2">
