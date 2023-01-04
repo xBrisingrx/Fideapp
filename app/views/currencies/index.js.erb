@@ -1,0 +1,14 @@
+$("#modal").html("<%= j (render partial: 'index_modal', locals:{ size: 'lg' } ) %>")
+
+currencies_table = $("#currencies-table").DataTable({
+    'ajax':`currencies`,
+    'columns': [
+    {'data': 'name'},
+    {'data': 'need_exchange'},
+    {'data': 'detail'},
+    {'data': 'actions'}
+    ],
+    'language': { 'url': datatables_lang }
+	})
+
+$("#modal").modal('show')

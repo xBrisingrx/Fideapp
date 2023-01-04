@@ -1,0 +1,56 @@
+<h1><i class="hs-admin-wallet"></i> Listado de medios de pagos aceptados</h1>
+
+<div class="row justify-content-between">
+  <div class="col-6">
+    <%= link_to 'Agregar metodo de pago', new_payments_type_path, {:remote => true, 'data-toggle' =>  "modal",
+      'class' => 'btn u-btn-teal g-font-weight-600 g-letter-spacing-0_5 '} %>
+
+    <%= link_to 'Registrar divisa', new_currency_path, {:remote => true, 'data-toggle' =>  "modal",
+      'class' => 'btn u-btn-cyan g-font-weight-600 g-letter-spacing-0_5 '} %>
+  </div>
+  <div class="col-6">
+    <%= link_to 'Ver divisas registradas', currencies_path, {:remote => true, 'data-toggle' =>  "modal",
+      'class' => 'btn u-btn-outline-indigo u-btn-hover-v1-2 g-font-weight-600 g-letter-spacing-0_5 g-brd-2 g-rounded-10 g-mr-10 g-mb-15'} %>    
+  </div>
+</div>
+
+<table id="payments_types_table" class="table hover dt-responsive w-100">
+  <thead>
+    <tr>
+      <th>Medio de pago</th>
+      <th>Divisas</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+  </tbody>
+</table>
+
+
+<!-- Modal alta de material -->
+<div class="modal fade" id="modal-material" role="dialog"
+     aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+</div>
+<!-- End modal -->
+
+
+<!-- Modal para eliminar material -->
+<div class="modal fade" id="modal-disable-material" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">¿ Esta seguro de dar de baja este material ?</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <%= form_with(url: disable_material_path, id: 'form-disable-material') do |form| %>
+          <%= form.hidden_field :material_id %>
+          <%= form.submit 'Eliminar', class: 'btn u-btn-red g-mr-10' %>
+          <button type="button" data-dismiss="modal" class="btn u-btn-teal g-mr-10"> Cerrar </button>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

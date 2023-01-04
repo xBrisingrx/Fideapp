@@ -1,0 +1,21 @@
+<%= form_with(model: @payment_currency, id: 'form-payment-currency', class: 'needs-validation g-brd-around g-brd-gray-light-v4 g-pa-30 g-mb-30') do |form| %>
+  
+  <%= form.hidden_field :payments_type_id, value: @payment_type.id %>
+
+  <div class="form-group row">
+    <div class="col-12">
+      <%= form.label :payments_type_id, "Metodo de pago: #{@payment_type.name}"%>
+    </div>
+  </div>
+
+  <div class="form-group row">
+    <%= form.label :currency_id, 'Divisa (*)', class: 'col-8 col-sm-6' %>
+    <%= form.select(:currency_id, @currencies.collect {|c| [c.name, c.id]}, { include_blank: true},
+                      class: 'form-control select-2-currencies col-6 col-sm-4', required: true) %>
+  </div>
+
+  <div class="mt-4">
+    <%= form.submit 'Guardar', class: 'btn u-btn-teal mr-2'  %>
+    <button type="button" class="btn u-btn-darkred" data-dismiss="modal">Cerrar</button>
+  </div>
+<% end %>

@@ -50,4 +50,8 @@ Rails.application.routes.draw do
   # End fees routes 
 
   post '/sale_project', to: "sales#sale_project", as: 'sale_project'
+
+  resources :payments_types
+  resources :currencies
+  resource :payments_currencies
 end

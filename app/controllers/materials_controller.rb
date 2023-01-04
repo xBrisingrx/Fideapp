@@ -37,7 +37,7 @@ class MaterialsController < ApplicationController
   def disable
     @material = Material.find(params[:material_id])
     if @material.update(active:false)
-      render json: { status: 'success', msg: 'Proveedor eliminado' }, status: :ok
+      render json: { status: 'success', msg: 'Material eliminado' }, status: :ok
     else
       render json: { status: 'error', msg: 'Ocurrio un error al realizar la operación' }, status: :unprocessable_entity
     end

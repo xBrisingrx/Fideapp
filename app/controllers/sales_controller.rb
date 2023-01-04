@@ -11,6 +11,7 @@ class SalesController < ApplicationController
   def new
     @clients = Client.select(:id, :name, :last_name).where(active: true)
     @currencies = Currency.select(:id, :name).where(active: true)
+    @payments_types = PaymentsType.actives
     @sale = Sale.new
     @product_type = params[:product_type]
     @product_id = params[:product_id]

@@ -1,0 +1,15 @@
+$("#modal").html("<%= j (render partial: 'shared/modal', locals:{ size: 'lg' } ) %>")
+
+$("#modal").modal('show')
+
+$("#form-currency").on("ajax:success", function(event) {
+    let msj = JSON.parse(event.detail[2].response)
+    noty_alert(msj.status, msj.msg)
+    $("#modal").modal('hide')
+  }).on("ajax:error", function(event) {
+	let msj = JSON.parse( event.detail[2].response )
+	$.each( msj, function( key, value ) {
+		$(`#form-currency #currency_${key}`).addClass('is-invalid')
+		$(`#form-currency .currency_${key}`).text( value ).show('slow')
+	})
+})

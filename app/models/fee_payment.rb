@@ -14,20 +14,23 @@
 #  updated_at                :datetime         not null
 #  currency_id               :bigint
 #  fee_id                    :bigint
+#  payments_type_id          :bigint
 #
 # Indexes
 #
-#  index_fee_payments_on_currency_id  (currency_id)
-#  index_fee_payments_on_fee_id       (fee_id)
+#  index_fee_payments_on_currency_id       (currency_id)
+#  index_fee_payments_on_fee_id            (fee_id)
+#  index_fee_payments_on_payments_type_id  (payments_type_id)
 #
 # Foreign Keys
 #
 #  fk_rails_...  (currency_id => currencies.id)
 #  fk_rails_...  (fee_id => fees.id)
+#  fk_rails_...  (payments_type_id => payments_types.id)
 #
 class FeePayment < ApplicationRecord
   belongs_to :fee
   belongs_to :currency
-  belongs_to :payment_type
+  belongs_to :payments_type
   has_many_attached :images
 end

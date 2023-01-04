@@ -2,22 +2,23 @@ class PaymentsTypesController < ApplicationController
 	before_action :set_material, only: %i[ show edit update destroy ]
 
   def index
-    @payments_types = PaymentType.actives
+    @payments_types = PaymentsType.actives
   end
 
   def new
-    @payment_type = PaymentType.new
+    @payment_type = PaymentsType.new
+    @title_modal = 'Registrar medio de pago'
   end
 
   def edit
   end
 
   def create
-    @payment_type = PaymentType.new(payment_type_params)
+    @payment_type = PaymentsType.new(payment_type_params)
 
     respond_to do |format|
       if @payment_type.save
-        format.json { render json: { status: 'success', msg: 'Material registrado' }, status: :created }
+        format.json { render json: { status: 'success', msg: 'Medio de pago registrado' }, status: :created }
       else
         format.json { render json: @payment_type.errors, status: :unprocessable_entity }
       end
@@ -35,9 +36,9 @@ class PaymentsTypesController < ApplicationController
   end
 
   def disable
-    @payment_type = PaymentType.find(params[:material_id])
+    @payment_type = PaymentsType.find(params[:material_id])
     if @payment_type.update(active:false)
-      render json: { status: 'success', msg: 'Proveedor eliminado' }, status: :ok
+      render json: { status: 'success', msg: 'Medio de pago eliminado' }, status: :ok
     else
       render json: { status: 'error', msg: 'Ocurrio un error al realizar la operación' }, status: :unprocessable_entity
     end
@@ -49,10 +50,10 @@ class PaymentsTypesController < ApplicationController
 
   private
     def set_material
-      @payment_type = PaymentType.find(params[:id])
+      @payment_type = PaymentsType.find(params[:id])
     end
 
     def payment_type_params
-      params.require(:material).permit(:name, :description)
+      params.require(:payments_type).permit(:name, :description, :need_exchange)
     end
 end

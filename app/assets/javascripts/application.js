@@ -39,6 +39,8 @@
 //= require projects
 //= require fees
 //= require fee_payments
+//= require payments_types
+//= require currencies
 
 // require_tree .
 
