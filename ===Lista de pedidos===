@@ -1,0 +1,99 @@
+===Lista de pedidos===
+
+*** CUOTAS 
+- Agregar cuotas de forma manual a una venta ya realizada 
+
+*** INFORMES
+- Exportar Resumen de pagos a excel y pdf 
+- Reporte de disponibilidad 
+
+*** LOTES
+ - Sesion: historico de titularidades ( cuando el lote cambia de duenio )
+ - Vista lotes que se vea el titular 
+ - Los lotes tiene que tener estados: cancelado ( ya pago ), adeuda, en venta
+ - Los estados de los lotes deben estar en colores 
+ - En vista principal quitar si es espacio verde
+ - Agregar boton de detalle del lote  
+ - Agregar el dato de reserva fiscal
+
+ *** PROYECTOS/OBRAS
+ - Los valores deben estar dolarizados 
+ - Poder definir estapas de obras 
+ - Materiales deben tener unidad y cantidad 
+ - Material con y sin IVA
+ - Material: discriminar el iva en el precio y tener el precio total 
+ - Presupuesto proveedor: se debe poder cargar los presupuestos (informacion y archivos ) que envia cada proveedor y que quien corresponda pueda aprobarlos 
+ - Presupuestos: El presupuesto se adjuntara a los lotes afectados (desde el lote un boton q muestre los presupuestos de ESE lote, mismo con manzana)
+ - Tratamiento de H21 (dolarizado)
+ - Tratamiento de mano de obra: se detalla por proveedor y duenio de manzana, se debe poder ver la ganancia de Fidesur
+ - Detalles completos de obras ( pedir que datos interesan )
+ - Certificacion ( pedir requerimientos )
+ - Licitaciones ( pedir requerimiento )
+ - Reporte de estado de ejecucion ( pedir requerimientos de como se definen las etapas de cada obra )
+ - Generar la carpeta tecnica: la carpeta tecnica se compone de planos y computos ( electricidad, palmas ). Estos dos mencionados son el plano de ejecucion
+
+*** CLIENTES
+- Desde vista principal poder vender un lote 
+- Se hablo de separar por cliente A ( duenio de manzana ) y cliente B (duenio de lote)
+
+
+*** VENTAS - ACUERDOS DE PAGOS ( se compone de la venta de lote/proyectos y el pago de cuotas )
+- Comisiones de vendedor 
+- Nota de credito con detalle para cancelacion de cuotas 
+- Venta de manzanas 
+- Ventas varias ( H21, mano de obra )
+- Generar comprobante de pago y poder enviarlo por mail 
+- Minimizar las tablas en la vista de detalle de venta del lote
+- Ajustes:
+	* El ajuste debe tener fecha 
+	* El ajuste se debe calcular usando la calculadora de inflacion
+- Mora: 
+   * La mora corre a partir del primero del mes, no a partir del dia de vencimiento de la cuota 
+   * Al momento de pactar pagos, si no se define el % de mora sera del 0,5 
+   * La mora se aplica a todas las ventas
+- Refinanciacion: cuando el cliente no puede pagar lo adeudado se refinancia usando el sistema frances, Fidesur cuenta ya con un excel al que le agregan algunos items propios al calculo ( pedir requerimientos )
+
+*** USUARIOS 
+- Definir roles 
+- Definir los privilegios de cada rol ( administrador del sistema, puede editar ciertos modulos, solo puede ver ) 
+
+*** GERENCIA
+- Planificacion de obras/objetivos ( tenemos que charlar que seria este item )
+- Reporte de avance de obras ( Que datos le interesan en este informe )
+- Calendario de gestion 
+
+*** DOCUMENTACION 
+- Documentacion cliente ( dni, boletos, escrituras, convenios )
+- Documentacion sector( pedir requerimientos )
+- Documentacion manzana( pedir requerimientos )
+- Documentacion lote ( pedir requerimientos )
+
+*** COMPRAS	
+-	ABM Proveedores 
+- ABM Prefesiones ( pedir requerimientos )
+- Ingreso de factura de compras ( salida )
+- Ingreso de salidas sin factura 
+- Pagos proveedores/profesionales
+- Exportar archivo con IVA digital de compras 
+
+*** CONTABLE/TESORERIA
+- Ingresos ( bancarizados, efectivos, otros valores )
+- Egresos (Banzarizados, efectivo, otros valores)
+- Retiro de socios
+- Pago de sueldos 
+- Pago de sueldos
+- Plazos fijos 
+- Subdiarios contables (ingesos y egresos) para contadora 
+- Caja (totales-efectivo, banco, valores): se debe tener el detalle del estado real de la caja 
+- Exportar archivo con IVA digital de ventas
+
+
+*** INMOBILIARIA ( este es el ultimo modulo a realizar )
+- Propiedades ( con imagenes, detalles y documentos)
+- Locadores
+- LOcatarios
+- Ventas 
+- Alquileres
+- Vendedores ( comisiones )
+
+
