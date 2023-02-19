@@ -5,6 +5,18 @@ function modal_disable_land(id) {
   $('#modal-disable-land').modal('show')
 }
 
+function show_information(sale_id) {
+  let div = document.getElementById(sale_id)
+  if (div.dataset.show == 'show') {
+    $(`#${sale_id}`).hide('slow')
+    div.dataset.show = 'hide'
+  } else {
+     $(`#${sale_id}`).show('slow')
+    div.dataset.show = 'show'
+  }
+
+}
+
 $(document).ready(function(){
 	lands_table = $("#lands_table").DataTable({
     'ajax':`lands`,

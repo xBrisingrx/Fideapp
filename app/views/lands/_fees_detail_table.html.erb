@@ -1,5 +1,8 @@
+<h4 class="u-tags-v1 g-color-purple g-brd-around g-brd-purple g-bg-purple--hover g-color-white--hover g-rounded-50 g-py-4 g-px-15"
+  onclick="show_information('sale_information_<%= sale.id %>')">
+  <%= sale.product_name  %> 
+  <i class="fa fa-eye"></i></h4>
 
-<h4 class="u-tags-v1 g-color-purple g-brd-around g-brd-purple g-bg-purple--hover g-color-white--hover g-rounded-50 g-py-4 g-px-15"><%= sale.product_name  %></h4>
 <div class="row mb-2">
   <%= render(partial: 'card_pay_small', 
              locals: { color: 'teal-v2', paid: sale.total_pagado, detail: 'Pagado' })%>
@@ -8,68 +11,70 @@
   <%= render(partial: 'card_pay_small', 
              locals: { color: 'indigo', paid: sale.price, detail: 'Valor' })%>
 </div>   
-<%= render(partial: 'first_pay', locals: { sale: sale }) %>
-<table id="sale_land_table" class="table hover dt-responsive w-100 mt-2">
-  <thead>
-    <tr>
-      <th>#</th>
-      <th>Valor</th>
-      <th>Ajuste</th>
-      <th>Fecha vencimiento</th>
-      <th id="total_debe"> Debe <b>($<%= format_currency(sale.fees.sum(:owes) ) %>)</b></th>
-      <th id="total_haber"> Haber <b>($<%= format_currency(sale.fees.sum(:payment) ) %>)</b></th>
-      <th>Estado</th>
-      <th>Acciones</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% sale.fees.no_cero.each do |fee| %>
+<div id="sale_information_<%= sale.id %>" data-show='show' >
+  <%= render(partial: 'first_pay', locals: { sale: sale }) %>
+  <table id="sale_land_table" class="table hover dt-responsive w-100 mt-2">
+    <thead>
       <tr>
-        <td><%= fee.number %></td>
-        <td><%= "$#{format_currency(fee.value)}" %></td>
-        <td><%= "---" %></td>
-        <td><%= fee.due_date.strftime('%d-%m-%y') %></td>
-        <td><%= "$#{format_currency(fee.owes)}" %></td>
-        <td><%= "$#{format_currency(fee.payment)}" %></td>
-        <% if fee.expired? && !fee.payed? %>
-          <td>
-            <span class='u-tags-v1 text-center g-width-100 g-brd-around g-brd-lightred-v2 g-bg-lightred-v2
-                      g-font-size-default g-color-white g-rounded-50 '>Cuota vencida
-            </span>
-          </td>
-        <% else
-          if fee.pagado?
-            color = 'green'
-          elsif fee.pago_parcial? 
-            color = 'deeporange'
-          else 
-            color = 'blue'
-          end %>
-          <td>
-            <%= " <span class='u-tags-v1 text-center g-width-100 g-brd-around g-brd-#{color} g-bg-#{color}
-                      g-font-size-default g-color-white g-rounded-50 '>#{@status[fee.pay_status]}</span>".html_safe %>
-          </td>
-        <% end %>
-        <td>
-          <% btn_detalle_pago = link_to "<i class='hs-admin-eye'></i>".html_safe, detalle_pagos_path(fee.id), 
-                       :remote => true, 'data-toggle' =>  'modal', 'data-target' => '#modal-sales', 
-                        class: ' u-link-v5 g-color-white g-color-gray-dark-v2 g-color-secondary--hover g-text-underline--none--hover', 
-                        title: 'Detalle del pago de cuota' %>
-          <% if !fee.payed? %>
-            <%= "#{link_to "<i class='hs-admin-money'></i>".html_safe, fee_path(fee.id), 
-                   :remote => true, 'data-toggle' =>  'modal', 'data-target' => '#modal-sales', 
-                    class: ' u-link-v5 g-color-gray-dark-v2 g-color-secondary--hover g-text-underline--none--hover', title: 'Pagar cuota'}".html_safe %>
-          <% elsif fee.pago_parcial? %>
-            <%= "#{btn_detalle_pago}
-                  #{link_to "<i class='hs-admin-money'></i>".html_safe, pago_parcial_path(fee.id),
-                    :remote => true, 'data-toggle' =>  'modal', 'data-target' => '#modal-sales', 
-                    class: 'ml-4 u-link-v5 g-color-white g-color-gray-dark-v2 g-color-secondary--hover g-text-underline--none--hover', 
-                    title: 'Pago parcial' }".html_safe %>
-          <% else %>
-           <%= "#{btn_detalle_pago}".html_safe %>
-          <% end %>
-        </td>
+        <th>#</th>
+        <th>Valor</th>
+        <th>Ajuste</th>
+        <th>Fecha vencimiento</th>
+        <th id="total_debe"> Debe <b>($<%= format_currency(sale.fees.sum(:owes) ) %>)</b></th>
+        <th id="total_haber"> Haber <b>($<%= format_currency(sale.fees.sum(:payment) ) %>)</b></th>
+        <th>Estado</th>
+        <th>Acciones</th>
       </tr>
-    <% end %> 
-  </tbody>
-</table>
+    </thead>
+    <tbody>
+      <% sale.fees.no_cero.each do |fee| %>
+        <tr>
+          <td><%= fee.number %></td>
+          <td><%= "$#{format_currency(fee.value)}" %></td>
+          <td><%= "---" %></td>
+          <td><%= fee.due_date.strftime('%d-%m-%y') %></td>
+          <td><%= "$#{format_currency(fee.owes)}" %></td>
+          <td><%= "$#{format_currency(fee.payment)}" %></td>
+          <% if fee.expired? && !fee.payed? %>
+            <td>
+              <span class='u-tags-v1 text-center g-width-100 g-brd-around g-brd-lightred-v2 g-bg-lightred-v2
+                        g-font-size-default g-color-white g-rounded-50 '>Cuota vencida
+              </span>
+            </td>
+          <% else
+            if fee.pagado?
+              color = 'green'
+            elsif fee.pago_parcial? 
+              color = 'deeporange'
+            else 
+              color = 'blue'
+            end %>
+            <td>
+              <%= " <span class='u-tags-v1 text-center g-width-100 g-brd-around g-brd-#{color} g-bg-#{color}
+                        g-font-size-default g-color-white g-rounded-50 '>#{@status[fee.pay_status]}</span>".html_safe %>
+            </td>
+          <% end %>
+          <td>
+            <% btn_detalle_pago = link_to "<i class='hs-admin-eye'></i>".html_safe, detalle_pagos_path(fee.id), 
+                         :remote => true, 'data-toggle' =>  'modal', 'data-target' => '#modal-sales', 
+                          class: ' u-link-v5 g-color-white g-color-gray-dark-v2 g-color-secondary--hover g-text-underline--none--hover', 
+                          title: 'Detalle del pago de cuota' %>
+            <% if !fee.payed? %>
+              <%= "#{link_to "<i class='hs-admin-money'></i>".html_safe, fee_path(fee.id), 
+                     :remote => true, 'data-toggle' =>  'modal', 'data-target' => '#modal-sales', 
+                      class: ' u-link-v5 g-color-gray-dark-v2 g-color-secondary--hover g-text-underline--none--hover', title: 'Pagar cuota'}".html_safe %>
+            <% elsif fee.pago_parcial? %>
+              <%= "#{btn_detalle_pago}
+                    #{link_to "<i class='hs-admin-money'></i>".html_safe, pago_parcial_path(fee.id),
+                      :remote => true, 'data-toggle' =>  'modal', 'data-target' => '#modal-sales', 
+                      class: 'ml-4 u-link-v5 g-color-white g-color-gray-dark-v2 g-color-secondary--hover g-text-underline--none--hover', 
+                      title: 'Pago parcial' }".html_safe %>
+            <% else %>
+             <%= "#{btn_detalle_pago}".html_safe %>
+            <% end %>
+          </td>
+        </tr>
+      <% end %> 
+    </tbody>
+  </table>
+</div>
