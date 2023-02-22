@@ -38,31 +38,7 @@
   
   <%= form.label :paid, 'Primer entrega:' , class: 'font-weight-bold' %>
   
-  <div class="form-group row">
-    <%= form.label :payments_type_id, 'Metodo de pago (*)', class: 'col-8 col-sm-6' %>
-    <%= form.select(:payments_type_id, @payments_types.collect {|p| [p.name, p.id]}, { include_blank: true},
-                      class: 'form-control select-2-payments-type col-6 col-sm-4', required: true) %>
-  </div>
-
-  
-  <div class="form-group row payment-data ml-4" id="payment_detail_1">
-    <select name="currency_id" id="currency_id" class="col-1 mr-2 form-control rounded-0" onchange="cambio_moneda()">
-      <% @currencies.each do |currency| %>
-        <option value="<%= currency.id %>"><%= currency.name %></option>
-      <%end%>
-    </select>
-    <%= form.number_field :paid, class: 'form-control rounded-0 col-2', step:'0.01', onchange: "calculo_de_entrega()" %>
-    <%= form.number_field :value_in_pesos, class: 'form-control rounded-0 col-2 ml-2 ', step:'0.01', placeholder: '', onchange: "calculo_de_entrega()"%>
-    <%= form.number_field :calculo_en_pesos, class: 'form-control rounded-0 col-2 ml-2 ' , placeholder: 'Calculo valor en $', disabled: :true%>
-    <%= form.text_field :name_pay, class: 'form-control rounded-0 col-2 ml-2 ', placeholder: 'Detalle entrega...', value: ''%>
-    <%= form.date_field :pay_date, class: 'form-control rounded-0 col-2 ml-2 '%>
-    <label class="u-file-attach-v2 g-color-gray-dark-v5 mb-0 ml-2">
-      <input id="fileAttachment" name="file-attachment[]" type="file" multiple>
-      <i class="icon-cloud-upload g-font-size-16 g-pos-rel g-top-2 g-mr-5"></i>
-      <span class="js-value"></span>
-    </label>
-    <button id="add-payment" class="btn u-btn-teal ml-2 "> + </button>
-  </div>
+  <%= render( partial: 'first_pay', locals: { cp: @cp, first_label: true } ) %>
   <div id="payment-list"></div>
   <p id="valor_restante"></p>
   
@@ -126,13 +102,13 @@
 
   <div class="form-group row">
     <%= form.label :arrear, 'Mora %:' , class: 'col-3' %>
-    <%= form.number_field :arrear, class: 'form-control rounded-0 col-3', step:'0.01' %>
+    <%= form.number_field :arrear, class: 'form-control rounded-0 col-3', step:'0.01', value: @sale.arrear %>
     <div class="invalid-feedback field_price"></div>
   </div>
 
   <div class="form-group row">
     <%= form.label :due_day, 'Día vencimiento cuota:' , class: 'col-3' %>
-    <%= form.number_field :due_day, class: 'form-control rounded-0 col-3', step:'0.01' %>
+    <%= form.number_field :due_day, class: 'form-control rounded-0 col-3', step:'0.01', value: @sale.due_day %>
     <div class="invalid-feedback field_due_date"></div>
   </div>
 

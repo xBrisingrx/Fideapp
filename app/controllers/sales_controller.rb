@@ -5,18 +5,19 @@ class SalesController < ApplicationController
     @sales = Sale.all
   end
 
-  def show
-  end
+  def show;end
 
   def new
+    @cant = 0
     @clients = Client.select(:id, :name, :last_name).where(active: true)
     @currencies = Currency.select(:id, :name).where(active: true)
     @payments_types = PaymentsType.actives
-    @sale = Sale.new
+    @cp = PaymentsCurrency.actives
+    @sale = Sale.new(arrear: 0.5, due_day: 10)
     @product_type = params[:product_type]
     @product_id = params[:product_id]
     @land_id = params[:land_id]
-    land = Land.find params[:land_id]
+    # land = Land.find params[:land_id]
     case @product_type
       when 'land'
          @product = Land.select(:id, :price, :code).find(@product_id) 

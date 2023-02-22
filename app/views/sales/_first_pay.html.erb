@@ -1,0 +1,25 @@
+<div class="form-group row payment-data">
+  <div class="col-3">
+    <select name="payment_currency" id="payment_currency" class="form-control rounded-0 payment-currency u-has-error-v1" onchange="set_exchange()">
+      <option value="0"> Tipo de entrega </option>
+      <% cp.each do |c| %>
+        <option value="<%= c.id %>" data-exchange= <%= c.currency.need_exchange %> data-currency=<%= c.currency.name %> ><%= c.name %></option>
+      <%end%>
+    </select>
+  </div>
+  <input type="number" id='paid' class='form-control rounded-0 col-2' step='0.01' onchange="calculo_de_entrega()">
+  <input type="number" id='value_in_pesos' class='form-control rounded-0 col-2 ml-2' step='0.01' onchange="calculo_de_entrega()" style="display:none">
+  <input type="number" id='calculo_en_pesos' class='form-control rounded-0 col-2 ml-2' step='0.01' placeholder='Calculo valor en $' style="display:none" disabled>
+  <input type="text" id="name_pay" class='form-control rounded-0 col-2 ml-2' placeholder='Detalle entrega...'>
+  <input type="date" id="pay_date" class='form-control rounded-0 col-2 ml-2'>
+  <label class="u-file-attach-v2 g-color-gray-dark-v5 mb-0 ml-2">
+    <input id="fileAttachment" name="file-attachment[]" type="file" multiple>
+    <i class="icon-cloud-upload g-font-size-16 g-pos-rel g-top-2 g-mr-5"></i>
+    <span class="js-value"></span>
+  </label>
+  <% if first_label %>
+    <button id="add-payment" class="btn u-btn-teal ml-2 "> + </button>
+  <% else %>
+    <button onclick="remove_payment()" class="btn u-btn-red ml-2"> - </button>
+  <% end %>
+</div>

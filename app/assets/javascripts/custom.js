@@ -73,3 +73,11 @@ function addClassInvalid( input ) {
   input.classList.remove('is-valid')
   input.classList.add('is-invalid')
 }
+
+function valid_number( value ) {
+  if (!isNaN( value ) && value > 0 ) {
+    return true
+  } else {
+    return false 
+  }
+}

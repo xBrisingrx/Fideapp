@@ -1,8 +1,9 @@
 $("#modal-land").html("<%= j (render partial: 'shared/modal', locals:{ size: 'xl' } ) %>")
 $('.select-2-client-land').select2({ width: '80%',theme: "bootstrap4" })
+// $('.payment-currency').select2({ width: '80%',theme: "bootstrap4", placeholder: 'Tipo de pago' })
 
-document.getElementById('value_in_pesos').style.display = 'none'
-document.getElementById('calculo_en_pesos').style.display = 'none'
+// document.getElementById('value_in_pesos').style.display = 'none'
+// document.getElementById('calculo_en_pesos').style.display = 'none'
 
 $("#modal-land").modal('show')
 
@@ -18,28 +19,6 @@ setInputDate("#date")
 function fee_start_date_info(){
 	noty_alert('info', 'Si coloca una fecha las cuotas corren a partir de esa fecha. En caso de colocar día de vencimiento se tomara ese día de vencimiento. Si no coloca fecha se toma como referencia la fecha de venta', 10000)
 }
-
-document.getElementById('add-client').addEventListener('click', (event) => {
-	event.preventDefault()
-	let client = document.getElementById('client_id')
-	if (client.value != null && client.value != '') {
-		let client_name =  $('#client_id option:selected').text()
-		$('.client-list').append(`
-			<div class="row" id="${client.value}">
-				<div class="mb-2  mx-4 col-6">
-					<input type="text" value="${client_name}" class="client-id form-control rounded-0 " data-id=${client.value} disabled></input>
-				</div>
-				<div>
-					<button type="button" class="btn u-btn-red remove-client" onclick="remove_client(${client.value})" title="Quitar comprador"> <i class="fa fa-trash"></i> </button>
-				</div>
-			</div>
-		`)
-		$('#client_id option:selected').attr('disabled', 'disabled')
-		$('.select-2-client-land').val('').trigger('change')
-	} else {
-		noty_alert('error', 'Error al agregar el cliente a la lista')
-	}
-})
 
 function remove_client( id ) {
 	event.preventDefault()
@@ -73,109 +52,56 @@ document.getElementById('add-payment').addEventListener('click', (e) => {
 	sale.cant_payments++
 	sale.cant_payment_files++
 	const cant = sale.cant_payment_files
-
-	if ( sale.cant_payments >= 2 ) {
-		document.getElementById('add-payment').classList.add("invisible")
-	}
-
-	$('#payment-list').append(`
-		<div class="row mt-2 payment-data ml-4" id="payment_detail_${cant}">
-			<select name="currency_id" id="currency_id" class="col-1 mr-2 form-control rounded-0 currency" onchange="cambio_moneda()" >
-	      <option value="1">$</option>
-	      <option value="2">USD</option>
-	      <option value="3">EUR</option>
-	      <option value="4">Vehiculo</option>
-	      <option value="5">Transferencia</option>
-	      <option value="6">Cheques</option>
-	    </select>
-	    <input type="number" step='0.01' value="" class="form-control rounded-0 col-2 " id='paid' name='paid' onchange="calculo_de_entrega()"></input>
-	    <input type="number" step='0.01' value="" class="form-control rounded-0 col-2 ml-2" id='value_in_pesos' name='value_in_pesos' style="display:none" onchange="calculo_de_entrega()"></input>
-	    <input type="text" value="" class="form-control rounded-0 col-2 ml-2" id="calculo_en_pesos" name="calculo_en_pesos" style="display:none" disabled></input>
-	    <input type="text" value="" class="form-control rounded-0 col-2 ml-2" id='name_pay' name='name_pay' placeholder='Detalle entrega...'></input>
-	    <input type="date" class="form-control rounded-0 col-2 ml-2" id='pay_date' name='pay_date'></input>
-	    <label class="u-file-attach-v2 g-color-gray-dark-v5 mb-0 ml-2">
-	      <input id="fileAttachment" name="file-attachment[]" type="file" multiple>
-	      <i class="icon-cloud-upload g-font-size-16 g-pos-rel g-top-2 g-mr-5"></i>
-	      <span class="js-value"></span>
-	    </label>
-			<button onclick="remove_payment()" class="btn u-btn-red ml-2"> - </button>
-		</div>
-	`)
+	$('#payment-list').append("<%= j ( render partial: 'first_pay', locals: { cp: @cp, first_label: false } ) %>")
 })
 
 function remove_payment(){
 	event.preventDefault()
 	event.target.parentElement.remove()
 	sale.cant_payments--
-	document.getElementById('add-payment').classList.remove("invisible")
 	calcular_monto_pagado()
 }
 
-function cambio_moneda(){
-	const nodo = event.target.parentElement
-	const value_in_pesos = nodo.querySelector('#value_in_pesos')
+function set_exchange(){
+	const select = event.target
+	const nodo = event.target.parentElement.parentElement
+	const selected = select.options[select.selectedIndex]
+	const tomado_en = nodo.querySelector('#value_in_pesos')
 	const calculo_en_pesos = nodo.querySelector('#calculo_en_pesos')
-	nodo.querySelector('#name_pay').value = ''
-	value_in_pesos.style.display = 'none'
-	calculo_en_pesos.style.display = 'none'
-	// nodo.querySelector('#name_pay').style.display = 'none'
-	let entrega = parseInt(event.target.value)
-	switch (entrega) {
-		case 1:
-			calcular_monto_pagado()
-		break;
-		case 2:
-			value_in_pesos.placeholder = "1 US$ en $"
-			value_in_pesos.style.display = 'block'
-			calculo_en_pesos.style.display = 'block'
-			calcular_monto_pagado()
-			break;
-		case 3:
-			value_in_pesos.placeholder = "1 € en $"
-			value_in_pesos.style.display = 'block'
-			calculo_en_pesos.style.display = 'block'
-			calcular_monto_pagado()
-			break;
-		case 4:
-			calcular_monto_pagado()
-		break;
-		case 5:
-			calcular_monto_pagado()
-			break;
-		case 6:
-			calcular_monto_pagado()
-			break;
-		default:
-			break;
+
+	if (selected.dataset.exchange == 'true') {
+		tomado_en.value = ''
+		tomado_en.placeholder = `1 ${selected.dataset.currency} en $`
+		tomado_en.style.display = 'block'
+		calculo_en_pesos.style.display = 'block'
+	} else {
+		tomado_en.value = 1
+		tomado_en.style.display = 'none'
+		calculo_en_pesos.style.display = 'none'
 	}
+
+	if ( valid_number(parseFloat(tomado_en.value)) || valid_number( parseFloat(nodo.querySelector(`#paid`).value) ) ) {
+		calc_valor_en_pesos(event.target)
+	}
+	calcular_monto_pagado()
 }
 
 function calc_valor_en_pesos(e){
-	const node = e.parentElement
-	let currency_id = node.querySelector(`#currency_id`).value
+	const node = e.parentElement.parentElement
+	const select = node.querySelector(`#payment_currency`)
+	const selected = select.options[select.selectedIndex]
 	let calculo_en_pesos = node.querySelector(`#calculo_en_pesos`)
-	let paid = node.querySelector(`#paid`).value
-	let value_in_pesos = node.querySelector(`#value_in_pesos`).value
-	if (currency_id == '2' || currency_id == '3') {
-		if ( value_in_pesos > 0 && paid > 0 ) {
-			calculo_en_pesos.value = value_in_pesos * paid
-			return
-		} else {
-			calculo_en_pesos.value = ''
-			$('#valor_restante').html('')
-			return
-		}
-	} else {
-		if ( paid > 0 ) {
-			node.querySelector(`#value_in_pesos`).value = 1
-			calculo_en_pesos.value = paid
-			return
-		} else {
-			calculo_en_pesos.value = ''
-			$('#valor_restante').html('')
-			return
-		}
+	let paid = parseFloat(node.querySelector(`#paid`).value)
+	let taken_in = parseFloat(node.querySelector(`#value_in_pesos`).value)
+
+	if ( !valid_number(taken_in) || !valid_number(paid) ) {
+		calculo_en_pesos.value = 0
+		$('#valor_restante').html('')
+		return
 	}
+	console.info('seteamos el calculo_en_pesos')
+	console.log(taken_in,paid)
+	calculo_en_pesos.value = taken_in * paid
 }
 
 function calcular_monto_pagado(){
@@ -185,14 +111,12 @@ function calcular_monto_pagado(){
 	sale.entrega = 0
 	// recorremos y sumamos las entregas
 	for (let pay of payments) {
-		let currency_id = pay.querySelector('#currency_id').value
-		if (currency_id == '2' || currency_id == '3' ) {
-			// si este no es null es que es dolar o euro
-			sale.entrega += parseFloat( pay.querySelector('#calculo_en_pesos').value )
-		} else {
-			sale.entrega += parseFloat( pay.querySelector('#paid').value )
+		const payed = parseFloat( pay.querySelector('#calculo_en_pesos').value )
+		if (valid_number(payed)) {
+			sale.entrega += payed
 		}
 	}
+
 	if (isNaN(sale.entrega)) {
 		sale.resto = sale.precio
 	} else {
@@ -200,17 +124,19 @@ function calcular_monto_pagado(){
 	}
 
 	if (sale.entrega > 0 &&  !isNaN(sale.entrega) && sale.entrega <= sale.precio) {
-		paid.parentElement.classList.remove('u-has-error-v1')
 		$('#valor_restante').append(`A pagar en cuotas: <b>$${sale.resto}</b>`)
 		calular_valor_cuota()
 	} else if ( sale.entrega > sale.precio ) {
-		paid.parentElement.classList.add('u-has-error-v1')
 		$('#valor_restante').append(`<p class='text-danger ml-4'> Ingreso un valor mayor al del lote </>`)
 	}
 }
 
 function calculo_de_entrega() {
 	const input = event.target
+	const payment_currency = event.target.parentElement.querySelector('#payment_currency')
+	if (payment_currency.value == '0') {
+		return
+	}
 	calc_valor_en_pesos(input)
 	calcular_monto_pagado(input)
 }
@@ -281,9 +207,9 @@ function all_payments(form_data) {
 	return
 }
 /*END JS payments*/
-document.getElementById('paid').addEventListener('change', function(event) {
-	calcular_monto_pagado()
-})
+// document.getElementById('paid').addEventListener('change', function(event) {
+// 	calcular_monto_pagado()
+// })
 
 document.getElementById('number_of_payments').addEventListener('change', function(event) {
 	sale.cuotas = this.value

@@ -43,7 +43,6 @@
 - Venta de manzanas 
 - Ventas varias ( H21, mano de obra )
 - Generar comprobante de pago y poder enviarlo por mail 
-- Minimizar las tablas en la vista de detalle de venta del lote
 - Ajustes:
 	* El ajuste debe tener fecha 
 	* El ajuste se debe calcular usando la calculadora de inflacion
@@ -52,6 +51,7 @@
    * Al momento de pactar pagos, si no se define el % de mora sera del 0,5 
    * La mora se aplica a todas las ventas
 - Refinanciacion: cuando el cliente no puede pagar lo adeudado se refinancia usando el sistema frances, Fidesur cuenta ya con un excel al que le agregan algunos items propios al calculo ( pedir requerimientos )
+x Minimizar las tablas en la vista de detalle de venta del lote
 
 *** USUARIOS 
 - Definir roles 

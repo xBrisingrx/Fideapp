@@ -22,4 +22,10 @@
 class PaymentsCurrency < ApplicationRecord
   belongs_to :payments_type
   belongs_to :currency
+
+  scope :actives, -> { where(active:true) }
+
+  def name
+    "#{self.payments_type.name} - #{self.currency.name}"
+  end
 end
