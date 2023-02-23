@@ -38,7 +38,7 @@
   
   <%= form.label :paid, 'Primer entrega:' , class: 'font-weight-bold' %>
   
-  <%= render( partial: 'first_pay', locals: { cp: @cp, first_label: true } ) %>
+  <%= render( partial: 'input_pay', locals: { cp: @cp, first_label: true } ) %>
   <div id="payment-list"></div>
   <p id="valor_restante"></p>
   
@@ -92,7 +92,7 @@
 
   <div class="form-group">
     <label class="form-check-inline u-check g-pl-25">
-      <%= form.check_box :apply_arrear, class: 'g-hidden-xs-up g-pos-abs g-top-0 g-left-0' %>
+      <%= form.check_box :apply_arrear, class: 'g-hidden-xs-up g-pos-abs g-top-0 g-left-0', checked: true %>
       <div class="u-check-icon-checkbox-v6 g-absolute-centered--y g-left-0">
         <i class="fa" data-check-icon="&#xf00c"></i>
       </div>

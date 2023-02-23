@@ -1,0 +1,104 @@
+$("#modal-sale-product").html("<%= j (render partial:'shared/modal', locals:{ size: 'xl' }) %>")
+
+$('#owes_value').html('<h4> Monto adeudado: $' + <%= @fee.owes %> + '<b>  </b> </h4>')
+setInputDate('#fee_payment_pay_date')
+document.getElementById('fee_payment_comment').value = ''
+$("#modal-sale-product").modal('show')
+
+document.getElementById('currency_id').addEventListener('change', function(e) {
+	const nodo = e.target.parentElement
+	const value_in_pesos = nodo.querySelector('#fee_payment_value_in_pesos')
+	const calculo_en_pesos = nodo.querySelector('#fee_payment_calculo_en_pesos')
+	nodo.querySelector('#fee_payment_name_pay').value = ''
+	value_in_pesos.style.display = 'none'
+	calculo_en_pesos.style.display = 'none'
+	// nodo.querySelector('#fee_payment_name_pay').style.display = 'none'
+	let entrega = parseInt(e.target.value)
+	switch (entrega) {
+		case 2:
+			value_in_pesos.placeholder = "1 US$ en $"
+			value_in_pesos.style.display = 'block'
+			calculo_en_pesos.style.display = 'block'
+			break;
+		case 3:
+			value_in_pesos.placeholder = "1 € en $"
+			value_in_pesos.style.display = 'block'
+			calculo_en_pesos.style.display = 'block'
+			break;
+		case 5:
+			// nodo.querySelector('#fee_payment_name_pay').style.display = 'block'
+			break;
+		default:
+			break;
+	}
+})
+
+document.getElementById('fee_payment_payment').addEventListener('change', function(e){
+	fee_payment_data.check_input(e, this, 'payment')
+})
+
+document.getElementById('fee_payment_value_in_pesos').addEventListener('change', function(e){
+	fee_payment_data.check_input(e, this, 'tomado_en')
+})
+
+document.getElementById('submit-fee-payment').addEventListener('click', function(e){
+	e.preventDefault()
+	let id = <%= @fee.id %>;
+	let form_data = new FormData()
+	form_data.append('fee_id', id)
+	form_data.append("pay_date", document.getElementById('fee_payment_pay_date').value )
+	form_data.append("currency_id", document.getElementById('currency_id').value)
+	form_data.append("pay_name", document.getElementById('fee_payment_name_pay').value)
+	form_data.append("comment", document.getElementById('fee_payment_comment').value)
+	// valores numericos
+	form_data.append("payment", parseFloat( document.getElementById('fee_payment_payment').value ) )
+	if ( form_data.get('currency_id') == 2 || form_data.get('currency_id') == 3 ) {
+		form_data.append("tomado_en", parseFloat( document.getElementById('fee_payment_value_in_pesos').value ) )
+		form_data.append("calculo_en_pesos", parseFloat( document.getElementById('fee_payment_calculo_en_pesos').value ) )
+	} else {
+		form_data.append("tomado_en", 1 )
+		form_data.append("calculo_en_pesos", parseFloat( document.getElementById('fee_payment_payment').value ) )
+	}
+	let files = document.getElementById('fee-images')
+	let totalFiles = files.files.length
+	if (totalFiles > 0) {
+		for (let i = 0; i < totalFiles; i++) {
+	    form_data.append("images[]", files.files[i])
+	  }
+	}
+
+	if ( isNaN( form_data.get('payment') ) || form_data.get('payment') <= 0 ) {
+		noty_alert('error', 'Datos invalidos')
+		addClassInvalid(document.getElementById('fee_payment_payment'))
+		return
+	}
+	if ( form_data.get('currency_id') == 2 || form_data.get('currency_id') == 3 ) {
+		if ( isNaN( form_data.get('tomado_en') ) || form_data.get('tomado_en') <= 0 ) {
+			noty_alert('error', 'Datos invalidos')
+			addClassInvalid(document.getElementById('fee_payment_value_in_pesos'))
+			return
+		}
+		if ( isNaN( form_data.get('calculo_en_pesos') ) || form_data.get('calculo_en_pesos') <= 0 ) {
+			noty_alert('error', 'Datos invalidos calc pesos')
+			addClassInvalid(document.getElementById('fee_payment_calculo_en_pesos'))
+			return
+		}
+	}
+
+	fetch(`/fees/${id}/partial_payment`, {
+	    method: 'POST',
+	    headers: {           
+	      'X-CSRF-Token': document.getElementsByName('csrf-token')[0].content,
+	    },
+	    body: form_data,
+	  }
+	)
+	.then( response => response.json() )
+	.then( response => {
+		if (response.status === 'success') {
+	    location.reload()
+		}
+		noty_alert(response.status, response.msg)
+	} )
+	.catch( error => noty_alert('error', 'Ocurrio un error, no se pudo registrar el pago') )
+})

@@ -71,13 +71,13 @@ class SalesController < ApplicationController
             comment: "Primer entrega")
 
           for i in 1..params[:num_pays].to_i do 
-            currency_id = params["currency_id_#{i}".to_sym].to_i
+            payments_currency_id = params["payment_currency_id_#{i}".to_sym].to_i
             value_in_pesos = params["value_in_pesos_#{i}".to_sym].to_f
             paid = params["payment_#{i}".to_sym].to_f
             fee_payment = cuota_cero.fee_payments.new(
-              currency_id: currency_id,
+              payments_currency_id: payments_currency_id,
               payment: paid,
-              total: ( ( currency_id == 2) || ( currency_id == 3) ) ? value_in_pesos : paid,
+              total: value_in_pesos,
               tomado_en: params["tomado_en_#{i}".to_sym].to_f,
               detail: params["detail_#{i}".to_sym],
               date: ( params["pay_date_#{i}".to_sym].empty? ) ? sale.date : params["pay_date_#{i}".to_sym]
@@ -85,6 +85,7 @@ class SalesController < ApplicationController
             if !params["files_#{i}".to_sym].blank?
               fee_payment.images = params["files_#{i}".to_sym]
             end
+            byebug
             fee_payment.save!
           end
           cuota_cero.calcular_primer_pago

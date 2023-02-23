@@ -31,7 +31,7 @@
         <tr>
           <td><%= fee.number %></td>
           <td><%= "$#{format_currency(fee.value)}" %></td>
-          <td><%= "---" %></td>
+          <td><%= "$#{format_currency(fee.get_adjusts)}" %></td>
           <td><%= fee.due_date.strftime('%d-%m-%y') %></td>
           <td><%= "$#{format_currency(fee.owes)}" %></td>
           <td><%= "$#{format_currency(fee.payment)}" %></td>

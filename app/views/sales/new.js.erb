@@ -20,6 +20,28 @@ function fee_start_date_info(){
 	noty_alert('info', 'Si coloca una fecha las cuotas corren a partir de esa fecha. En caso de colocar día de vencimiento se tomara ese día de vencimiento. Si no coloca fecha se toma como referencia la fecha de venta', 10000)
 }
 
+document.getElementById('add-client').addEventListener('click', (event) => {
+	event.preventDefault()
+	let client = document.getElementById('client_id')
+	if (client.value != null && client.value != '') {
+		let client_name =  $('#client_id option:selected').text()
+		$('.client-list').append(`
+			<div class="row" id="${client.value}">
+				<div class="mb-2  mx-4 col-6">
+					<input type="text" value="${client_name}" class="client-id form-control rounded-0 " data-id=${client.value} disabled></input>
+				</div>
+				<div>
+					<button type="button" class="btn u-btn-red remove-client" onclick="remove_client(${client.value})" title="Quitar comprador"> <i class="fa fa-trash"></i> </button>
+				</div>
+			</div>
+		`)
+		$('#client_id option:selected').attr('disabled', 'disabled')
+		$('.select-2-client-land').val('').trigger('change')
+	} else {
+		noty_alert('error', 'Error al agregar el cliente a la lista')
+	}
+})
+
 function remove_client( id ) {
 	event.preventDefault()
 	let element = document.getElementById(id)
@@ -52,7 +74,7 @@ document.getElementById('add-payment').addEventListener('click', (e) => {
 	sale.cant_payments++
 	sale.cant_payment_files++
 	const cant = sale.cant_payment_files
-	$('#payment-list').append("<%= j ( render partial: 'first_pay', locals: { cp: @cp, first_label: false } ) %>")
+	$('#payment-list').append("<%= j ( render partial: 'input_pay', locals: { cp: @cp, first_label: false } ) %>")
 })
 
 function remove_payment(){
@@ -62,46 +84,22 @@ function remove_payment(){
 	calcular_monto_pagado()
 }
 
-function set_exchange(){
-	const select = event.target
-	const nodo = event.target.parentElement.parentElement
-	const selected = select.options[select.selectedIndex]
-	const tomado_en = nodo.querySelector('#value_in_pesos')
-	const calculo_en_pesos = nodo.querySelector('#calculo_en_pesos')
-
-	if (selected.dataset.exchange == 'true') {
-		tomado_en.value = ''
-		tomado_en.placeholder = `1 ${selected.dataset.currency} en $`
-		tomado_en.style.display = 'block'
-		calculo_en_pesos.style.display = 'block'
-	} else {
-		tomado_en.value = 1
-		tomado_en.style.display = 'none'
-		calculo_en_pesos.style.display = 'none'
-	}
-
-	if ( valid_number(parseFloat(tomado_en.value)) || valid_number( parseFloat(nodo.querySelector(`#paid`).value) ) ) {
-		calc_valor_en_pesos(event.target)
-	}
-	calcular_monto_pagado()
-}
-
 function calc_valor_en_pesos(e){
 	const node = e.parentElement.parentElement
 	const select = node.querySelector(`#payment_currency`)
 	const selected = select.options[select.selectedIndex]
 	let calculo_en_pesos = node.querySelector(`#calculo_en_pesos`)
-	let paid = parseFloat(node.querySelector(`#paid`).value)
-	let taken_in = parseFloat(node.querySelector(`#value_in_pesos`).value)
+	let paid = parseFloat(node.querySelector(`#payment`).value)
+	let exchange_value = parseFloat(node.querySelector(`#exchange_value`).value)
 
-	if ( !valid_number(taken_in) || !valid_number(paid) ) {
+	if ( !valid_number(exchange_value) || !valid_number(paid) ) {
 		calculo_en_pesos.value = 0
 		$('#valor_restante').html('')
 		return
 	}
 	console.info('seteamos el calculo_en_pesos')
-	console.log(taken_in,paid)
-	calculo_en_pesos.value = taken_in * paid
+	console.log(exchange_value,paid)
+	calculo_en_pesos.value = exchange_value * paid
 }
 
 function calcular_monto_pagado(){
@@ -133,7 +131,7 @@ function calcular_monto_pagado(){
 
 function calculo_de_entrega() {
 	const input = event.target
-	const payment_currency = event.target.parentElement.querySelector('#payment_currency')
+	const payment_currency = event.target.parentElement.parentElement.querySelector('#payment_currency')
 	if (payment_currency.value == '0') {
 		return
 	}
@@ -146,15 +144,9 @@ function sumar_entregas(entrega) {
 	const payments = document.getElementsByClassName('payment-data')
 	let calculo = 0
 	for (let pay of payments) {
-		let currency_id = pay.querySelector('#currency_id').value
-		if (currency_id == '2' || currency_id == '3' ) {
-			// si este no es null es que es dolar o euro
-			calculo += parseFloat( pay.querySelector('#calculo_en_pesos').value )
-		} else {
-			calculo += parseFloat( pay.querySelector('#paid').value )
-		}
+		calculo += parseFloat( pay.querySelector('#calculo_en_pesos').value )
 	}
-	if (isNaN(calculo)) {
+	if (!valid_number(calculo)) {
 		sale.resto = sale.precio
 	} else {
 		sale.resto = sale.precio - calculo
@@ -166,44 +158,54 @@ function all_payments(form_data) {
 	const payments = document.getElementsByClassName('payment-data')
 	let i = 0
 	for (let pay of payments) {
-		let paid = parseFloat( pay.querySelector('#paid').value )
-		if ( isNaN(paid) || paid == '' ) {
+		let paid = parseFloat( pay.querySelector('#payment').value )
+		if ( !valid_number(paid) ) {
 			form_data.append('num_pays', 0 )
+			pay.querySelector('#payment').parentElement.classList.add('u-has-error-v1')
 			return
-		} else {
-			i++
-			let currency_selected = parseInt( pay.querySelector('#currency_id').value ) 
-			let value_in_pesos = parseFloat( pay.querySelector('#value_in_pesos').value )
-			let tomado_en = pay.querySelector('#calculo_en_pesos').value
-			let detail = pay.querySelector('#name_pay')
-			let date = pay.querySelector('#pay_date').value
-			form_data.append( `currency_id_${i}`, currency_selected )
+		}
+		i++
+		pay.querySelector('#payment').parentElement.classList.remove('u-has-error-v1')
+		let currency_selected = pay.querySelector('#payment_currency').options[pay.querySelector('#payment_currency').selectedIndex]
+		let payment_currency_id = parseInt( currency_selected.value ) 
+		if (payment_currency_id == 0 ) {
+			pay.querySelector('#payment_currency').parentElement.classList.add('u-has-error-v1')
+			return
+		}
+		pay.querySelector('#payment_currency').parentElement.classList.remove('u-has-error-v1')
+		let exchange_value = parseFloat( pay.querySelector('#exchange_value').value )
+		let valor_en_pesos = parseFloat( pay.querySelector('#calculo_en_pesos').value )
+		let detail = pay.querySelector('#name_pay')
+		let date = pay.querySelector('#pay_date').value
+    if ( currency_selected.dataset.exchange == 'true' && !valid_number(exchange_value) ) {
+    	noty_alert('error','Debe ingresar en cuanto toma la moneda ingresada')
+    	pay.querySelector('#exchange_value').classList.add('u-has-error-v1')
+    	return
+    }
 
-	    form_data.append( `payment_${i}`, ( !isNaN( paid ) ) ? paid : '' );
-	    if ( currency_selected == 2 || currency_selected == 3 ) {
-	    	if ( isNaN(value_in_pesos) ) {
-	    		noty_alert('error','Debe ingresar en cuanto toma la moneda ingresada')
-		    	pay.querySelector('#value_in_pesos').classList.add('u-has-error-v1')
-		    	return
-	    	}
-	    }
-	    form_data.append( `tomado_en_${i}`, ( pay.querySelector('#value_in_pesos') !== null ) ? parseFloat( pay.querySelector('#value_in_pesos').value ) : '' )
-	    form_data.append( `value_in_pesos_${i}`, ( pay.querySelector('#calculo_en_pesos') !== null ) ? parseFloat( pay.querySelector('#calculo_en_pesos').value ) : '' )
-	    form_data.append( `detail_${i}`, ( pay.querySelector('#name_pay') !== null ) ? pay.querySelector('#name_pay').value : '' )
-	    form_data.append( `pay_date_${i}`, date )
-			let files = pay.querySelector('#fileAttachment')
-			if (files !== null) {
-				let totalFiles = files.files.length
-				if (totalFiles > 0) {
-					for (let n = 0; n < totalFiles; n++) {
-		        form_data.append(`files_${i}[]`, files.files[n])
-		      }
-				}
+    if ( !valid_number(valor_en_pesos) ) {
+    	return
+    }
+
+    console.log('valor en pesos y en cuanto lo toma => ',exchange_value,valor_en_pesos)
+    form_data.append( `payment_currency_id_${i}`, payment_currency_id )
+    form_data.append( `payment_${i}`, paid );
+    form_data.append( `tomado_en_${i}`, exchange_value )
+    form_data.append( `value_in_pesos_${i}`, valor_en_pesos )
+    form_data.append( `detail_${i}`, ( pay.querySelector('#name_pay') !== null ) ? pay.querySelector('#name_pay').value : '' )
+    form_data.append( `pay_date_${i}`, date )
+		let files = pay.querySelector('#fileAttachment')
+		if (files !== null) {
+			let totalFiles = files.files.length
+			if (totalFiles > 0) {
+				for (let n = 0; n < totalFiles; n++) {
+	        form_data.append(`files_${i}[]`, files.files[n])
+	      }
 			}
 		}
 	}
 	form_data.append('num_pays', i )
-	
+	console.log('llego al fin de recolectar pagos')
 	return
 }
 /*END JS payments*/
@@ -336,7 +338,7 @@ function validaciones_sale_form() {
 	// validaciones aqui
 	if ($('#fecha_compra').val() === '') {
 		noty_alert( 'error', 'Debe seleccionar una fecha' )
-		// return
+		return false
 	}
 
 	if (sale.form.get('clients[]').length == 0) {

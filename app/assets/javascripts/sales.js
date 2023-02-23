@@ -62,6 +62,29 @@ let sale = {
       location.reload()
     } )
     .catch( error => noty_alert('error', 'Ocurrio un error, no se pudo registrar la venta') )
+  },
+  set_exchange(){
+    const select = event.target
+    const nodo = event.target.parentElement.parentElement
+    const selected = select.options[select.selectedIndex]
+    const tomado_en = nodo.querySelector('#exchange_value')
+    const calculo_en_pesos = nodo.querySelector('#calculo_en_pesos')
+
+    if (selected.dataset.exchange == 'true') {
+      tomado_en.value = ''
+      tomado_en.placeholder = `1 ${selected.dataset.currency} en $`
+      tomado_en.style.display = 'block'
+      calculo_en_pesos.style.display = 'block'
+    } else {
+      tomado_en.value = 1
+      tomado_en.style.display = 'none'
+      calculo_en_pesos.style.display = 'none'
+    }
+
+    if ( valid_number(parseFloat(tomado_en.value)) || valid_number( parseFloat(nodo.querySelector(`#payment`).value) ) ) {
+      calc_valor_en_pesos(event.target)
+    }
+    calcular_monto_pagado()
   }
 }
 

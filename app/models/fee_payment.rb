@@ -12,25 +12,22 @@
 #  total                     :decimal(15, 2)   default(0.0)
 #  created_at                :datetime         not null
 #  updated_at                :datetime         not null
-#  currency_id               :bigint
 #  fee_id                    :bigint
-#  payments_type_id          :bigint
+#  payments_currency_id      :bigint
 #
 # Indexes
 #
-#  index_fee_payments_on_currency_id       (currency_id)
-#  index_fee_payments_on_fee_id            (fee_id)
-#  index_fee_payments_on_payments_type_id  (payments_type_id)
+#  index_fee_payments_on_fee_id                (fee_id)
+#  index_fee_payments_on_payments_currency_id  (payments_currency_id)
 #
 # Foreign Keys
 #
-#  fk_rails_...  (currency_id => currencies.id)
 #  fk_rails_...  (fee_id => fees.id)
-#  fk_rails_...  (payments_type_id => payments_types.id)
+#  fk_rails_...  (payments_currency_id => payments_currencies.id)
 #
 class FeePayment < ApplicationRecord
   belongs_to :fee
-  belongs_to :currency
-  belongs_to :payments_type
+  belongs_to :payments_currency
+  has_one :currency, through: :payments_currency
   has_many_attached :images
 end

@@ -7,7 +7,7 @@ class FeesController < ApplicationController
 	end
 
 	def show
-		@currencies = Currency.select(:id, :name).where(active: true)
+    @cp = PaymentsCurrency.actives
     # obtengo info de una sola cuota
     @fee = Fee.find(params[:id])
     @title_modal = "Pagar cuota ##{@fee.number}"
@@ -71,7 +71,7 @@ class FeesController < ApplicationController
             tomado_en: params[:value_in_pesos],
             total: params[:calculo_en_pesos],
             detail: params[:name_pay],
-            currency_id: params[:currency_id],
+            payments_currency_id: params[:payments_currency_id],
             comment: params[:comment] )
         if !params[:images].nil?
           pago_de_cuota.images = params[:images]
