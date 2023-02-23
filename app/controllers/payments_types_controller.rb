@@ -1,5 +1,5 @@
 class PaymentsTypesController < ApplicationController
-	before_action :set_material, only: %i[ show edit update destroy ]
+	before_action :set_payment_type, only: %i[ show edit update destroy ]
 
   def index
     @payments_types = PaymentsType.actives
@@ -8,6 +8,10 @@ class PaymentsTypesController < ApplicationController
   def new
     @payment_type = PaymentsType.new
     @title_modal = 'Registrar medio de pago'
+  end
+
+  def show
+    render json: @payment_type.currencies
   end
 
   def edit
@@ -49,7 +53,7 @@ class PaymentsTypesController < ApplicationController
   end
 
   private
-    def set_material
+    def set_payment_type
       @payment_type = PaymentsType.find(params[:id])
     end
 

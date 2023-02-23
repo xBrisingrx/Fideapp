@@ -12,6 +12,7 @@ let sale = {
   entrega: 0,
   client_index: 0,
   suma_cuotas_manual: 0,
+  select_payment_types: '',
   set_cuotas(cantidad_cuotas, nodo_id){
     cantidad_cuotas++
     for (let i = 1; i < cantidad_cuotas; i++) {
