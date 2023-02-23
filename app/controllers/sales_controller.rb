@@ -85,7 +85,6 @@ class SalesController < ApplicationController
             if !params["files_#{i}".to_sym].blank?
               fee_payment.images = params["files_#{i}".to_sym]
             end
-            byebug
             fee_payment.save!
           end
           cuota_cero.calcular_primer_pago

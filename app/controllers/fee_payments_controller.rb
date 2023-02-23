@@ -1,6 +1,7 @@
 class FeePaymentsController < ApplicationController
+  
   def new
-    @title_modal = 'Pago parcial'
+    @title_modal = 'Ingresar pago'
     @currencies = Currency.where(active:true)
     @fee = Fee.find(params[:fee_id])
     @data = @fee.fee_payments.build
