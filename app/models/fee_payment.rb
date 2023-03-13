@@ -11,6 +11,7 @@
 #  payment(Dinero ingresado) :decimal(15, 2)   default(0.0)
 #  tomado_en                 :decimal(15, 2)   default(1.0)
 #  total                     :decimal(15, 2)   default(0.0)
+#  valor_acarreado           :decimal(15, 2)   default(0.0)
 #  created_at                :datetime         not null
 #  updated_at                :datetime         not null
 #  fee_id                    :bigint

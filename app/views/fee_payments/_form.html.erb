@@ -6,8 +6,8 @@
   <% end %>
 
   <div class="form-group row">
-    <%= form.label :pay_date, 'Fecha:' , class: 'col-3' %>
-    <%= form.date_field :pay_date, class: 'form-control rounded-0 col-3', required: true %>
+    <%= form.label :date, 'Fecha:' , class: 'col-3' %>
+    <%= form.date_field :date, class: 'form-control rounded-0 col-3', required: true %>
     <div class="invalid-feedback field_price"></div>
   </div>
 
@@ -49,15 +49,15 @@
 
   <div class="form-group row">
     <%= form.label :payment_entered, 'Ingresar pago $:' , class: 'col-3' %>
-    <select name="payments_currency_id" id="payments_currency_id" class="col-2 form-control rounded-0 payment-currency u-has-error-v1" onchange="set_exchange()">
+    <select name="payments_currency_id" id="payments_currency_id" class="col-2 form-control rounded-0 payment-currency u-has-error-v1" onchange="set_exchange('fee_payment_')">
       <option value="0"> Tipo de entrega </option>
       <% @cp.each do |c| %>
         <option value="<%= c.id %>" data-exchange= <%= c.currency.need_exchange %> data-currency=<%= c.currency.name %> ><%= c.name %></option>
       <%end%>
     </select>
     <%= form.number_field :payment, class: 'form-control rounded-0 col-2 ml-2', step:'0.01' , required: true %>
-    <%= form.number_field :value_in_pesos, class: 'form-control rounded-0 col-2 ml-2 ', step:'0.01', placeholder: '', style: 'display:none' %>
-    <%= form.number_field :calculo_en_pesos, class: 'form-control rounded-0 col-2 ml-2 ' , placeholder: 'Calculo valor en $',  style: 'display:none', disabled:true %>
+    <%= form.number_field :value_in_pesos, class: 'form-control rounded-0 col-2 ml-2 ', step:'0.01', placeholder: '', style: 'display:none', value: 1 %>
+    <%= form.number_field :calculo_en_pesos, class: 'form-control rounded-0 col-2 ml-2 ' , placeholder: 'Calculo valor en $',  style: 'display:none', disabled:true, value: 1 %>
     <%= form.text_field :name_pay, class: 'form-control rounded-0 col-2 ml-2 ', placeholder: 'Detalle entrega', value: '' %>
     <label class="u-file-attach-v2 g-color-gray-dark-v5 mb-0 ml-2">
       <input id="fee-images" name="fee-images[]" type="file">

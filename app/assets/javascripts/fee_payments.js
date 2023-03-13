@@ -45,6 +45,6 @@ let fee_payment_data = {
 		} else {
 			this.tomado_en = data
 		}
-		this.calc_valor_en_pesos('fee_payment')
+		sale.calc_valor_en_pesos('fee_payment')
 	}
 }

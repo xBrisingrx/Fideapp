@@ -98,37 +98,36 @@ function calc_valor_en_pesos(e){
 		$('#valor_restante').html('')
 		return
 	}
-	console.info('seteamos el calculo_en_pesos')
-	console.log(exchange_value,paid)
 	calculo_en_pesos.value = exchange_value * paid
 }
 
-function calcular_monto_pagado(){
-	$('#valor_restante').html('')
-	// seleccionamos los pagos
-	const payments = document.getElementsByClassName('payment-data')
-	sale.entrega = 0
-	// recorremos y sumamos las entregas
-	for (let pay of payments) {
-		const payed = parseFloat( pay.querySelector('#calculo_en_pesos').value )
-		if (valid_number(payed)) {
-			sale.entrega += payed
-		}
-	}
+// movido a sale.calcular_monto_pagado
+// function calcular_monto_pagado(){
+// 	$('#valor_restante').html('')
+// 	// seleccionamos los pagos
+// 	const payments = document.getElementsByClassName('payment-data')
+// 	sale.entrega = 0
+// 	// recorremos y sumamos las entregas
+// 	for (let pay of payments) {
+// 		const payed = parseFloat( pay.querySelector('#calculo_en_pesos').value )
+// 		if (valid_number(payed)) {
+// 			sale.entrega += payed
+// 		}
+// 	}
 
-	if (isNaN(sale.entrega)) {
-		sale.resto = sale.precio
-	} else {
-		sale.resto = sale.precio - sale.entrega
-	}
+// 	if (isNaN(sale.entrega)) {
+// 		sale.resto = sale.precio
+// 	} else {
+// 		sale.resto = sale.precio - sale.entrega
+// 	}
 
-	if (sale.entrega > 0 &&  !isNaN(sale.entrega) && sale.entrega <= sale.precio) {
-		$('#valor_restante').append(`A pagar en cuotas: <b>$${sale.resto}</b>`)
-		calular_valor_cuota()
-	} else if ( sale.entrega > sale.precio ) {
-		$('#valor_restante').append(`<p class='text-danger ml-4'> Ingreso un valor mayor al del lote </>`)
-	}
-}
+// 	if (sale.entrega > 0 &&  !isNaN(sale.entrega) && sale.entrega <= sale.precio) {
+// 		$('#valor_restante').append(`A pagar en cuotas: <b>$${sale.resto}</b>`)
+// 		calular_valor_cuota()
+// 	} else if ( sale.entrega > sale.precio ) {
+// 		$('#valor_restante').append(`<p class='text-danger ml-4'> Ingreso un valor mayor al del lote </>`)
+// 	}
+// }
 
 function calculo_de_entrega() {
 	const input = event.target
@@ -137,7 +136,7 @@ function calculo_de_entrega() {
 		return
 	}
 	calc_valor_en_pesos(input)
-	calcular_monto_pagado(input)
+	sale.calcular_monto_pagado()
 }
 
 function sumar_entregas(entrega) {

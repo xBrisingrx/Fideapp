@@ -4,7 +4,7 @@ class FeePaymentsController < ApplicationController
     @cp = PaymentsCurrency.actives
     @fee = Fee.find(params[:fee_id])
     # Plata que quedo pendiente de cuotas anteriores 
-    @adeuda = @fee.get_deuda
+    @adeuda = @fee.get_deuda + @fee.owes
     @data = @fee.fee_payments.build
     @fee_payment = FeePayment.new
     @title_modal = "Ingresar pago de cuota ##{@fee.number}"
@@ -13,13 +13,12 @@ class FeePaymentsController < ApplicationController
       # El % que se seteo cuando se hizo la venta
       @porcentaje_interes = @fee.sale.arrear
       # Esto es el valor calculado del interes diario
-      # @interes_sugerido = calcular_interes!(@porcentaje_interes, @fee.fee_value, @fee.due_date)
       @interes_sugerido = @fee.calcular_interes
-      @total_a_pagar = @fee.value + @interes_sugerido + @adeuda
+      @total_a_pagar =  @interes_sugerido + @adeuda
     else 
       @porcentaje_interes = 0
       @interes = 0.0
-      @total_a_pagar = @fee.value + @adeuda
+      @total_a_pagar = @adeuda
     end
   end
 
@@ -27,12 +26,13 @@ class FeePaymentsController < ApplicationController
     fee = Fee.find(params[:fee_id])
     fee_payments = fee.fee_payments.new(
       payment: params[:payment],
-      pay_date: params[:pay_date],
+      date: params[:date],
       comment: params[:comment],
       payments_currency_id: params[:payments_currency_id],
       tomado_en: params[:tomado_en],
       total: params[:calculo_en_pesos],
-      pay_name: params[:pay_name]
+      detail: params[:name_pay],
+      code: FeePayment.count + 1,
     )
     if !params[:images].nil?
       fee_payments.images = params[:images]
@@ -40,6 +40,7 @@ class FeePaymentsController < ApplicationController
     respond_to do |format|
       # create tiene un callback para actualizar fee
       if fee_payments.save!
+        fee.aplicar_pago( fee_payments.payment, fee.pay_date, code )
         format.json { render json: {'status' => 'success', 'msg' => 'Pago registrado'}, location: @fee_payment }
       else
         format.json { render json: fee.fee_payments.errors, status: :unprocessable_entity }

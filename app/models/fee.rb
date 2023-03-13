@@ -29,7 +29,7 @@
 #
 class Fee < ApplicationRecord
   belongs_to :sale
-  has_many :adjusts
+  has_many :adjusts, dependent: :destroy
   has_many :fee_payments, dependent: :destroy
 
   scope :actives, -> { where(active: true) }
@@ -45,7 +45,8 @@ class Fee < ApplicationRecord
 
   def calcular_interes
     interes_diario = ( (self.sale.arrear/10) * self.value)
-    dias_vencido = Date.today - Date.new( self.due_date.year, self.due_date.month, 01 )
+    primer_cuota_vencima = self.sale.fees.actives.no_payed.order('id ASC').first
+    dias_vencido = Date.today - Date.new( primer_cuota_vencima.due_date.year, primer_cuota_vencima.due_date.month, 01 )
     total = interes_diario * dias_vencido
     total
   end
@@ -108,12 +109,14 @@ class Fee < ApplicationRecord
     end
   end
 
-  def pago_supera_cuota payment, pay_date, code
+  def aplicar_pago payment, pay_date, code
     # Obtengo todas las cuotas que no estan pagadas distintas a la que se esta pagando en este momento
-    cuotas_a_pagar = Fee.where(sale_id: self.sale_id).where('number != ?', self.number).where('owes > 0').order('id ASC')
-    cuotas_a_pagar.each do |cuota| 
-      puts "\n Payment menor a cero => #{payment.to_f} \n" if payment <= 0.0
-      return if payment <= 0.0
+    cuotas_a_pagar = Fee.where(sale_id: self.sale_id).where('owes > 0').order('id ASC')
+    monto_pagado = payment
+    cuotas_a_pagar.each do |cuota|
+      # byebug
+      puts "\n Payment menor a cero => #{monto_pagado.to_f} \n" if monto_pagado <= 0.0
+      return if monto_pagado <= 0.0
       # pago a registrar, se deja en cero el monto porque es para lleva el registro de adelantos/pago deuda
       pago = cuota.fee_payments.new(
         date: pay_date, 
@@ -122,26 +125,31 @@ class Fee < ApplicationRecord
         total: 0,
         payments_currency_id: 1,
         code: code)
+      
       owes = cuota.owes #lo que se adeuda de esta cuota
-      if payment < cuota.owes
-        cuota.update!(owes: cuota.owes - payment, pay_status: :pago_parcial, payed: true )
-
+      if monto_pagado < cuota.owes
+        cuota.update!(owes: cuota.owes - monto_pagado, pay_status: :pago_parcial, payed: true )
+        pago.valor_acarreado = monto_pagado
         if cuota.due_date < pay_date 
-          pago.comment = "Pago parcial de deuda de esta cuota por un monto de $#{payment.to_f}, realizado cuando se pago la cuota ##{self.number}" 
+          pago.comment = "Pago parcial de deuda de esta cuota realizado cuando se pago la cuota ##{self.number} por un monto de $"
         else 
-          pago.comment = "Se realizo un adelanto parcial de esta cuota por un monto de $#{payment.to_f}, cuando se pago la cuota ##{self.number}" 
+          pago.comment = "Se realizo un adelanto parcial de esta cuota cuando se pago la cuota ##{self.number} por un monto de $" 
         end
       else
         cuota.update!(owes: 0.0, pay_status: :pagado, payed: true)
+        pago.valor_acarreado = owes
         if cuota.due_date < pay_date 
-          pago.comment = "Pago total de deuda de esta cuota por un monto de $#{owes.to_f}, realizado cuando se pago la cuota ##{self.number}" 
+          pago.comment = "Pago total de deuda de esta cuota realizado cuando se pago la cuota ##{self.number} por un monto de $" 
         else 
-          pago.comment = "Se realizo un pago adelantado de esta cuota por un monto de $#{owes.to_f}, cuando se pago la cuota ##{self.number}" 
+          pago.comment = "Se realizo un pago adelantado de esta cuota cuando se pago la cuota ##{self.number} por un monto de $" 
         end
-      end # if payment <= cuota.owes
+      end # if monto_pagado <= cuota.owes
 
-      pago.save!
-      payment -= owes
+      if cuota.id != self.id # el pago de la cuota actual ya fue registrado
+        pago.save!
+      end
+      byebug
+      monto_pagado -= owes
     end # cuotas_a_pagar.each
   end # pago_supera_cuota
 
@@ -189,6 +197,10 @@ class Fee < ApplicationRecord
       return true
     end
     return false
+  end
+
+  def adeuda_pago
+    self.pago_parcial? || (self.payed? && self.owes > 0)
   end
 
 end

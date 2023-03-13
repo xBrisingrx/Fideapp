@@ -59,11 +59,11 @@
                          :remote => true, 'data-toggle' =>  'modal', 'data-target' => '#modal-sales', 
                           class: ' u-link-v5 g-color-white g-color-gray-dark-v2 g-color-secondary--hover g-text-underline--none--hover', 
                           title: 'Detalle del pago de cuota' %>
-            <% if !fee.payed? && fee.due_current_month %>
+            <% if !fee.payed? %>
               <%= "#{link_to "<i class='hs-admin-money'></i>".html_safe, fee_path(fee.id), 
                      :remote => true, 'data-toggle' =>  'modal', 'data-target' => '#modal-sales', 
                       class: ' u-link-v5 g-color-gray-dark-v2 g-color-secondary--hover g-text-underline--none--hover', title: 'Pagar cuota'}".html_safe %>
-            <% elsif fee.pago_parcial? && fee.due_current_month %>
+            <% elsif fee.adeuda_pago && fee.due_current_month %>
               <%= "#{btn_detalle_pago}
                     #{link_to "<i class='hs-admin-money'></i>".html_safe, pago_parcial_path(fee.id),
                       :remote => true, 'data-toggle' =>  'modal', 'data-target' => '#modal-sales', 

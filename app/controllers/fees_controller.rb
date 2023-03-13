@@ -41,25 +41,29 @@ class FeesController < ApplicationController
       end
 
       if params[:adjust].to_f > 0 # Si agregaron algo al ajuste 
-        cuota.apply_adjust(params[:adjust].to_f, params[:comment_adjust]) # y las siguientes
+        cuota.adjusts.create(value:  params[:adjust].to_f, comment:  params[:comment_adjust])
+        # cuota.apply_adjust(params[:adjust].to_f, params[:comment_adjust]) # y las siguientes
       end
 
       # Calculo el total que se deberia haber pagado
       # Aca no sumo el valor de cuotas anteriores
       cuota.total_value = cuota.value + cuota.interest + cuota.get_adjusts 
+      cuota.owes = cuota.total_value
 
       # Chequeo si se pago menos de lo que se debia, en caso de que haya sido asi pasa al atributo DEBE
-      if ( cuota.total_value >= cuota.payment )
-        cuota.owes = (cuota.total_value - cuota.payment).round(2)
-      else
-        cuota.owes = 0.0
-      end
+      # if ( cuota.total_value >= cuota.payment )
+      #   cuota.owes = (cuota.total_value - cuota.payment).round(2)
+      # else
+      #   cuota.owes = 0.0
+      # end
+
       cuota.pay_date = params[:pay_date]
       cuota.payed = true
       cuota.comment = params[:comment]
 
       # si debe plata el status es pago parcial , sino pago total
-      cuota.pay_status = ( cuota.owes > 0 ) ? :pago_parcial : :pagado
+      # cuota.pay_status = ( cuota.owes > 0 ) ? :pago_parcial : :pagado
+
       # si el valor de la cuota cambia tenemos que actualizar el valor de la venta del lote
       recalcular_valor_venta = cuota.total_value_changed?
       if cuota.save!
@@ -81,7 +85,7 @@ class FeesController < ApplicationController
 
         if pago_de_cuota.save!
           # Lo abonado es mayor a lo que se debe de la cuota
-          cuota.pago_supera_cuota( cuota.payment - cuota.total_value, cuota.pay_date, code ) if ( cuota.total_value < cuota.payment )
+          cuota.aplicar_pago( pago_de_cuota.total, cuota.pay_date, code )
           render json: { status: 'success', msg: 'Pago registrado' }, status: 200
         else
           render json: { status: 'error', msg: 'No se pudo registrar el pago' }, status: 422

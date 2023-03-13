@@ -85,7 +85,44 @@ let sale = {
     if ( valid_number(parseFloat(tomado_en.value)) || valid_number( parseFloat(nodo.querySelector(`#payment`).value) ) ) {
       calc_valor_en_pesos(event.target)
     }
-    calcular_monto_pagado()
+    this.calcular_monto_pagado()
+  },
+  calc_valor_en_pesos(object){
+    const fee_payment_value = parseFloat(document.getElementById(`${object}payment`).value)
+    const exchange_value = parseFloat(document.getElementById(`${object}value_in_pesos`).value)
+    const calculo_en_pesos = document.getElementById(`${object}calculo_en_pesos`)
+
+    if ( !valid_number(exchange_value) || !valid_number(fee_payment_value) ) {
+      calculo_en_pesos.value = 0
+      return
+    }
+    calculo_en_pesos.value = fee_payment_value*exchange_value
+  },
+  calcular_monto_pagado(){
+    $('#valor_restante').html('')
+    // seleccionamos los pagos
+    const payments = document.getElementsByClassName('payment-data')
+    sale.entrega = 0
+    // recorremos y sumamos las entregas
+    for (let pay of payments) {
+      const payed = parseFloat( pay.querySelector('#calculo_en_pesos').value )
+      if (valid_number(payed)) {
+        sale.entrega += payed
+      }
+    }
+
+    if (isNaN(sale.entrega)) {
+      sale.resto = sale.precio
+    } else {
+      sale.resto = sale.precio - sale.entrega
+    }
+
+    if (sale.entrega > 0 &&  !isNaN(sale.entrega) && sale.entrega <= sale.precio) {
+      $('#valor_restante').append(`A pagar en cuotas: <b>$${sale.resto}</b>`)
+      calular_valor_cuota()
+    } else if ( sale.entrega > sale.precio ) {
+      $('#valor_restante').append(`<p class='text-danger ml-4'> Ingreso un valor mayor al del lote </>`)
+    }
   }
 }
 

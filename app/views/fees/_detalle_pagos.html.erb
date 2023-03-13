@@ -57,7 +57,7 @@
                   <% end %>
                 </td>
                 <td> <%= payment.detail %> </td>
-                <td> <%= payment.comment %> </td>
+                <td> <%= payment.comment %> <%= format_currency(payment.valor_acarreado) %> </td>
               </tr>
             <% end %>
           </tbody>
