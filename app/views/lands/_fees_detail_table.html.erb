@@ -5,7 +5,7 @@
 
 <div class="row mb-2">
   <%= render(partial: 'card_pay_small', 
-             locals: { color: 'teal-v2', paid: sale.total_pagado, detail: 'Pagado' })%>
+             locals: { color: 'teal-v2', paid: sale.salgo_pagado, detail: 'Pagado' })%>
   <%= render(partial: 'card_pay_small', 
              locals: { color: 'lightred-v2', paid: sale.get_all_owes, detail: 'Adeuda' })%>
   <%= render(partial: 'card_pay_small', 
@@ -21,7 +21,7 @@
         <th>Ajuste</th>
         <th>Fecha vencimiento</th>
         <th id="total_debe"> Debe <b>($<%= format_currency(sale.fees.sum(:owes) ) %>)</b></th>
-        <th id="total_haber"> Haber <b>($<%= format_currency(sale.fees.sum(:payment) ) %>)</b></th>
+        <th id="total_haber"> Haber <b>($<%= format_currency(sale.salgo_pagado ) %>)</b></th>
         <th>Estado</th>
         <th>Acciones</th>
       </tr>
@@ -34,7 +34,7 @@
           <td><%= "$#{format_currency(fee.get_adjusts)}" %></td>
           <td><%= fee.due_date.strftime('%d-%m-%y') %></td>
           <td><%= show_owes(fee.show_owes_in_table) %></td>
-          <td><%= "$#{format_currency(fee.payment)}" %></td>
+          <td><%= "$#{format_currency(fee.get_payments)}" %></td>
           <% if fee.expired? && !fee.payed? %>
             <td>
               <span class='u-tags-v1 text-center g-width-100 g-brd-around g-brd-lightred-v2 g-bg-lightred-v2

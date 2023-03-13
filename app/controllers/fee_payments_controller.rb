@@ -9,17 +9,20 @@ class FeePaymentsController < ApplicationController
     @fee_payment = FeePayment.new
     @title_modal = "Ingresar pago de cuota ##{@fee.number}"
     # testeo que este vencida la cuota y que se haya seteado q se corresponda aplicar intereses
-    if @fee.apply_arrear?
-      # El % que se seteo cuando se hizo la venta
-      @porcentaje_interes = @fee.sale.arrear
-      # Esto es el valor calculado del interes diario
-      @interes_sugerido = @fee.calcular_interes
-      @total_a_pagar =  @interes_sugerido + @adeuda
-    else 
-      @porcentaje_interes = 0
-      @interes = 0.0
-      @total_a_pagar = @adeuda
-    end
+    # if @fee.apply_arrear?
+    #   # El % que se seteo cuando se hizo la venta
+    #   @porcentaje_interes = @fee.sale.arrear
+    #   # Esto es el valor calculado del interes diario
+    #   @interes_sugerido = @fee.calcular_interes
+    #   @total_a_pagar =  @interes_sugerido + @adeuda
+    # else 
+    #   @porcentaje_interes = 0
+    #   @interes = 0.0
+    #   @total_a_pagar = @adeuda
+    # end
+    @porcentaje_interes = 0
+    @interes = 0.0
+    @total_a_pagar = @adeuda
   end
 
   def create
@@ -37,10 +40,15 @@ class FeePaymentsController < ApplicationController
     if !params[:images].nil?
       fee_payments.images = params[:images]
     end
+
+    if params[:fee_payment_adjust].to_f > 0
+      fee.adjusts.create(value:  params[:adjust].to_f, comment:  params[:comment_adjust])
+    end
+  
     respond_to do |format|
       # create tiene un callback para actualizar fee
       if fee_payments.save!
-        fee.aplicar_pago( fee_payments.payment, fee.pay_date, code )
+        fee.aplicar_pago( fee_payments.payment, fee.pay_date, fee_payments.code )
         format.json { render json: {'status' => 'success', 'msg' => 'Pago registrado'}, location: @fee_payment }
       else
         format.json { render json: fee.fee_payments.errors, status: :unprocessable_entity }

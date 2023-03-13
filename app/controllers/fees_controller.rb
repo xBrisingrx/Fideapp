@@ -12,7 +12,7 @@ class FeesController < ApplicationController
     @fee = Fee.find(params[:id])
     @title_modal = "Pagar cuota ##{@fee.number}"
     # Plata que quedo pendiente de cuotas anteriores 
-    @adeuda = @fee.get_deuda
+    @adeuda = @fee.get_deuda + @fee.value
     # testeo que este vencida la cuota y que se haya seteado q se corresponda aplicar intereses
     if @fee.apply_arrear?
       # El % que se seteo cuando se hizo la venta
@@ -20,11 +20,11 @@ class FeesController < ApplicationController
       # Esto es el valor calculado del interes diario
       # @interes_sugerido = calcular_interes!(@porcentaje_interes, @fee.fee_value, @fee.due_date)
       @interes_sugerido = @fee.calcular_interes
-      @total_a_pagar = @fee.value + @interes_sugerido + @adeuda
+      @total_a_pagar = @interes_sugerido + @adeuda
     else 
       @porcentaje_interes = 0
       @interes = 0.0
-      @total_a_pagar = @fee.value + @adeuda
+      @total_a_pagar = @adeuda
     end
 	end
 

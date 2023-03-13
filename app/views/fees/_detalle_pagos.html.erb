@@ -16,7 +16,7 @@
           <li> Ajuste: <b>$<%= format_currency(@cuota.get_adjusts) %></b> </li>
         <% end %>
 
-        <li> Total pagado: <b>$<%= format_currency(@cuota.payment) %></b> </li>
+        <li> Total pagado: <b>$<%= format_currency(@cuota.get_payments) %></b> </li>
       </ul>
       <div class="row mx-2">
         <p>Pagos realizados</p>
@@ -57,7 +57,11 @@
                   <% end %>
                 </td>
                 <td> <%= payment.detail %> </td>
-                <td> <%= payment.comment %> <%= format_currency(payment.valor_acarreado) %> </td>
+                <td>
+                  <% if payment.valor_acarreado.to_f > 0 %>
+                    <%= payment.comment %> <%= format_currency(payment.valor_acarreado) %>
+                  <% end %>
+                </td>
               </tr>
             <% end %>
           </tbody>

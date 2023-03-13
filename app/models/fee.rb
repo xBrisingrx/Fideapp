@@ -114,7 +114,6 @@ class Fee < ApplicationRecord
     cuotas_a_pagar = Fee.where(sale_id: self.sale_id).where('owes > 0').order('id ASC')
     monto_pagado = payment
     cuotas_a_pagar.each do |cuota|
-      # byebug
       puts "\n Payment menor a cero => #{monto_pagado.to_f} \n" if monto_pagado <= 0.0
       return if monto_pagado <= 0.0
       # pago a registrar, se deja en cero el monto porque es para lleva el registro de adelantos/pago deuda
@@ -145,10 +144,12 @@ class Fee < ApplicationRecord
         end
       end # if monto_pagado <= cuota.owes
 
-      if cuota.id != self.id # el pago de la cuota actual ya fue registrado
-        pago.save!
-      end
-      byebug
+      # if cuota.id != self.id # el pago de la cuota actual ya fue registrado
+      #   pago.save!
+      # end
+      puts "\n\n =========================== \n\n" unless cuota.id == self.id
+      pago.save unless cuota.fee_id == self.id
+
       monto_pagado -= owes
     end # cuotas_a_pagar.each
   end # pago_supera_cuota
@@ -201,6 +202,10 @@ class Fee < ApplicationRecord
 
   def adeuda_pago
     self.pago_parcial? || (self.payed? && self.owes > 0)
+  end
+
+  def get_payments
+    self.fee_payments.sum(:total)
   end
 
 end

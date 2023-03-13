@@ -11,13 +11,13 @@ let fee_data = {
 	form_data: '',
 	id: '',
 	sumar_todo(){
-		return this.valor_cuota + this.ajuste + this.adeuda + this.recargo_sugerido
+		return this.ajuste + this.adeuda + this.recargo_sugerido
 	},
 	sumar_sin_recargo() {
-		return this.valor_cuota + this.ajuste + this.adeuda 
+		return this.ajuste + this.adeuda 
 	},
 	sumar_sin_ajuste() {
-		return this.valor_cuota + this.recargo_sugerido + this.adeuda 
+		return this.recargo_sugerido + this.adeuda 
 	},
 	convertir_a_pesos() {
 		if ( (this.payment > 0.0) && ( this.tomado_en > 0.0 )  && ( !isNaN(this.payment) ) && ( !isNaN(this.tomado_en) ) ) {

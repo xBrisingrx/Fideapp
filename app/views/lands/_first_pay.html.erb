@@ -17,6 +17,7 @@
         <tbody>
           <% sale.fees.where(number: 0).first.fee_payments.each do |payment|%>
             <tr>
+              <%= pp payment.id %>
               <td> <%= payment.date.strftime('%d-%m-%y') %> </td>
               <td><%= payment.currency.name %></td>
               <td><%= format_currency( payment.payment ) %></td>
