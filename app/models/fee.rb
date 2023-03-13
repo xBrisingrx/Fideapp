@@ -43,25 +43,37 @@ class Fee < ApplicationRecord
     self.update( payment: primer_pago , value: primer_pago ,total_value: primer_pago )
   end
 
+  def calcular_interes
+    interes_diario = ( (self.sale.arrear/10) * self.value)
+    dias_vencido = Date.today - Date.new( self.due_date.year, self.due_date.month, 01 )
+    total = interes_diario * dias_vencido
+    total
+  end
+
   def expired?
     self.due_date.strftime("%F")  < Time.new.strftime("%F") 
   end
 
-def apply_arrear?
+  def apply_arrear?
     self.expired? && self.sale.apply_arrear
   end
 
   def get_deuda
-    Fee.where(sale_id: self.sale_id).where('number < ?', self.number).where( 'due_date < ?', Time.new.strftime("%F") ).where('owes > 0').sum('owes')
+    Fee.where(sale_id: self.sale_id)
+      .where('number < ?', self.number)
+      .where( 'due_date < ?', Time.new.strftime("%F") )
+      .where('owes > 0').sum('owes')
   end
 
   def has_debt?
     self.get_deuda > 0
   end
 
-  def calcular_primer_pago
-    primer_pago = self.fee_payments.sum(:total)
-    self.update( payment: primer_pago , value: primer_pago ,total_value: primer_pago )
+  def get_fee_owes
+    payed = self.fee_payments.sum('total')
+    adjusts = self.adjusts.sum('value')
+    owes = self.value + adjusts + self.arrear - payed
+    owes
   end
 
   def increase_adjust adjust
@@ -96,7 +108,7 @@ def apply_arrear?
     end
   end
 
-  def pago_supera_cuota payment, pay_date
+  def pago_supera_cuota payment, pay_date, code
     # Obtengo todas las cuotas que no estan pagadas distintas a la que se esta pagando en este momento
     cuotas_a_pagar = Fee.where(sale_id: self.sale_id).where('number != ?', self.number).where('owes > 0').order('id ASC')
     cuotas_a_pagar.each do |cuota| 
@@ -104,11 +116,12 @@ def apply_arrear?
       return if payment <= 0.0
       # pago a registrar, se deja en cero el monto porque es para lleva el registro de adelantos/pago deuda
       pago = cuota.fee_payments.new(
-        pay_date: pay_date, 
+        date: pay_date, 
         payment: 0, 
         tomado_en: 1,
         total: 0,
-        currency_id: 1)
+        payments_currency_id: 1,
+        code: code)
       owes = cuota.owes #lo que se adeuda de esta cuota
       if payment < cuota.owes
         cuota.update!(owes: cuota.owes - payment, pay_status: :pago_parcial, payed: true )
@@ -146,4 +159,22 @@ def apply_arrear?
       interest: 0
     )
   end
+
+  def show_owes_in_table
+    first_month_day = Date.today.beginning_of_month
+    last_month_day = Date.today.end_of_month
+    label = '---'
+    if ( self.due_date <= last_month_day ) && ( self.due_date >= first_month_day )
+      deuda = self.get_deuda + self.owes
+      pp deuda
+      label = deuda
+    end
+
+    if ( self.due_date < last_month_day ) && ( self.id == self.sale.fees.last.id )
+      deuda = self.get_deuda + self.owes
+      label = deuda
+    end
+    label
+  end
+
 end

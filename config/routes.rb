@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  get 'fee_payments/new'
+  get 'fee_payments/create'
   resources :payment_methods
   resources :provider_roles
   resources :projects

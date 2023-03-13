@@ -33,7 +33,11 @@
           <td><%= "$#{format_currency(fee.value)}" %></td>
           <td><%= "$#{format_currency(fee.get_adjusts)}" %></td>
           <td><%= fee.due_date.strftime('%d-%m-%y') %></td>
-          <td><%= "$#{format_currency(fee.owes)}" %></td>
+          <% if fee.show_owes_in_table != '---' %>
+            <td><%= "$#{format_currency(fee.show_owes_in_table)}" %></td>
+          <% else %>
+            <td> --- </td>
+          <% end %>
           <td><%= "$#{format_currency(fee.payment)}" %></td>
           <% if fee.expired? && !fee.payed? %>
             <td>

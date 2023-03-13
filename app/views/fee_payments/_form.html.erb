@@ -1,18 +1,58 @@
 <%= form_with(model: [ @fee, @fee.fee_payments.build ], id: 'register-fee-payment',
               class: 'needs-validation g-brd-around g-brd-gray-light-v4 g-pa-10 g-mb-10') do |form| %>
-  <div id="owes_value" class="mb-2"></div>
+  <p id='valor_cuota'> Valor de la cuota: <b> $ <%= format_currency( @fee.total_value ) %> </b></p>
+  <% if (@fee.pay_status != 'pendiente') && (@fee.owes > 0) %>
+    <p>Adeuda de esta cuota: <b>$ <%= format_currency( @fee.owes ) %></b></p>
+  <% end %>
 
   <div class="form-group row">
     <%= form.label :pay_date, 'Fecha:' , class: 'col-3' %>
-    <%= form.date_field :pay_date, class: 'form-control rounded-0 col-6', required: true %>
+    <%= form.date_field :pay_date, class: 'form-control rounded-0 col-3', required: true %>
+    <div class="invalid-feedback field_price"></div>
+  </div>
+
+  <div id="is_expired" style="display:">
+    <label class="u-label g-bg-darkred g-mr-10 g-mb-15"> Cuota vencida  </label> ( <%= @fee.due_date.strftime('%d-%m-%y') %> )
+    <div class="form-group">
+      <label class="form-check-inline u-check g-pl-25">
+        <%= form.check_box :aply_interest, class: 'g-hidden-xs-up g-pos-abs g-top-0 g-left-0' %>
+        <div class="u-check-icon-checkbox-v6 g-absolute-centered--y g-left-0">
+          <i class="fa" data-check-icon=""></i>
+        </div>
+        <p> Aplicar interes del <b><%= @porcentaje_interes %>% diario</b> ? </p>  
+      </label>
+    </div>
+    <div class="form-group row g-pos-rel">
+      <%= form.label :interest, 'Recargo sugerido $:' , class: 'col-3' %>
+      <%= form.number_field :interest, class: 'form-control rounded-0 col-3', step:'0.01'%>
+      <div class="invalid-feedback field_price"></div>
+    </div>
+  </div>
+
+  <div class="form-group row">
+    <%= form.label :adjust, 'Ajuste $:' , class: 'col-3' %>
+    <%= form.number_field :adjust, class: 'form-control rounded-0 col-3', step:'0.01', value: 0 %>
+    <div class="invalid-feedback field_price"></div>
+  </div>
+
+  <div class="form-group">
+    <%= form.text_area :comment_adjust,
+        class: 'form-control form-control-md u-textarea-expandable g-brd-gray-light-v7 g-brd-gray-light-v3--focus g-rounded-4 g-resize-none g-overflow-hidden', 
+          row: '3', placeholder: 'Motivo del ajuste...'%>
+  </div>
+
+  <div class="form-group row">
+    <%= form.label :total_to_pay, 'Total a pagar $:' , class: 'col-3' %>
+    <%= form.number_field :total_to_pay, class: 'form-control rounded-0 col-3', step:'0.01' , value: @total_a_pagar, disabled: true %>
     <div class="invalid-feedback field_price"></div>
   </div>
 
   <div class="form-group row">
     <%= form.label :payment_entered, 'Ingresar pago $:' , class: 'col-3' %>
-    <select name="currency_id" id="currency_id" class="col-1 mr-2 form-control rounded-0">
-      <% @currencies.each do |currency| %>
-        <option value="<%= currency.id %>"><%= currency.name %></option>
+    <select name="payments_currency_id" id="payments_currency_id" class="col-2 form-control rounded-0 payment-currency u-has-error-v1" onchange="set_exchange()">
+      <option value="0"> Tipo de entrega </option>
+      <% @cp.each do |c| %>
+        <option value="<%= c.id %>" data-exchange= <%= c.currency.need_exchange %> data-currency=<%= c.currency.name %> ><%= c.name %></option>
       <%end%>
     </select>
     <%= form.number_field :payment, class: 'form-control rounded-0 col-2 ml-2', step:'0.01' , required: true %>

@@ -4,6 +4,7 @@
 #
 #  id                        :bigint           not null, primary key
 #  active                    :boolean          default(TRUE)
+#  code                      :string(255)      default("0")
 #  comment                   :string(255)
 #  date                      :date
 #  detail                    :string(255)      default("")

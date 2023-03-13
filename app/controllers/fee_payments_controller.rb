@@ -1,11 +1,26 @@
 class FeePaymentsController < ApplicationController
   
   def new
-    @title_modal = 'Ingresar pago'
-    @currencies = Currency.where(active:true)
+    @cp = PaymentsCurrency.actives
     @fee = Fee.find(params[:fee_id])
+    # Plata que quedo pendiente de cuotas anteriores 
+    @adeuda = @fee.get_deuda
     @data = @fee.fee_payments.build
     @fee_payment = FeePayment.new
+    @title_modal = "Ingresar pago de cuota ##{@fee.number}"
+    # testeo que este vencida la cuota y que se haya seteado q se corresponda aplicar intereses
+    if @fee.apply_arrear?
+      # El % que se seteo cuando se hizo la venta
+      @porcentaje_interes = @fee.sale.arrear
+      # Esto es el valor calculado del interes diario
+      # @interes_sugerido = calcular_interes!(@porcentaje_interes, @fee.fee_value, @fee.due_date)
+      @interes_sugerido = @fee.calcular_interes
+      @total_a_pagar = @fee.value + @interes_sugerido + @adeuda
+    else 
+      @porcentaje_interes = 0
+      @interes = 0.0
+      @total_a_pagar = @fee.value + @adeuda
+    end
   end
 
   def create
@@ -37,5 +52,11 @@ class FeePaymentsController < ApplicationController
       puts "===> #{response[1]}"
       response[1] = response[1].split(' ')[1..-1].join(' ')
       render json: { response[0] => response[1] }, status: 402
+  end
+
+  private 
+
+  def fee_payment_params
+    require(:fee_payment).permit(:fee_id, :date, :detail, :comment, :tomado_en, :total, :payment, :payments_currency_id)
   end
 end

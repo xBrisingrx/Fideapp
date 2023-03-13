@@ -1,5 +1,14 @@
 <%= form_with( model: @fee, class: 'needs-validation g-brd-around g-brd-gray-light-v4 g-pa-10 g-mb-10', id: 'form-field-pay-quote' ) do |form| %>
   <p id='valor_cuota'> Valor de la cuota: <b> $ <%= format_currency( @fee.total_value ) %> </b></p>
+  <div class="form-group row">
+    <div class="col-4 col-lg-3">
+      <%= form.label :pay_date, 'Fecha' %>
+    </div>
+    <div class="form-group col-8 col-ls-6">
+      <%= form.date_field :pay_date, class: 'form-control rounded-0 col-6', required: true %>
+    </div>
+    <div class="invalid-feedback msg_fecha_compra"></div>
+  </div>
   <% if @adeuda > 0 %>
     <p> Adeuda de cuota anterior: <b> $ <%= format_currency( @adeuda ) %> </b></p>
   <% end %>
@@ -59,15 +68,7 @@
       <span class="js-value"></span>
     </label>
   </div>
-  <div class="form-group row">
-    <div class="col-4 col-lg-3">
-      <%= form.label :pay_date, 'Fecha' %>
-    </div>
-    <div class="form-group col-8 col-ls-6">
-      <%= form.date_field :pay_date, class: 'form-control rounded-0 col-6', required: true %>
-    </div>
-    <div class="invalid-feedback msg_fecha_compra"></div>
-  </div>
+  
   <div class="form-group">
     <%= form.text_area :comment, 
         class: 'form-control form-control-md u-textarea-expandable g-brd-gray-light-v7 g-brd-gray-light-v3--focus g-rounded-4 g-resize-none g-overflow-hidden', 

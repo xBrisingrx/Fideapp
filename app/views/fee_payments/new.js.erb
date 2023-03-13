@@ -5,33 +5,32 @@ setInputDate('#fee_payment_pay_date')
 document.getElementById('fee_payment_comment').value = ''
 $("#modal-sale-product").modal('show')
 
-document.getElementById('currency_id').addEventListener('change', function(e) {
-	const nodo = e.target.parentElement
-	const value_in_pesos = nodo.querySelector('#fee_payment_value_in_pesos')
-	const calculo_en_pesos = nodo.querySelector('#fee_payment_calculo_en_pesos')
-	nodo.querySelector('#fee_payment_name_pay').value = ''
-	value_in_pesos.style.display = 'none'
-	calculo_en_pesos.style.display = 'none'
-	// nodo.querySelector('#fee_payment_name_pay').style.display = 'none'
-	let entrega = parseInt(e.target.value)
-	switch (entrega) {
-		case 2:
-			value_in_pesos.placeholder = "1 US$ en $"
-			value_in_pesos.style.display = 'block'
-			calculo_en_pesos.style.display = 'block'
-			break;
-		case 3:
-			value_in_pesos.placeholder = "1 € en $"
-			value_in_pesos.style.display = 'block'
-			calculo_en_pesos.style.display = 'block'
-			break;
-		case 5:
-			// nodo.querySelector('#fee_payment_name_pay').style.display = 'block'
-			break;
-		default:
-			break;
-	}
-})
+document.getElementById('fee_payment_aply_interest').checked = <%= @fee.apply_arrear? %>
+
+if (<%= @fee.apply_arrear? %>) {
+	// Si corresponde, manejamos los campos del interes/recargo sugerido
+	fee_data.recargo_sugerido = parseFloat(<%= @interes_sugerido %>)
+	document.getElementById('fee_payment_interest').value = fee_data.recargo_sugerido
+	document.getElementById('fee_payment_aply_interest').addEventListener('click', function(event) {
+		$( '#fee_payment_interest').prop("disabled", !this.checked )
+		if ( this.checked ) {
+			fee_data.recargo_sugerido = parseFloat(<%= @interes_sugerido %>)
+			fee_data.total_a_pagar = fee_data.sumar_todo()
+			document.getElementById('fee_payment_interest').value = <%= @interes_sugerido %>
+			document.getElementById('fee_total_to_pay').value = fee_data.total_a_pagar
+			check_input_payment()
+		} else {
+			fee_data.recargo_sugerido = 0.0
+			fee_data.total_a_pagar = fee_data.sumar_sin_recargo()
+			document.getElementById('fee_payment_interest').value = fee_data.recargo_sugerido
+			document.getElementById('fee_total_to_pay').value = fee_data.total_a_pagar
+			check_input_payment()
+		}
+	})
+} else {
+	// Si no corresponde aplicar interes solo se paga la cuota 
+	document.getElementById('esta_vencido').style.display = 'none'
+}
 
 document.getElementById('fee_payment_payment').addEventListener('change', function(e){
 	fee_payment_data.check_input(e, this, 'payment')
