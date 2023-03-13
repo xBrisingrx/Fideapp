@@ -10,4 +10,12 @@ module ApplicationHelper
 	def date_format date
 		date.strftime('%d-%m-%y')
 	end
+
+	def show_owes owes
+		if owes != '---'
+			"$#{format_currency(owes)}"
+		else
+			owes
+		end
+	end
 end
