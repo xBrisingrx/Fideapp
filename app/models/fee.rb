@@ -177,4 +177,18 @@ class Fee < ApplicationRecord
     label
   end
 
+  def due_current_month
+    first_month_day = Date.today.beginning_of_month
+    last_month_day = Date.today.end_of_month
+
+    if ( self.due_date <= last_month_day ) && ( self.due_date >= first_month_day )
+      return true
+    end
+
+    if ( self.due_date < last_month_day ) && ( self.id == self.sale.fees.last.id )
+      return true
+    end
+    return false
+  end
+
 end
