@@ -21,6 +21,7 @@ $(document).ready(function(){
 	lands_table = $("#lands_table").DataTable({
     'ajax':`lands`,
     'columns': [
+    {'data': 'owners'},
     {'data': 'code'},
     {'data': 'area'},
     {'data': 'ubication'},

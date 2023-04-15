@@ -1,4 +1,5 @@
 json.data @lands do |f|
+	json.owners f.sale_clients.map { |c| "<li>#{c.client.fullname}</li>" }
 	json.code f.code
 	json.area "#{f.area} m²"
 	json.ubication f.ubication
