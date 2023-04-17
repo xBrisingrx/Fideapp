@@ -82,7 +82,7 @@ function remove_payment(){
 	event.preventDefault()
 	event.target.parentElement.remove()
 	sale.cant_payments--
-	calcular_monto_pagado()
+	sale.calcular_monto_pagado()
 }
 
 function calc_valor_en_pesos(e){
@@ -186,8 +186,6 @@ function all_payments(form_data) {
     if ( !valid_number(valor_en_pesos) ) {
     	return
     }
-
-    console.log('valor en pesos y en cuanto lo toma => ',exchange_value,valor_en_pesos)
     form_data.append( `payment_currency_id_${i}`, payment_currency_id )
     form_data.append( `payment_${i}`, paid );
     form_data.append( `tomado_en_${i}`, exchange_value )
@@ -205,7 +203,6 @@ function all_payments(form_data) {
 		}
 	}
 	form_data.append('num_pays', i )
-	console.log('llego al fin de recolectar pagos')
 	return
 }
 /*END JS payments*/
