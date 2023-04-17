@@ -8,6 +8,7 @@ let project = {
 	apples:[],
 	sectors:[],
 	cant_lands:0,
+	cant_corners:0,
 	apple_has_corner: false,
 	form: new FormData(),
 	add_provider( type_total ){
@@ -538,6 +539,7 @@ let project = {
 		let apple_selected = this.apples.filter( apple => apple.id == document.getElementById('apple_list').value )
 		this.cant_lands = apple_selected[0].lands
 		this.apple_has_corner = apple_selected[0].has_corner
+		this.cant_corners = apple_selected[0].count_corners
 		if (this.apple_has_corner) {
 			document.getElementById('label_corner').style.display = 'block'
 			document.getElementById('land_corner_input').style.display = 'block'
@@ -548,6 +550,7 @@ let project = {
 		this.calculate_price_lands()
 	},
 	calculate_price_lands(){
+		
 		if (!isNaN(this.cant_lands) && this.cant_lands > 0 ) {
 			document.getElementById('project_land_price').value = (this.final_price/this.cant_lands).toFixed(2)
 			if (this.apple_has_corner) {
