@@ -9,6 +9,8 @@ let project = {
 	sectors:[],
 	cant_lands:0,
 	cant_corners:0,
+	land_price:0,
+	land_corner_price:0,
 	apple_has_corner: false,
 	form: new FormData(),
 	add_provider( type_total ){
@@ -550,19 +552,19 @@ let project = {
 		this.calculate_price_lands()
 	},
 	calculate_price_lands(){
-		
 		if (!isNaN(this.cant_lands) && this.cant_lands > 0 ) {
-			document.getElementById('project_land_price').value = (this.final_price/this.cant_lands).toFixed(2)
+			this.land_price = (this.final_price/this.cant_lands).toFixed(2)
+			document.getElementById('project_land_price').value = this.land_price
 			if (this.apple_has_corner) {
-				document.getElementById('project_land_corner_price').value = (this.final_price/this.cant_lands).toFixed(2)
-			} else {
-
+				this.land_corner_price = (this.final_price/this.cant_lands).toFixed(2)
+				document.getElementById('project_land_corner_price').value = this.land_corner_price
 			}
 		}
 	},
 	calculate_value_iva(iva, provider_price) {
 		return ( iva * provider_price ) / 100
-	}
+	},
+
 }
 
 $(document).ready(function(){

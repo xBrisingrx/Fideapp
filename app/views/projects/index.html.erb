@@ -6,8 +6,8 @@
     <tr>
       <th>#</th>
       <th>Nombre</th>
-      <th>Invervinientes/Funcion</th>
-      <th>Materiales</th>
+      <th>Sector</th>
+      <th>Manzana</th>
       <th>Acciones</th>
     </tr>
   </thead>
@@ -18,11 +18,7 @@
         <td><%= project.number %></td>
         <td><%= project.name %></td>
         <td>
-          <ul>
-            <% project.project_providers.each do |provider| %>
-              <li><%= provider.provider.name %> - <%= provider.provider_role.name%></li>
-            <% end %>
-          </ul>
+          <%= project.lands.first.sector.name %>
         </td>
         <td><% project.project_materials.each do |material| %>
             <%= material.material.name  %>
