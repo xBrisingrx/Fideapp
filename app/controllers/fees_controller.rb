@@ -20,11 +20,11 @@ class FeesController < ApplicationController
       # Esto es el valor calculado del interes diario
       # @interes_sugerido = calcular_interes!(@porcentaje_interes, @fee.fee_value, @fee.due_date)
       @interes_sugerido = @fee.calcular_interes
-      @total_a_pagar = @interes_sugerido + @adeuda
+      @total_a_pagar = @interes_sugerido + @adeuda + @fee.value
     else 
       @porcentaje_interes = 0
       @interes = 0.0
-      @total_a_pagar = @adeuda
+      @total_a_pagar = @adeuda + @fee.value
     end
 	end
 
