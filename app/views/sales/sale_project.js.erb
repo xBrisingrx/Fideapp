@@ -1,7 +1,7 @@
 $("#modal").html("<%= j (render partial: 'modal_sale_project') %>")
 
-document.getElementById('value_in_pesos').style.display = 'none'
-document.getElementById('calculo_en_pesos').style.display = 'none'
+// document.getElementById('value_in_pesos').style.display = 'none'
+// document.getElementById('calculo_en_pesos').style.display = 'none'
 
 $("#modal").modal('show')
 
@@ -23,34 +23,41 @@ document.getElementById('add-payment').addEventListener('click', (e) => {
 	sale.cant_payments++
 	sale.cant_payment_files++
 	const cant = sale.cant_payment_files
+	$('#payment-list').append("<%= j ( render partial: 'input_pay', locals: { cp: @cp, first_label: false } ) %>")
+})
+document.getElementById('add-payment').addEventListener('click', (e) => {
+	e.preventDefault()
+	sale.cant_payments++
+	sale.cant_payment_files++
+	const cant = sale.cant_payment_files
 
-	if ( sale.cant_payments >= 2 ) {
-		document.getElementById('add-payment').classList.add("invisible")
-	}
+	// if ( sale.cant_payments >= 2 ) {
+	// 	document.getElementById('add-payment').classList.add("invisible")
+	// }
 
-	$('#payment-list').append(`
-		<div class="row mt-2 payment-data ml-4" id="payment_detail_${cant}">
-			<select name="currency_id" id="currency_id" class="col-1 mr-2 form-control rounded-0 currency" onchange="cambio_moneda()" >
-	      <option value="1">$</option>
-	      <option value="2">USD</option>
-	      <option value="3">EUR</option>
-	      <option value="4">Vehiculo</option>
-	      <option value="5">Transferencia</option>
-	      <option value="6">Cheques</option>
-	    </select>
-	    <input type="number" step='0.01' value="" class="form-control rounded-0 col-2 " id='paid' name='paid' onchange="calculo_de_entrega()"></input>
-	    <input type="number" step='0.01' value="" class="form-control rounded-0 col-2 ml-2" id='value_in_pesos' name='value_in_pesos' style="display:none" onchange="calculo_de_entrega()"></input>
-	    <input type="text" value="" class="form-control rounded-0 col-2 ml-2" id="calculo_en_pesos" name="calculo_en_pesos" style="display:none" disabled></input>
-	    <input type="text" value="" class="form-control rounded-0 col-2 ml-2" id='name_pay' name='name_pay' placeholder='Detalle entrega...'></input>
-	    <input type="date" class="form-control rounded-0 col-2 ml-2" id='pay_date' name='pay_date'></input>
-	    <label class="u-file-attach-v2 g-color-gray-dark-v5 mb-0 ml-2">
-	      <input id="fileAttachment" name="file-attachment[]" type="file" multiple>
-	      <i class="icon-cloud-upload g-font-size-16 g-pos-rel g-top-2 g-mr-5"></i>
-	      <span class="js-value"></span>
-	    </label>
-			<button onclick="remove_payment()" class="btn u-btn-red ml-2"> - </button>
-		</div>
-	`)
+	// $('#payment-list').append(`
+	// 	<div class="row mt-2 payment-data ml-4" id="payment_detail_${cant}">
+	// 		<select name="currency_id" id="currency_id" class="col-1 mr-2 form-control rounded-0 currency" onchange="cambio_moneda()" >
+	//       <option value="1">$</option>
+	//       <option value="2">USD</option>
+	//       <option value="3">EUR</option>
+	//       <option value="4">Vehiculo</option>
+	//       <option value="5">Transferencia</option>
+	//       <option value="6">Cheques</option>
+	//     </select>
+	//     <input type="number" step='0.01' value="" class="form-control rounded-0 col-2 " id='paid' name='paid' onchange="calculo_de_entrega()"></input>
+	//     <input type="number" step='0.01' value="" class="form-control rounded-0 col-2 ml-2" id='value_in_pesos' name='value_in_pesos' style="display:none" onchange="calculo_de_entrega()"></input>
+	//     <input type="text" value="" class="form-control rounded-0 col-2 ml-2" id="calculo_en_pesos" name="calculo_en_pesos" style="display:none" disabled></input>
+	//     <input type="text" value="" class="form-control rounded-0 col-2 ml-2" id='name_pay' name='name_pay' placeholder='Detalle entrega...'></input>
+	//     <input type="date" class="form-control rounded-0 col-2 ml-2" id='pay_date' name='pay_date'></input>
+	//     <label class="u-file-attach-v2 g-color-gray-dark-v5 mb-0 ml-2">
+	//       <input id="fileAttachment" name="file-attachment[]" type="file" multiple>
+	//       <i class="icon-cloud-upload g-font-size-16 g-pos-rel g-top-2 g-mr-5"></i>
+	//       <span class="js-value"></span>
+	//     </label>
+	// 		<button onclick="remove_payment()" class="btn u-btn-red ml-2"> - </button>
+	// 	</div>
+	// `)
 })
 
 function remove_payment(){
@@ -100,69 +107,88 @@ function cambio_moneda(){
 	}
 }
 
+// function calc_valor_en_pesos(e){
+// 	const node = e.parentElement
+// 	let currency_id = node.querySelector(`#currency_id`).value
+// 	let calculo_en_pesos = node.querySelector(`#calculo_en_pesos`)
+// 	let paid = node.querySelector(`#paid`).value
+// 	let value_in_pesos = node.querySelector(`#value_in_pesos`).value
+// 	if (currency_id == '2' || currency_id == '3') {
+// 		if ( value_in_pesos > 0 && paid > 0 ) {
+// 			calculo_en_pesos.value = value_in_pesos * paid
+// 			return
+// 		} else {
+// 			calculo_en_pesos.value = ''
+// 			$('#valor_restante').html('')
+// 			return
+// 		}
+// 	} else {
+// 		if ( paid > 0 ) {
+// 			node.querySelector(`#value_in_pesos`).value = 1
+// 			calculo_en_pesos.value = paid
+// 			return
+// 		} else {
+// 			calculo_en_pesos.value = ''
+// 			$('#valor_restante').html('')
+// 			return
+// 		}
+// 	}
+// }
 function calc_valor_en_pesos(e){
-	const node = e.parentElement
-	let currency_id = node.querySelector(`#currency_id`).value
+	const node = e.parentElement.parentElement
+	const select = node.querySelector(`#payment_currency`)
+	const selected = select.options[select.selectedIndex]
 	let calculo_en_pesos = node.querySelector(`#calculo_en_pesos`)
-	let paid = node.querySelector(`#paid`).value
-	let value_in_pesos = node.querySelector(`#value_in_pesos`).value
-	if (currency_id == '2' || currency_id == '3') {
-		if ( value_in_pesos > 0 && paid > 0 ) {
-			calculo_en_pesos.value = value_in_pesos * paid
-			return
-		} else {
-			calculo_en_pesos.value = ''
-			$('#valor_restante').html('')
-			return
-		}
-	} else {
-		if ( paid > 0 ) {
-			node.querySelector(`#value_in_pesos`).value = 1
-			calculo_en_pesos.value = paid
-			return
-		} else {
-			calculo_en_pesos.value = ''
-			$('#valor_restante').html('')
-			return
-		}
+	let paid = parseFloat(node.querySelector(`#payment`).value)
+	let exchange_value = parseFloat(node.querySelector(`#exchange_value`).value)
+
+	if ( !valid_number(exchange_value) || !valid_number(paid) ) {
+		calculo_en_pesos.value = 0
+		$('#valor_restante').html('')
+		return
 	}
+	calculo_en_pesos.value = exchange_value * paid
 }
 
-function calcular_monto_pagado(){
-	$('#valor_restante').html('')
-	// seleccionamos los pagos
-	const payments = document.getElementsByClassName('payment-data')
-	sale.entrega = 0
-	// recorremos y sumamos las entregas
-	for (let pay of payments) {
-		let currency_id = pay.querySelector('#currency_id').value
-		if (currency_id == '2' || currency_id == '3' ) {
-			// si este no es null es que es dolar o euro
-			sale.entrega += parseFloat( pay.querySelector('#calculo_en_pesos').value )
-		} else {
-			sale.entrega += parseFloat( pay.querySelector('#paid').value )
-		}
-	}
-	if (isNaN(sale.entrega)) {
-		sale.resto = sale.precio
-	} else {
-		sale.resto = sale.precio - sale.entrega
-	}
+// function calcular_monto_pagado(){
+// 	$('#valor_restante').html('')
+// 	// seleccionamos los pagos
+// 	const payments = document.getElementsByClassName('payment-data')
+// 	sale.entrega = 0
+// 	// recorremos y sumamos las entregas
+// 	for (let pay of payments) {
+// 		let currency_id = pay.querySelector('#currency_id').value
+// 		if (currency_id == '2' || currency_id == '3' ) {
+// 			// si este no es null es que es dolar o euro
+// 			sale.entrega += parseFloat( pay.querySelector('#calculo_en_pesos').value )
+// 		} else {
+// 			sale.entrega += parseFloat( pay.querySelector('#paid').value )
+// 		}
+// 	}
+// 	if (isNaN(sale.entrega)) {
+// 		sale.resto = sale.precio
+// 	} else {
+// 		sale.resto = sale.precio - sale.entrega
+// 	}
 
-	if (sale.entrega > 0 &&  !isNaN(sale.entrega) && sale.entrega <= sale.precio) {
-		paid.parentElement.classList.remove('u-has-error-v1')
-		$('#valor_restante').append(`A pagar en cuotas: <b>$${sale.resto}</b>`)
-		calular_valor_cuota()
-	} else if ( sale.entrega > sale.precio ) {
-		paid.parentElement.classList.add('u-has-error-v1')
-		$('#valor_restante').append(`<p class='text-danger ml-4'> Ingreso un valor mayor al del lote </>`)
-	}
-}
+// 	if (sale.entrega > 0 &&  !isNaN(sale.entrega) && sale.entrega <= sale.precio) {
+// 		paid.parentElement.classList.remove('u-has-error-v1')
+// 		$('#valor_restante').append(`A pagar en cuotas: <b>$${sale.resto}</b>`)
+// 		calular_valor_cuota()
+// 	} else if ( sale.entrega > sale.precio ) {
+// 		paid.parentElement.classList.add('u-has-error-v1')
+// 		$('#valor_restante').append(`<p class='text-danger ml-4'> Ingreso un valor mayor al del lote </>`)
+// 	}
+// }
 
 function calculo_de_entrega() {
 	const input = event.target
+	const payment_currency = event.target.parentElement.parentElement.querySelector('#payment_currency')
+	if (payment_currency.value == '0') {
+		return
+	}
 	calc_valor_en_pesos(input)
-	calcular_monto_pagado(input)
+	sale.calcular_monto_pagado()
 }
 
 function sumar_entregas(entrega) {
@@ -190,50 +216,60 @@ function all_payments(form_data) {
 	const payments = document.getElementsByClassName('payment-data')
 	let i = 0
 	for (let pay of payments) {
-		let paid = parseFloat( pay.querySelector('#paid').value )
-		if ( isNaN(paid) || paid == '' ) {
+		let paid = parseFloat( pay.querySelector('#payment').value )
+		if ( !valid_number(paid) ) {
 			form_data.append('num_pays', 0 )
+			pay.querySelector('#payment').parentElement.classList.add('u-has-error-v1')
 			return
-		} else {
-			i++
-			let currency_selected = parseInt( pay.querySelector('#currency_id').value ) 
-			let value_in_pesos = parseFloat( pay.querySelector('#value_in_pesos').value )
-			let tomado_en = pay.querySelector('#calculo_en_pesos').value
-			let detail = pay.querySelector('#name_pay')
-			let date = pay.querySelector('#pay_date').value
-			form_data.append( `currency_id_${i}`, currency_selected )
+		}
+		i++
+		pay.querySelector('#payment').parentElement.classList.remove('u-has-error-v1')
+		let currency_selected = pay.querySelector('#payment_currency').options[pay.querySelector('#payment_currency').selectedIndex]
+		let payment_currency_id = parseInt( currency_selected.value ) 
+		if (payment_currency_id == 0 ) {
+			pay.querySelector('#payment_currency').parentElement.classList.add('u-has-error-v1')
+			return
+		}
+		pay.querySelector('#payment_currency').parentElement.classList.remove('u-has-error-v1')
+		let exchange_value = parseFloat( pay.querySelector('#exchange_value').value )
+		let valor_en_pesos = parseFloat( pay.querySelector('#calculo_en_pesos').value )
+		let detail = pay.querySelector('#name_pay')
+		let date = pay.querySelector('#pay_date').value
+    if ( currency_selected.dataset.exchange == 'true' && !valid_number(exchange_value) ) {
+    	noty_alert('error','Debe ingresar en cuanto toma la moneda ingresada')
+    	pay.querySelector('#exchange_value').classList.add('u-has-error-v1')
+    	return
+    }
 
-	    form_data.append( `payment_${i}`, ( !isNaN( paid ) ) ? paid : '' );
-	    if ( currency_selected == 2 || currency_selected == 3 ) {
-	    	if ( isNaN(value_in_pesos) ) {
-	    		noty_alert('error','Debe ingresar en cuanto toma la moneda ingresada')
-		    	pay.querySelector('#value_in_pesos').classList.add('u-has-error-v1')
-		    	return
-	    	}
-	    }
-	    form_data.append( `tomado_en_${i}`, ( pay.querySelector('#value_in_pesos') !== null ) ? parseFloat( pay.querySelector('#value_in_pesos').value ) : '' )
-	    form_data.append( `value_in_pesos_${i}`, ( pay.querySelector('#calculo_en_pesos') !== null ) ? parseFloat( pay.querySelector('#calculo_en_pesos').value ) : '' )
-	    form_data.append( `detail_${i}`, ( pay.querySelector('#name_pay') !== null ) ? pay.querySelector('#name_pay').value : '' )
-	    form_data.append( `pay_date_${i}`, date )
-			let files = pay.querySelector('#fileAttachment')
-			if (files !== null) {
-				let totalFiles = files.files.length
-				if (totalFiles > 0) {
-					for (let n = 0; n < totalFiles; n++) {
-		        form_data.append(`files_${i}[]`, files.files[n])
-		      }
-				}
+    if ( !valid_number(valor_en_pesos) ) {
+    	return
+    }
+
+    console.log('valor en pesos y en cuanto lo toma => ',exchange_value,valor_en_pesos)
+    form_data.append( `payment_currency_id_${i}`, payment_currency_id )
+    form_data.append( `payment_${i}`, paid );
+    form_data.append( `tomado_en_${i}`, exchange_value )
+    form_data.append( `value_in_pesos_${i}`, valor_en_pesos )
+    form_data.append( `detail_${i}`, ( pay.querySelector('#name_pay') !== null ) ? pay.querySelector('#name_pay').value : '' )
+    form_data.append( `pay_date_${i}`, date )
+		let files = pay.querySelector('#fileAttachment')
+		if (files !== null) {
+			let totalFiles = files.files.length
+			if (totalFiles > 0) {
+				for (let n = 0; n < totalFiles; n++) {
+	        form_data.append(`files_${i}[]`, files.files[n])
+	      }
 			}
 		}
 	}
 	form_data.append('num_pays', i )
-	
+	console.log('llego al fin de recolectar pagos')
 	return
 }
 /*END JS payments*/
-document.getElementById('paid').addEventListener('change', function(event) {
-	calcular_monto_pagado()
-})
+// document.getElementById('paid').addEventListener('change', function(event) {
+// 	sale.calcular_monto_pagado()
+// })
 
 document.getElementById('number_of_payments').addEventListener('change', function(event) {
 	sale.cuotas = this.value
@@ -292,6 +328,7 @@ function get_cuotas_manual() {
 
 document.getElementById('apply_arrear').addEventListener('click', function(e){
 	document.getElementById('arrear').required = this.checked
+	console.log(this.checked)
 })
 
 document.getElementById('submit-form-project-sale').addEventListener('click', (event) => {
