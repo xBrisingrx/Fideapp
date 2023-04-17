@@ -327,7 +327,7 @@ let project = {
 			this.apples = r.data
 			for (let lote in this.apples){
 			  apple_list.innerHTML += `
-			  	<option value='${this.apples[lote].id}' data-cant='${this.apples[lote].lands}' > ${this.apples[lote].code} </option>
+			  	<option value='${this.apples[lote].id}' data-cant='${this.apples[lote].lands}' data-cant_corners='${this.apples[lote].count_corners}' > ${this.apples[lote].code} </option>
 			  `
 			} 
 		})
