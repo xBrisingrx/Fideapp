@@ -12,7 +12,7 @@ class FeesController < ApplicationController
     @fee = Fee.find(params[:id])
     @title_modal = "Pagar cuota ##{@fee.number}"
     # Plata que quedo pendiente de cuotas anteriores 
-    @adeuda = @fee.get_deuda + @fee.value
+    @adeuda = @fee.get_deuda
     # testeo que este vencida la cuota y que se haya seteado q se corresponda aplicar intereses
     if @fee.apply_arrear?
       # El % que se seteo cuando se hizo la venta
