@@ -38,4 +38,10 @@ class Project < ApplicationRecord
   scope :actives, -> { where(active: true) }
   
   enum status: [:proceso, :terminado]
+
+  def sector_name
+    if !self.lands.empty?
+      self.lands.first.sector.name
+    end
+  end
 end
