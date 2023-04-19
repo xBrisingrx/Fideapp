@@ -28,6 +28,7 @@
 #
 class Land < ApplicationRecord
   belongs_to :apple
+  has_one :sector, through: :apple
   has_many :sales
   has_many :sale_products, through: :sales
   has_many :sale_clients, through: :sales 
