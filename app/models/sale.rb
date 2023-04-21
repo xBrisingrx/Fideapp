@@ -134,7 +134,7 @@ class Sale < ApplicationRecord
 	def saldo_pagado
 		pagado = 0
 		self.fees.each do | fee |
-			pagado += fee.fee_payments.sum(:total)
+			pagado += fee.fee_payments.actives.sum(:total)
 		end
 		pagado
 	end

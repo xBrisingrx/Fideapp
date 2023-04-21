@@ -69,7 +69,6 @@ class FeesController < ApplicationController
       if cuota.save!
         cuota.sale.calculate_total_value! if recalcular_valor_venta
         # este es el primer pago de esta cuota
-        code = FeePayment.count + 1
         pago_de_cuota = cuota.fee_payments.new( 
             date: cuota.pay_date, 
             payment: params[:payment], 
@@ -77,15 +76,15 @@ class FeesController < ApplicationController
             total: params[:calculo_en_pesos],
             detail: params[:name_pay],
             payments_currency_id: params[:payments_currency_id],
-            comment: params[:comment],
-            code: code )
+            comment: params[:comment])
         if !params[:images].nil?
           pago_de_cuota.images = params[:images]
         end
 
         if pago_de_cuota.save!
+          pago_de_cuota.update(code: pago_de_cuota.id) 
           # Lo abonado es mayor a lo que se debe de la cuota
-          cuota.aplicar_pago( pago_de_cuota.total, cuota.pay_date, code )
+          cuota.aplicar_pago( pago_de_cuota.total, cuota.pay_date, pago_de_cuota.code )
           render json: { status: 'success', msg: 'Pago registrado' }, status: 200
         else
           render json: { status: 'error', msg: 'No se pudo registrar el pago' }, status: 422

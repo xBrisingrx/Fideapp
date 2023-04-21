@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_01_03_155032) do
+ActiveRecord::Schema.define(version: 2023_03_12_223408) do
 
   create_table "active_storage_attachments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci", force: :cascade do |t|
     t.string "name", null: false
@@ -76,7 +76,7 @@ ActiveRecord::Schema.define(version: 2023_01_03_155032) do
     t.string "email", limit: 100
     t.string "direction"
     t.string "marital_status", limit: 30
-    t.string "phone", limit: 20
+    t.string "phone", limit: 60
     t.boolean "active", default: true, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -101,7 +101,6 @@ ActiveRecord::Schema.define(version: 2023_01_03_155032) do
 
   create_table "fee_payments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci", force: :cascade do |t|
     t.bigint "fee_id"
-    t.bigint "currency_id"
     t.boolean "active", default: true
     t.date "date"
     t.string "detail", default: ""
@@ -111,10 +110,11 @@ ActiveRecord::Schema.define(version: 2023_01_03_155032) do
     t.decimal "payment", precision: 15, scale: 2, default: "0.0", comment: "Dinero ingresado"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "payments_type_id"
-    t.index ["currency_id"], name: "index_fee_payments_on_currency_id"
+    t.bigint "payments_currency_id"
+    t.string "code", default: "0"
+    t.decimal "valor_acarreado", precision: 15, scale: 2, default: "0.0"
     t.index ["fee_id"], name: "index_fee_payments_on_fee_id"
-    t.index ["payments_type_id"], name: "index_fee_payments_on_payments_type_id"
+    t.index ["payments_currency_id"], name: "index_fee_payments_on_payments_currency_id"
   end
 
   create_table "fees", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci", force: :cascade do |t|
@@ -311,8 +311,8 @@ ActiveRecord::Schema.define(version: 2023_01_03_155032) do
 
   create_table "sales", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci", force: :cascade do |t|
     t.boolean "status", default: false
-    t.boolean "apply_arrear", default: false, null: false, comment: "Venta aplica mora"
-    t.integer "arrear", default: 0, null: false, comment: "% de mora"
+    t.boolean "apply_arrear", default: true, null: false, comment: "Venta aplica mora"
+    t.decimal "arrear", precision: 15, scale: 2, default: "0.5", null: false, comment: "% de mora"
     t.text "comment"
     t.date "date", null: false, comment: "Fecha en que se realizo la venta"
     t.integer "due_day", default: 10, null: false, comment: "Num dia de vencimiento de pagos"
@@ -360,9 +360,8 @@ ActiveRecord::Schema.define(version: 2023_01_03_155032) do
   add_foreign_key "apple_projects", "projects"
   add_foreign_key "apples", "condominia"
   add_foreign_key "apples", "sectors"
-  add_foreign_key "fee_payments", "currencies"
   add_foreign_key "fee_payments", "fees"
-  add_foreign_key "fee_payments", "payments_types"
+  add_foreign_key "fee_payments", "payments_currencies"
   add_foreign_key "fees", "sales"
   add_foreign_key "land_projects", "lands"
   add_foreign_key "land_projects", "projects"

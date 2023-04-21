@@ -1,7 +1,7 @@
 <h1>Proyectos</h1>
-<%= link_to 'Agregar projecto', new_project_path,'class' => 'btn u-btn-primary justify-content-end mb-2' %>
+<%= link_to 'Agregar projecto', new_project_path, class:'btn u-btn-primary justify-content-end mb-2' %>
 
-<table class="table table-responsive w-100">
+<table id="projects_table" class="table hover dt-responsive w-100">
   <thead>
     <tr>
       <th>#</th>
@@ -18,17 +18,14 @@
         <td><%= project.number %></td>
         <td><%= project.name %></td>
         <td>
-          <%= project.lands.first.sector.name %>
+          <%= project.lands&.first&.apple&.sector&.name %>
         </td>
-        <td><% project.project_materials.each do |material| %>
-            <%= material.material.name  %>
-            <ul>
-              <li>Cantidad: <%= material.units  %></li>
-              <li>Precio unidad: <%= material.price  %></li>
-            </ul>
-          <% end %>
+        <td>
+          <%= project.lands&.first&.apple&.code %>
         </td>
-        <td></td>
+        <td>
+          <%= link_to 'Detalle', project_path(project), class: 'btn u-btn-teal btn-sm', remote: true %>
+        </td>
       </tr>
     <% end %>
   </tbody>

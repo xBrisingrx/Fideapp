@@ -61,7 +61,7 @@ class Land < ApplicationRecord
   def get_all_pay
     total_pay = 0
     self.sales.each do |sale|
-      total_pay +=  sale.fee_payments.sum(:total)
+      total_pay +=  sale.fee_payments.actives.sum(:total)
     end
     total_pay
   end
@@ -75,7 +75,7 @@ class Land < ApplicationRecord
   end
 
   def projects_not_aprobed
-    self.land_projects.where(status: :pending).count > 0
+    self.land_projects.where(status: :pendiente).count > 0
   end
 
   def land_sale

@@ -113,7 +113,7 @@ class Fee < ApplicationRecord
     # Obtengo todas las cuotas que no estan pagadas distintas a la que se esta pagando en este momento
     cuotas_a_pagar = Fee.where(sale_id: self.sale_id).where('owes > 0').order('id ASC')
     monto_pagado = payment
-    cuotas_a_pagar.each do |cuota|
+    cuotas_a_pagar.where("id != #{self.id}").each do |cuota|
       puts "\n Payment menor a cero => #{monto_pagado.to_f} \n" if monto_pagado <= 0.0
       return if monto_pagado <= 0.0
       # pago a registrar, se deja en cero el monto porque es para lleva el registro de adelantos/pago deuda
@@ -124,7 +124,7 @@ class Fee < ApplicationRecord
         total: 0,
         payments_currency_id: 1,
         code: code)
-      
+
       owes = cuota.owes #lo que se adeuda de esta cuota
       if monto_pagado < cuota.owes
         cuota.update!(owes: cuota.owes - monto_pagado, pay_status: :pago_parcial, payed: true )
@@ -148,7 +148,7 @@ class Fee < ApplicationRecord
       #   pago.save!
       # end
       puts "\n\n =========================== \n\n" unless cuota.id == self.id
-      pago.save unless cuota.fee_id == self.id
+      pago.save unless cuota.id == self.id
 
       monto_pagado -= owes
     end # cuotas_a_pagar.each
@@ -206,6 +206,13 @@ class Fee < ApplicationRecord
 
   def get_payments
     self.fee_payments.sum(:total)
+  end
+
+  def update_owes
+    payments = self.fee_payments.actives
+    owes = payments.sum(:total) + payments.sum(:valor_acarreado)
+    status = ( owes == self.total_value ) ? 0 : 2
+    self.update(owes: owes, pay_status: status )
   end
 
 end

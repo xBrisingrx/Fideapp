@@ -31,6 +31,7 @@
               <th>Adjuntos</th>
               <th>Detalle pago</th>
               <th>Comentario</th>
+              <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -60,6 +61,15 @@
                 <td>
                   <% if payment.valor_acarreado.to_f > 0 %>
                     <%= payment.comment %> <%= format_currency(payment.valor_acarreado) %>
+                  <% end %>
+                </td>
+                <td>
+                  <% if payment.valor_acarreado == 0 %>
+                    <a class='u-link-v5 g-color-gray-dark-v2 g-color-secondary--hover g-text-underline--none--hover g-ml-12' 
+                      title='Eliminar' 
+                      onclick='modal_disable_fee_payment( <%= payment.id %> )'>
+                      <i class='hs-admin-trash' aria-hidden='true'></i>
+                    </a>
                   <% end %>
                 </td>
               </tr>

@@ -32,4 +32,17 @@ class FeePayment < ApplicationRecord
   belongs_to :payments_currency
   has_one :currency, through: :payments_currency
   has_many_attached :images
+
+  scope :actives, -> { where(active: true) }
+
+  def disable 
+    ActiveRecord::Base.transaction do
+      payment = FeePayment.where( code: self.code )
+      payment.each do |payment|
+        payment.update(active: false)
+        payment.fee.update_owes
+      end
+    end
+  end
+
 end

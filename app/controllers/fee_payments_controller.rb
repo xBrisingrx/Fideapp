@@ -63,6 +63,19 @@ class FeePaymentsController < ApplicationController
       render json: { response[0] => response[1] }, status: 402
   end
 
+  def disable
+    fee_payment = FeePayment.find(params[:fee_payment_id])
+    if fee_payment.disable
+      render json: { status: 'success', msg: 'Pago eliminado' }, status: :ok
+    else
+      render json: { status: 'error', msg: 'Ocurrio un error al realizar la operación' }, status: :unprocessable_entity
+    end
+
+    rescue => e
+        @response = e.message.split(':')
+        render json: { @response[0] => @response[1] }, status: 402
+  end
+
   private 
 
   def fee_payment_params

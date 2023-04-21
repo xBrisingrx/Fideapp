@@ -53,6 +53,8 @@ Rails.application.routes.draw do
 
   post '/sale_project', to: "sales#sale_project", as: 'sale_project'
 
+  post 'disable_fee_payment', to: 'fee_payments#disable', as: 'disable_fee_payment'
+
   resources :payments_types
   resources :currencies
   resource :payments_currencies

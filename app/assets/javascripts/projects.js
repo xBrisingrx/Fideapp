@@ -1,4 +1,4 @@
-let inputaso
+let projects_table;
 let project = {
 	materials_list:[],
 	providers_list:[],
@@ -252,7 +252,7 @@ let project = {
 		nodo.insertBefore(newNode, delete_btn )
 
 		if (input_id == 'porcent_input') {
-			inputaso = nodo
+
 			nodo.querySelector('#porcent_input').onchange = function(e){
 				console.info('un cosito')
 			}
@@ -564,7 +564,6 @@ let project = {
 	calculate_value_iva(iva, provider_price) {
 		return ( iva * provider_price ) / 100
 	},
-
 }
 
 $(document).ready(function(){
@@ -574,4 +573,7 @@ $(document).ready(function(){
 	$('.select-2-project-material').select2({ width: '100%',theme: "bootstrap4" })	
 	$('.select-2-project-type').select2({ width: '30%',theme: "bootstrap4" })	
 	$('.select-2-apple-list').select2({ width: '100%',theme: "bootstrap4" })
+	$("#projects_table").DataTable({
+		'language': {'url': "/assets/plugins/datatables_lang_spa.json"}
+	})
 })
