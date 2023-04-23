@@ -44,7 +44,7 @@ class Fee < ApplicationRecord
   end
 
   def calcular_interes
-    interes_diario = ( (self.sale.arrear/10) * self.value)
+    interes_diario = ( (self.sale.arrear/100) * self.value)
     primer_cuota_vencima = self.sale.fees.actives.no_payed.order('id ASC').first
     dias_vencido = Date.today - Date.new( primer_cuota_vencima.due_date.year, primer_cuota_vencima.due_date.month, 01 )
     total = interes_diario * dias_vencido
