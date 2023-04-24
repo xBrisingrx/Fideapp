@@ -48,8 +48,3 @@ let fee_payment_data = {
 		sale.calc_valor_en_pesos('fee_payment_')
 	}
 }
-
-function modal_disable_fee_payment(id) {
-  // $('#fee_payment_id').val(id)
-  // $('#modal-disable-fee-payment').modal('show')
-}
