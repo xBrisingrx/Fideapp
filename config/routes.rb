@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :credit_notes
   get 'fee_payments/new'
   get 'fee_payments/create'
   resources :payment_methods

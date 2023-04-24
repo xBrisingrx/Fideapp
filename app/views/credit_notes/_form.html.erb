@@ -1,0 +1,17 @@
+<p>Se va a generar una nota de credito para anular el pago seleccionado</p>
+<%= form_with(model: @credit_note, id: 'form-credit-note') do |form| %>
+  
+  <%= form.hidden_field :fee_payment_id, value: @credit_note.fee_payment_id %>
+
+  <div class="form-group">
+    <%= form.text_area :description, 
+        class: 'form-control form-control-md u-textarea-expandable g-brd-gray-light-v7 g-brd-gray-light-v3--focus g-rounded-4 g-resize-none g-overflow-hidden', 
+          row: '3', placeholder: 'Motivo...(*)', required: true %>
+  </div>
+  <div class="invalid-feedback credit_note_description"></div>
+
+  <div class="actions mb-4">
+    <%= form.submit 'Eliminar', class: 'btn u-btn-teal mr-2'  %>
+    <button type="button" class="btn u-btn-red" data-dismiss="modal" aria-label="Close"> Cancelar </button>
+  </div>
+<% end %>

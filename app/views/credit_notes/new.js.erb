@@ -1,0 +1,18 @@
+$("#modal-disable-fee-payment").html("<%= j (render partial: 'shared/modal', locals:{ size: 'lg' } ) %>")
+
+$("#modal-disable-fee-payment").modal('show')
+
+$("#form-credit-note").on("ajax:success", function(event) {
+    let msj = JSON.parse(event.detail[2].response)
+    noty_alert(msj.status, msj.msg)
+    $("#modal-disable-fee-payment").modal('hide')
+    setTimeout( function(){
+    	location.reload()
+    }, 2000)
+  }).on("ajax:error", function(event) {
+	let msj = JSON.parse( event.detail[2].response )
+	$.each( msj, function( key, value ) {
+		$(`#form-credit-note #credit_note_${key}`).addClass('is-invalid')
+		$(`#form-credit-note .credit_note_${key}`).text( value ).show('slow')
+	})
+})
