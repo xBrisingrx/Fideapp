@@ -6,7 +6,7 @@
 #  active     :boolean          default(TRUE)
 #  porcent    :decimal(15, 2)   default(0.0)
 #  price      :decimal(15, 2)   default(0.0)
-#  status     :string(255)
+#  status     :integer
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
 #  land_id    :bigint
