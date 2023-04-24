@@ -40,7 +40,7 @@ class FeePayment < ApplicationRecord
       payment = FeePayment.where( code: self.code )
       payment.each do |payment|
         payment.update(active: false)
-        payment.fee.update_owes
+        payment.fee.update_payment_data
       end
     end
   end

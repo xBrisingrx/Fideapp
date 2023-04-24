@@ -47,7 +47,7 @@ class Fee < ApplicationRecord
     interes_diario = ( (self.sale.arrear/100) * self.value)
     primer_cuota_vencima = self.sale.fees.actives.no_payed.order('id ASC').first
     dias_vencido = Date.today - Date.new( primer_cuota_vencima.due_date.year, primer_cuota_vencima.due_date.month, 01 )
-    total = interes_diario * dias_vencido
+    total = (interes_diario * dias_vencido).round(2)
     total
   end
 
@@ -111,11 +111,14 @@ class Fee < ApplicationRecord
 
   def aplicar_pago payment, pay_date, code
     # Obtengo todas las cuotas que no estan pagadas distintas a la que se esta pagando en este momento
-    cuotas_a_pagar = Fee.where(sale_id: self.sale_id).where('owes > 0').order('id ASC')
-    monto_pagado = payment
-    cuotas_a_pagar.where("id != #{self.id}").each do |cuota|
-      puts "\n Payment menor a cero => #{monto_pagado.to_f} \n" if monto_pagado <= 0.0
-      return if monto_pagado <= 0.0
+    fees_to_pay = Fee.where(sale_id: self.sale_id)
+                        .where("id != #{self.id}")
+                        .where('owes > 0')
+                        .order('id ASC')
+
+    fees_to_pay.each do |cuota|
+      puts "\n Payment menor a cero => #{payment.to_f} \n" if payment <= 0.0
+      return if payment <= 0.0
       # pago a registrar, se deja en cero el monto porque es para lleva el registro de adelantos/pago deuda
       pago = cuota.fee_payments.new(
         date: pay_date, 
@@ -126,9 +129,9 @@ class Fee < ApplicationRecord
         code: code)
 
       owes = cuota.owes #lo que se adeuda de esta cuota
-      if monto_pagado < cuota.owes
-        cuota.update!(owes: cuota.owes - monto_pagado, pay_status: :pago_parcial, payed: true )
-        pago.valor_acarreado = monto_pagado
+      if payment < cuota.owes
+        cuota.update!(owes: cuota.owes - payment, pay_status: :pago_parcial, payed: true )
+        pago.valor_acarreado = payment
         if cuota.due_date < pay_date 
           pago.comment = "Pago parcial de deuda de esta cuota realizado cuando se pago la cuota ##{self.number} por un monto de $"
         else 
@@ -142,16 +145,11 @@ class Fee < ApplicationRecord
         else 
           pago.comment = "Se realizo un pago adelantado de esta cuota cuando se pago la cuota ##{self.number} por un monto de $" 
         end
-      end # if monto_pagado <= cuota.owes
-
-      # if cuota.id != self.id # el pago de la cuota actual ya fue registrado
-      #   pago.save!
-      # end
-      puts "\n\n =========================== \n\n" unless cuota.id == self.id
-      pago.save unless cuota.id == self.id
-
-      monto_pagado -= owes
-    end # cuotas_a_pagar.each
+      end # if payment <= cuota.owes
+      # byebug
+      pago.save
+      payment -= owes
+    end # fees_to_pay.each
   end # pago_supera_cuota
 
   def reset_payments
@@ -172,16 +170,19 @@ class Fee < ApplicationRecord
   def show_owes_in_table
     first_month_day = Date.today.beginning_of_month
     last_month_day = Date.today.end_of_month
-    label = '---'
-    if ( self.due_date <= last_month_day ) && ( self.due_date >= first_month_day )
-      deuda = self.get_deuda + self.owes
-      pp deuda
-      label = deuda
-    end
+    label = '0'
+    # if ( self.due_date <= last_month_day ) && ( self.due_date >= first_month_day )
+    #   deuda = self.get_deuda + self.owes
+    #   pp deuda
+    #   label = deuda
+    # end
 
-    if ( self.due_date < last_month_day ) && ( self.id == self.sale.fees.last.id )
-      deuda = self.get_deuda + self.owes
-      label = deuda
+    # if ( self.due_date < last_month_day ) && ( self.id == self.sale.fees.last.id )
+    #   deuda = self.get_deuda + self.owes
+    #   label = deuda
+    # end
+    if ( self.due_date < last_month_day )
+      label = self.get_deuda + self.owes
     end
     label
   end
@@ -205,14 +206,18 @@ class Fee < ApplicationRecord
   end
 
   def get_payments
-    self.fee_payments.sum(:total)
+    self.fee_payments.actives.sum(:total)
   end
 
-  def update_owes
+  def update_payment_data
     payments = self.fee_payments.actives
-    owes = payments.sum(:total) + payments.sum(:valor_acarreado)
-    status = ( owes == self.total_value ) ? 0 : 2
-    self.update(owes: owes, pay_status: status )
+    self.interest = 0
+    self.total_value = self.value + self.get_adjusts
+    self.payment = payments.sum(:total) + payments.sum(:valor_acarreado)
+    self.owes = self.total_value - self.payment
+    self.pay_status = ( self.owes == self.total_value ) ? 0 : 2
+    self.payed = !self.pendiente?
+    self.save
   end
 
 end
