@@ -3,6 +3,16 @@
   
   <%= form.hidden_field :fee_payment_id, value: @credit_note.fee_payment_id %>
 
+  <div class="form-group row">
+    <div class="col-4 col-lg-3">
+      <%= form.label :date, 'Fecha de la compra (*)' %>
+    </div>
+    <div class="form-group col-8 col-ls-6">
+      <%= form.date_field :date, class: 'form-control rounded-0 col-6' %>
+    </div>
+    <div class="invalid-feedback msg_fecha_compra"></div>
+  </div>
+  
   <div class="form-group">
     <%= form.text_area :description, 
         class: 'form-control form-control-md u-textarea-expandable g-brd-gray-light-v7 g-brd-gray-light-v3--focus g-rounded-4 g-resize-none g-overflow-hidden', 

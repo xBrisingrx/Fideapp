@@ -4,7 +4,7 @@ class FeePaymentsController < ApplicationController
     @cp = PaymentsCurrency.actives
     @fee = Fee.find(params[:fee_id])
     # Plata que quedo pendiente de cuotas anteriores 
-    @adeuda = @fee.get_deuda + @fee.owes
+    @adeuda = @fee.get_deuda + @fee.get_fee_owes
     @data = @fee.fee_payments.build
     @fee_payment = FeePayment.new
     @title_modal = "Ingresar pago de cuota ##{@fee.number}"

@@ -60,11 +60,11 @@
                 <td> <%= payment.detail %> </td>
                 <td>
                   <% if payment.valor_acarreado.to_f > 0 %>
-                    <%= payment.comment %> <%= format_currency(payment.valor_acarreado) %>
+                    <%= payment.comment %> 
                   <% end %>
                 </td>
                 <td>
-                  <% if payment.valor_acarreado == 0 %>
+                  <% if payment.payment > 0 %>
                   <%= link_to "<i class='hs-admin-trash' aria-hidden='true'></i>".html_safe, 
                               new_credit_note_path( fee_payment_id: payment.id ),
                               class: 'u-link-v5 g-color-gray-dark-v2 g-color-secondary--hover g-text-underline--none--hover g-ml-12',

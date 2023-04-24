@@ -71,10 +71,7 @@ class Fee < ApplicationRecord
   end
 
   def get_fee_owes
-    payed = self.fee_payments.sum('total')
-    adjusts = self.adjusts.sum('value')
-    owes = self.value + adjusts + self.arrear - payed
-    owes
+    self.total_value - self.fee_payments.sum(:valor_acarreado)
   end
 
  ##### AJUSTE ####
@@ -82,7 +79,7 @@ class Fee < ApplicationRecord
     self.adjusts.create( value: adjust, comment: comment )
 
     self.total_value = self.value + self.get_adjusts + self.interest
-    self.owes = self.total_value - self.payment
+    self.owes = self.total_value - self.fee_payments.sum(:valor_acarreado)
 
     self.save
   end
@@ -117,42 +114,52 @@ class Fee < ApplicationRecord
   def aplicar_pago payment, pay_date, code
     # Obtengo todas las cuotas que no estan pagadas distintas a la que se esta pagando en este momento
     fees_to_pay = Fee.where(sale_id: self.sale_id)
-                        .where("id != #{self.id}")
                         .where('owes > 0')
                         .order('id ASC')
 
     fees_to_pay.each do |cuota|
-      puts "\n Payment menor a cero => #{payment.to_f} \n" if payment <= 0.0
-      return if payment <= 0.0
-      # pago a registrar, se deja en cero el monto porque es para lleva el registro de adelantos/pago deuda
-      pago = cuota.fee_payments.new(
-        date: pay_date, 
-        payment: 0, 
-        tomado_en: 1,
-        total: 0,
-        payments_currency_id: 1,
-        code: code)
+      
+      puts "\n\n Payment menor a cero => #{payment.to_f} \n\n" if payment <= 0.0
 
+      return if payment <= 0.0
+      
       owes = cuota.owes #lo que se adeuda de esta cuota
-      if payment < cuota.owes
-        cuota.update!(owes: cuota.owes - payment, pay_status: :pago_parcial, payed: true )
-        pago.valor_acarreado = payment
-        if cuota.due_date < pay_date 
-          pago.comment = "Pago parcial de deuda de esta cuota realizado cuando se pago la cuota ##{self.number} por un monto de $"
-        else 
-          pago.comment = "Se realizo un adelanto parcial de esta cuota cuando se pago la cuota ##{self.number} por un monto de $" 
-        end
+
+      if cuota.id == self.id # llegamos a la cuota en q se realiza el pago
+        fee_payment = FeePayment.find(code)
+        fee_payment.valor_acarreado = (payment < cuota.owes) ? payment : owes
+        fee_payment.save 
+        self.update( owes: self.owes - fee_payment.valor_acarreado )
       else
-        cuota.update!(owes: 0.0, pay_status: :pagado, payed: true)
-        pago.valor_acarreado = owes
-        if cuota.due_date < pay_date 
-          pago.comment = "Pago total de deuda de esta cuota realizado cuando se pago la cuota ##{self.number} por un monto de $" 
-        else 
-          pago.comment = "Se realizo un pago adelantado de esta cuota cuando se pago la cuota ##{self.number} por un monto de $" 
-        end
-      end # if payment <= cuota.owes
-      # byebug
-      pago.save
+        # pago a registrar, se deja en cero el monto porque es para lleva el registro de adelantos/pago deuda
+        pago = cuota.fee_payments.new(
+          date: pay_date, 
+          payment: 0, 
+          tomado_en: 1,
+          total: 0,
+          payments_currency_id: 1,
+          code: code)
+
+        if payment < cuota.owes
+          cuota.update!(owes: cuota.owes - payment, pay_status: :pago_parcial, payed: true )
+          pago.valor_acarreado = payment
+          if cuota.due_date < pay_date 
+            pago.comment = "Pago parcial de deuda de esta cuota realizado cuando se pago la cuota ##{self.number} por un monto de $"
+          else 
+            pago.comment = "Se realizo un adelanto parcial de esta cuota cuando se pago la cuota ##{self.number} por un monto de $" 
+          end
+        else
+          cuota.update!(owes: 0.0, pay_status: :pagado, payed: true)
+          pago.valor_acarreado = owes
+          if cuota.due_date < pay_date 
+            pago.comment = "Pago total de deuda de esta cuota realizado cuando se pago la cuota ##{self.number} por un monto de $" 
+          else 
+            pago.comment = "Se realizo un pago adelantado de esta cuota cuando se pago la cuota ##{self.number} por un monto de $" 
+          end
+        end # if payment <= cuota.owes
+        # byebug
+        pago.save
+      end # if cuota.id == self.id
       payment -= owes
     end # fees_to_pay.each
   end # pago_supera_cuota
@@ -218,7 +225,7 @@ class Fee < ApplicationRecord
     payments = self.fee_payments.actives
     self.interest = 0
     self.total_value = self.value + self.get_adjusts
-    self.payment = payments.sum(:total) + payments.sum(:valor_acarreado)
+    self.payment = payments.sum(:valor_acarreado)
     self.owes = self.total_value - self.payment
     self.pay_status = ( self.owes == self.total_value ) ? 0 : 2
     self.payed = !self.pendiente?

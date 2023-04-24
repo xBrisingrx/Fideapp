@@ -1,0 +1,35 @@
+<div class="modal-dialog modal-lg" role="document">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title">Notas de cretido aplicadas a la venta</h5>
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <% if @credit_notes.empty? %>
+        <p>Esta venta no tiene notas de credito generadas</p>
+      <% else %>
+        <table class="table table-striped">
+          <thead class="thead-dark">
+            <th>Fecha</th>
+            <th>Valor del pago</th>
+            <th>Detalle</th>
+            <th>Creada por</th>
+          </thead>
+          <tbody>
+            <% @credit_notes.each do |credit_note| %>
+              <tr>
+                <td> <%= date_format(credit_note.date) %> </td>
+                <td> <%= "$#{format_currency(credit_note.fee_payment.total)}" %> </td>
+                <td> <%= credit_note.description %> </td>
+                <td> <%= credit_note.user.username %> </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% end %>
+      <button type="button" class="btn u-btn-red" data-dismiss="modal" aria-label="Close"> Cerrar </button>
+    </div>
+  </div>
+</div>

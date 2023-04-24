@@ -67,6 +67,6 @@ class CreditNotesController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def credit_note_params
-      params.require(:credit_note).permit(:description, :fee_payment_id, :user_id, :active)
+      params.require(:credit_note).permit(:description, :fee_payment_id, :user_id, :date ,:active)
     end
 end

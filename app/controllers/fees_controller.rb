@@ -20,11 +20,11 @@ class FeesController < ApplicationController
       # Esto es el valor calculado del interes diario
       # @interes_sugerido = calcular_interes!(@porcentaje_interes, @fee.fee_value, @fee.due_date)
       @interes_sugerido = @fee.calcular_interes
-      @total_a_pagar = ( @interes_sugerido + @adeuda + @fee.value ).round(2)
+      @total_a_pagar = ( @interes_sugerido + @adeuda + @fee.value + @fee.get_adjusts ).round(2)
     else 
       @porcentaje_interes = 0
       @interes = 0.0
-      @total_a_pagar = ( @adeuda + @fee.value ).round(2)
+      @total_a_pagar = ( @adeuda + @fee.value + @fee.get_adjusts ).round(2)
     end
 	end
 
@@ -52,11 +52,11 @@ class FeesController < ApplicationController
       cuota.owes = cuota.total_value
 
       # Chequeo si se pago menos de lo que se debia, en caso de que haya sido asi pasa al atributo DEBE
-      if ( cuota.total_value >= cuota.payment )
-        cuota.owes = (cuota.total_value - cuota.payment).round(2)
-      else
-        cuota.owes = 0.0
-      end
+      # if ( cuota.total_value >= cuota.payment )
+      #   cuota.owes = (cuota.total_value - cuota.payment).round(2)
+      # else
+      #   cuota.owes = 0.0
+      # end
 
       cuota.pay_date = params[:pay_date]
       cuota.payed = true
@@ -84,12 +84,7 @@ class FeesController < ApplicationController
 
         if pago_de_cuota.save!
           pago_de_cuota.update(code: pago_de_cuota.id) 
-          # Si el pago es mayor al valor total de la cuota
-          if cuota.payment > cuota.total_value 
-            payment = cuota.payment - cuota.total_value
-            byebug
-            cuota.aplicar_pago( payment, cuota.pay_date, pago_de_cuota.code )
-          end
+          cuota.aplicar_pago( params[:calculo_en_pesos].to_f, cuota.pay_date, pago_de_cuota.code )
           # raise 'rollbackaso'
           render json: { status: 'success', msg: 'Pago registrado' }, status: 200
         else

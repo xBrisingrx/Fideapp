@@ -20,6 +20,11 @@
                 remote: true,
                 data: {toggle: :modal},
                 class: 'btn u-btn-outline-cyan u-btn-hover-v1-2 g-font-weight-600 g-letter-spacing-0_5 g-brd-2 g-rounded-10 g-mr-10 g-mb-15' %>
+    <%= link_to "<i class='icon-education-161 u-line-icon-pro'></i> Ver notas de credito".html_safe,
+                credit_notes_path(sale.id),
+                remote: true,
+                data: {toggle: :modal},
+                class: 'btn u-btn-outline-pink u-btn-hover-v1-2 g-font-weight-600 g-letter-spacing-0_5 g-brd-2 g-rounded-10 g-mr-10 g-mb-15' %>
   </div>
 
   <table id="sale_land_table" class="table hover dt-responsive w-100 mt-2">

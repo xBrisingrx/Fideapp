@@ -1,5 +1,7 @@
 $("#modal-disable-fee-payment").html("<%= j (render partial: 'shared/modal', locals:{ size: 'lg' } ) %>")
 
+setInputDate("#credit_note_date")
+
 $("#modal-disable-fee-payment").modal('show')
 
 $("#form-credit-note").on("ajax:success", function(event) {
