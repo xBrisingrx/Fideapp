@@ -1,10 +1,13 @@
 User.create(name: 'David', username: 'david', email: 'fidev@fide.dev', password: 'asdasd', rol:1)
 
-currencies = [ '$', 'US$', '€', 'Vechículo', 'Transferencia', 'Cheque' ]
+currencies = [ '$', 'Vechículo', 'Transferencia', 'Cheque' ]
 
 currencies.each do |c|
 	Currency.create!(name: c)
 end
+
+Currency.create!(name: 'US$', need_exchange: 1)
+Currency.create!(name: '€', need_exchange: 1)
 
 materials = [ 'Arena', 'Cemento', 'H21', 'Postes de luz']
 
