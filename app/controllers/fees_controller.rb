@@ -20,11 +20,11 @@ class FeesController < ApplicationController
       # Esto es el valor calculado del interes diario
       # @interes_sugerido = calcular_interes!(@porcentaje_interes, @fee.fee_value, @fee.due_date)
       @interes_sugerido = @fee.calcular_interes
-      @total_a_pagar = @interes_sugerido + @adeuda + @fee.value
+      @total_a_pagar = ( @interes_sugerido + @adeuda + @fee.value ).round(2)
     else 
       @porcentaje_interes = 0
       @interes = 0.0
-      @total_a_pagar = @adeuda + @fee.value
+      @total_a_pagar = ( @adeuda + @fee.value ).round(2)
     end
 	end
 
@@ -38,6 +38,7 @@ class FeesController < ApplicationController
       if params[:interest].to_f > 0
         # discrimino el interes aplicado en la cuota
         cuota.interest = params[:interest].to_f
+        # cuota.interests.create(value:  params[:interest].to_f)
       end
 
       if params[:adjust].to_f > 0 # Si agregaron algo al ajuste 
@@ -51,18 +52,18 @@ class FeesController < ApplicationController
       cuota.owes = cuota.total_value
 
       # Chequeo si se pago menos de lo que se debia, en caso de que haya sido asi pasa al atributo DEBE
-      # if ( cuota.total_value >= cuota.payment )
-      #   cuota.owes = (cuota.total_value - cuota.payment).round(2)
-      # else
-      #   cuota.owes = 0.0
-      # end
+      if ( cuota.total_value >= cuota.payment )
+        cuota.owes = (cuota.total_value - cuota.payment).round(2)
+      else
+        cuota.owes = 0.0
+      end
 
       cuota.pay_date = params[:pay_date]
       cuota.payed = true
       cuota.comment = params[:comment]
 
       # si debe plata el status es pago parcial , sino pago total
-      # cuota.pay_status = ( cuota.owes > 0 ) ? :pago_parcial : :pagado
+      cuota.pay_status = ( cuota.owes > 0 ) ? :pago_parcial : :pagado
 
       # si el valor de la cuota cambia tenemos que actualizar el valor de la venta del lote
       recalcular_valor_venta = cuota.total_value_changed?
@@ -83,8 +84,13 @@ class FeesController < ApplicationController
 
         if pago_de_cuota.save!
           pago_de_cuota.update(code: pago_de_cuota.id) 
-          # Lo abonado es mayor a lo que se debe de la cuota
-          cuota.aplicar_pago( pago_de_cuota.total, cuota.pay_date, pago_de_cuota.code )
+          # Si el pago es mayor al valor total de la cuota
+          if cuota.payment > cuota.total_value 
+            payment = cuota.payment - cuota.total_value
+            byebug
+            cuota.aplicar_pago( payment, cuota.pay_date, pago_de_cuota.code )
+          end
+          # raise 'rollbackaso'
           render json: { status: 'success', msg: 'Pago registrado' }, status: 200
         else
           render json: { status: 'error', msg: 'No se pudo registrar el pago' }, status: 422
