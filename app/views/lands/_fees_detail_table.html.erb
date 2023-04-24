@@ -19,6 +19,8 @@
         <th>#</th>
         <th>Valor</th>
         <th>Ajuste</th>
+        <th>Mora</th>
+        <th>Total</th>
         <th>Fecha vencimiento</th>
         <th id="total_debe"> Debe <b>($<%= format_currency(sale.fees.sum(:owes) ) %>)</b></th>
         <th id="total_haber"> Haber <b>($<%= format_currency(sale.saldo_pagado ) %>)</b></th>
@@ -32,6 +34,8 @@
           <td><%= fee.number %></td>
           <td><%= "$#{format_currency(fee.value)}" %></td>
           <td><%= "$#{format_currency(fee.get_adjusts)}" %></td>
+          <td><%= "$#{format_currency(fee.interest)}" %></td>
+          <td><%= "$#{format_currency(fee.total_value)}" %></td>
           <td><%= fee.due_date.strftime('%d-%m-%y') %></td>
           <td><%= show_owes(fee.show_owes_in_table) %></td>
           <td><%= "$#{format_currency(fee.get_payments)}" %></td>
@@ -55,20 +59,14 @@
             </td>
           <% end %>
           <td>
-            <% btn_detalle_pago = link_to "<i class='hs-admin-eye'></i>".html_safe, detalle_pagos_path(fee.id), 
-                         :remote => true, 'data-toggle' =>  'modal', 'data-target' => '#modal-sales', 
-                          class: ' u-link-v5 g-color-white g-color-gray-dark-v2 g-color-secondary--hover g-text-underline--none--hover', 
-                          title: 'Detalle del pago de cuota' %>
-            <% if !fee.payed? %>
-              <%= "#{link_to "<i class='hs-admin-money'></i>".html_safe, fee_path(fee.id), 
-                     :remote => true, 'data-toggle' =>  'modal', 'data-target' => '#modal-sales', 
-                      class: ' u-link-v5 g-color-gray-dark-v2 g-color-secondary--hover g-text-underline--none--hover', title: 'Pagar cuota'}".html_safe %>
-            <% elsif fee.adeuda_pago && fee.due_current_month %>
+            <% if !fee.fee_payments.actives.empty?
+              btn_detalle_pago = btn_fee_pay_detail(fee)
+            end %>
+            <% if !fee.payed? && fee.due_current_month %>
+              <%= btn_fee_show(fee) %>
+            <% elsif fee.payed? && fee.due_current_month %>
               <%= "#{btn_detalle_pago}
-                    #{link_to "<i class='hs-admin-money'></i>".html_safe, pago_parcial_path(fee.id),
-                      :remote => true, 'data-toggle' =>  'modal', 'data-target' => '#modal-sales', 
-                      class: 'ml-4 u-link-v5 g-color-white g-color-gray-dark-v2 g-color-secondary--hover g-text-underline--none--hover', 
-                      title: 'Pago parcial' }".html_safe %>
+                    #{ btn_fee_partial_pay(fee) }".html_safe %>
             <% else %>
              <%= "#{btn_detalle_pago}".html_safe %>
             <% end %>

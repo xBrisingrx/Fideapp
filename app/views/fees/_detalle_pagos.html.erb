@@ -35,7 +35,7 @@
             </tr>
           </thead>
           <tbody>
-            <% @cuota.fee_payments.each do |payment|%>
+            <% @cuota.fee_payments.actives.each do |payment|%>
               <tr>
                 <td>
                   <% if payment.date %>
@@ -65,11 +65,10 @@
                 </td>
                 <td>
                   <% if payment.valor_acarreado == 0 %>
-                    <a class='u-link-v5 g-color-gray-dark-v2 g-color-secondary--hover g-text-underline--none--hover g-ml-12' 
-                      title='Eliminar' 
-                      onclick='modal_disable_fee_payment( <%= payment.id %> )'>
-                      <i class='hs-admin-trash' aria-hidden='true'></i>
-                    </a>
+                  <%= link_to "<i class='hs-admin-trash' aria-hidden='true'></i>".html_safe, 
+                              new_credit_note_path( fee_payment_id: payment.id ),
+                              class: 'u-link-v5 g-color-gray-dark-v2 g-color-secondary--hover g-text-underline--none--hover g-ml-12',
+                              remote: true %>
                   <% end %>
                 </td>
               </tr>
