@@ -1,0 +1,28 @@
+$("#modal").html("<%= j (render 'modal_apply_adjust') %>")
+
+document.querySelector('#form-apply-adjust #sale_id').value = <%= @sale.id %>
+
+$("#modal").modal('show')
+
+document.getElementById('apply_to_one_fee').addEventListener('click', function(e){
+	let fee_input = document.getElementById('fee_number_label')
+	
+	if (e.target.checked) {
+		fee_input.innerHTML = 'Aplicar ajuste a la cuota:'
+	} else {
+		fee_input.innerHTML = 'Aplicar ajuste a partir de la cuota:'
+	}
+})
+
+$("#form-apply-adjust").on("ajax:success", function(event) {
+    // lands_table.ajax.reload(null,false)
+    let msg = JSON.parse(event.detail[2].response)
+    noty_alert(msg.status, msg.msg)
+    setTimeout( location.reload() , 1500)
+  }).on("ajax:error", function(event) {
+	let msg = JSON.parse( event.detail[2].response )
+	$.each( msg, function( key, value ) {
+		$(`#form-land #land_${key}`).addClass('is-invalid')
+		$(`#form-land .land_${key}`).text( value ).show('slow')
+	})
+})

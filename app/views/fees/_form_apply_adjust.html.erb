@@ -1,0 +1,41 @@
+<%= form_with url: apply_adjust_path, id: 'form-apply-adjust', class: 'needs-validation g-brd-around g-brd-gray-light-v4 g-pa-10 g-mb-10' do |form| %>
+  <%=form.hidden_field :sale_id %>
+  <div class="form-group">
+    <%= form.number_field :adjust, 
+                          step:'0.0001', 
+                          class: 'form-control col-6', 
+                          placeholder: 'Ingrese el monto de ajuste a aplicar' %>
+  </div>
+
+  <div class="form-group">
+    <%= form.text_area :comment,
+        class: 'form-control form-control-md u-textarea-expandable g-brd-gray-light-v7 g-brd-gray-light-v3--focus g-rounded-4 g-resize-none g-overflow-hidden', 
+          row: '3', placeholder: 'Motivo del ajuste...', required: true %>
+  </div>
+
+  <div class="form-group">
+    <label class="form-check-inline u-check g-pl-25">
+      <%= form.check_box :apply_to_one_fee, class: 'g-hidden-xs-up g-pos-abs g-top-0 g-left-0' %>
+      <div class="u-check-icon-checkbox-v6 g-absolute-centered--y g-left-0">
+        <i class="fa" data-check-icon="&#xf00c"></i>
+      </div>
+      Aplicar a una sola cuota?
+    </label>
+  </div>
+
+
+  <div class="form-group">
+    <%= form.label :fee_number, 'Aplicar ajuste a partir de la cuota:', id: 'fee_number_label'%>
+    <div class="form-group col-8 col-ls-6">
+      <%= form.select(:fee_number, @fees.collect {|fee| [fee.number, fee.number]}, 
+                      {:include_blank => "Seleccione numero de cuota"},
+                      class: 'select-2-fees-number form-control') %>
+      <div class="invalid-feedback fee_number"></div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <%= form.submit 'Guardar', class: 'btn u-btn-teal mr-2'  %>
+    <button type="button" class="btn u-btn-darkred" data-dismiss="modal">Cerrar</button>
+  </div>
+<% end %>

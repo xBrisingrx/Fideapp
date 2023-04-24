@@ -56,6 +56,10 @@ Rails.application.routes.draw do
 
   post 'disable_fee_payment', to: 'fee_payments#disable', as: 'disable_fee_payment'
 
+
+  get 'fees/modal_apply_adjust/:sale_id', to: "fees#modal_apply_adjust", as: 'modal_apply_adjust'
+  post 'fees/apply_adjust', to: "fees#apply_adjust", as: 'apply_adjust'
+
   resources :payments_types
   resources :currencies
   resource :payments_currencies

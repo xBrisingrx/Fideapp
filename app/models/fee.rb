@@ -77,12 +77,27 @@ class Fee < ApplicationRecord
     owes
   end
 
-  def increase_adjust adjust
-    self.adjust += adjust
-    self.total_value = self.value + self.interest + self.adjust
-    self.owes += self.adjust
+ ##### AJUSTE ####
+  def increase_adjust adjust, comment
+    self.adjusts.create( value: adjust, comment: comment )
+
+    self.total_value = self.value + self.get_adjusts + self.interest
+    self.owes = self.total_value - self.payment
+
     self.save
   end
+
+  def apply_adjust_one_fee adjust, comment
+    self.increase_adjust(adjust, comment)
+  end
+
+  def apply_adjust_include_fee adjust, comment
+    cuotas = Fee.where(["sale_id = ? and number >= ?", self.sale_id, self.number ])
+    cuotas.each do |cuota|
+      cuota.increase_adjust(adjust, comment)
+    end
+  end
+############# AJUSTE
   
   def apply_adjust adjust, comment
     puts "\n\n\n\n\n ****************5 Aplicamos el ajuste a partir de la cuota #{self.number} \n"
@@ -98,16 +113,6 @@ class Fee < ApplicationRecord
     self.adjusts.sum(:value)
   end
 
-  def apply_adjust_one_fee adjust
-    self.increase_adjust adjust
-  end
-
-  def apply_adjust_include_fee adjust
-    cuotas = Fee.where(["sale_id = ? and number >= ?", self.sale_id, self.number ])
-    cuotas.each do |cuota|
-      cuota.increase_adjust adjust
-    end
-  end
 
   def aplicar_pago payment, pay_date, code
     # Obtengo todas las cuotas que no estan pagadas distintas a la que se esta pagando en este momento
