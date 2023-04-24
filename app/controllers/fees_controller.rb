@@ -6,6 +6,21 @@ class FeesController < ApplicationController
 		@status = { 'pendiente' => 'Pendiente', 'pagado' => 'Pagada', 'pago_parcial' => 'Pago parcial'}
 	end
 
+  def new
+    @fee = Fee.new(sale_id: params[:sale_id])
+  end
+
+  def create
+    sale = Sale.find( params[:sale_id])
+    last_fee = sale.fees.last
+    number = last_fee.number
+    due_date = last_fee.due_date 
+
+    for i in 1..params[:number_of_fees] do 
+      
+    end
+  end
+
 	def show
     @cp = PaymentsCurrency.actives
     # obtengo info de una sola cuota

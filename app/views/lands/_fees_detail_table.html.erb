@@ -20,6 +20,12 @@
                 remote: true,
                 data: {toggle: :modal},
                 class: 'btn u-btn-outline-cyan u-btn-hover-v1-2 g-font-weight-600 g-letter-spacing-0_5 g-brd-2 g-rounded-10 g-mr-10 g-mb-15' %>
+
+    <%= link_to "<i class='icon-finance-152 u-line-icon-pro'></i> Agregar cuota".html_safe,
+                new_fee_path( sale_id: sale.id ),
+                remote: true,
+                data: {toggle: :modal},
+                class: 'btn u-btn-outline-blue u-btn-hover-v1-2 g-font-weight-600 g-letter-spacing-0_5 g-brd-2 g-rounded-10 g-mr-10 g-mb-15' %>
     <%= link_to "<i class='icon-education-161 u-line-icon-pro'></i> Ver notas de credito".html_safe,
                 credit_notes_path(sale.id),
                 remote: true,
