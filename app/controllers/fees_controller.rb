@@ -11,14 +11,26 @@ class FeesController < ApplicationController
   end
 
   def create
-    sale = Sale.find( params[:sale_id])
-    last_fee = sale.fees.last
+    sale = Sale.find( params[:fee][:sale_id])
+    last_fee = sale.fees.order(number: 'ASC').last
     number = last_fee.number
-    due_date = last_fee.due_date 
 
-    for i in 1..params[:number_of_fees] do 
-      
+    due_date = last_fee.due_date
+    byebug
+    for i in 1..params[:fee][:number_of_fees].to_i do 
+      number++
+      due_date += 1.month
+      sale.fees.create(
+        due_date: due_date, 
+        value: params[:fee][:value], 
+        number: number, 
+        owes: params[:fee][:value], 
+        total_value: params[:fee][:value]
+      )
     end
+    sale.calculate_total_value!
+
+    render json: { status: 'success', msg: 'Cuotas agregadas' }
   end
 
 	def show
