@@ -32,7 +32,9 @@ Rails.application.routes.draw do
   post 'disable_provider', to: 'providers#disable', as: 'disable_provider'
   resources :materials, except: [:destroy, :show]
   post 'disable_material', to: 'materials#disable', as: 'disable_material'
-  resources :sales, except: [:show, :edit, :update]
+  resources :sales, except: [:show, :edit, :update] do 
+    get 'payment_summary', on: :member
+  end
   post 'disable_sale', to: 'sales#disable', as: 'disable_sale'
   resources :project_types
   post 'disable_project_type', to: 'project_types#disable', as: 'disable_project_type'

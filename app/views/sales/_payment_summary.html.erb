@@ -1,0 +1,61 @@
+<div class="modal-dialog modal-xl" role="document">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title">Resumen de pagos</h5>
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <table class="table table-sm table-bordered">
+        <thead>
+          <th>#</th>
+          <th>Valor cuota</th>
+          <th>Ajuste</th>
+          <th>Mora</th>
+          <th>Vencimiento</th>
+          <th>Fecha de pago</th>
+          <th>Metodo de pago</th>
+          <th>Ingreso</th>
+          <th>Tomado en</th>
+          <th>Total</th>
+        </thead>
+        <tbody>
+          <% @fees.each do |fee| %>
+            <% @row_color = ( @row_color == '' ) ? 'table-active' : '' %>
+            <% @cant_payments = ( fee.fee_payments.actives.where('payment > 0').count == 0 ) ? 1 : fee.fee_payments.actives.where('payment > 0').count %>
+            <tr class="<%= @row_color %>">
+              <td rowspan="<%= @cant_payments %>"><%= fee.number %></td>
+              <td rowspan="<%= @cant_payments %>"><%= "$ #{format_currency(fee.total_value)}" %></td>
+              <td rowspan="<%= @cant_payments %>"><%= "$ #{format_currency(fee.get_adjusts)}" %></td>
+              <td rowspan="<%= @cant_payments %>"><%= "$ #{format_currency(fee.interest)}" %></td>
+              <td rowspan="<%= @cant_payments %>"><%= date_format(fee.due_date) %></td>
+              <td><%= "#{date_format(fee.fee_payments.actives.first.date)}" %></td>
+              <td><%= fee.fee_payments.actives.first.currency.name %></td>
+              <td><%= format_currency(fee.fee_payments.actives.first.payment) %></td>
+              <td><%= "$#{format_currency(fee.fee_payments.actives.first.tomado_en)}" %></td>
+              <td><%= "$#{format_currency(fee.fee_payments.actives.first.total)}" %></td>
+            </tr> 
+            <% if @cant_payments > 0 %>
+              <% fee.fee_payments.actives.where('payment > 0').each_with_index do |payment, i | %>
+                <% if i != 0 %>
+                  <tr class="<%= @row_color %>">
+                    <td><%= "#{date_format(payment.date)}" %></td>
+                    <td><%= payment.currency.name %></td>
+                    <td><%= format_currency(payment.payment) %></td>
+                    <td><%= "$#{format_currency(payment.tomado_en)}" %></td>
+                    <td><%= "$#{format_currency(payment.total)}" %></td>
+                  </tr>
+                <% end %>
+              <% end %>
+            <% end %>
+          <% end %> <!-- end fees each -->
+        </tbody>
+      </table>
+
+      <div>
+        <button type="button" class="btn u-btn-outline-pink u-btn-hover-v2-2" data-dismiss="modal" aria-label="Close"> Cerrar </button>
+      </div>
+    </div>
+  </div>
+</div>
