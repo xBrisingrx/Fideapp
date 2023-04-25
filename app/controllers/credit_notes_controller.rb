@@ -3,7 +3,7 @@ class CreditNotesController < ApplicationController
 
   # GET /credit_notes or /credit_notes.json
   def index
-    @credit_notes = CreditNote.all
+    @credit_notes = CreditNote.where(sale_id: params[:sale_id])
   end
 
   # GET /credit_notes/1 or /credit_notes/1.json
@@ -13,7 +13,8 @@ class CreditNotesController < ApplicationController
   # GET /credit_notes/new
   def new
     @title_modal = "Nota de credito"
-    @credit_note = CreditNote.new( fee_payment_id: params[:fee_payment_id] )
+    sale_id = FeePayment.find(params[:fee_payment_id]).fee.sale.id
+    @credit_note = CreditNote.new( fee_payment_id: params[:fee_payment_id], sale_id: sale_id )
   end
 
   # GET /credit_notes/1/edit
@@ -67,6 +68,6 @@ class CreditNotesController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def credit_note_params
-      params.require(:credit_note).permit(:description, :fee_payment_id, :user_id, :date ,:active)
+      params.require(:credit_note).permit(:description, :fee_payment_id, :sale_id, :user_id, :date ,:active)
     end
 end
