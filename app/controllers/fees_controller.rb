@@ -18,7 +18,7 @@ class FeesController < ApplicationController
     due_date = last_fee.due_date
     byebug
     for i in 1..params[:fee][:number_of_fees].to_i do 
-      number++
+      number += 1
       due_date += 1.month
       sale.fees.create(
         due_date: due_date, 
