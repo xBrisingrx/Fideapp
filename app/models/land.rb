@@ -41,6 +41,8 @@ class Land < ApplicationRecord
 
   enum status: [:available, :bought, :canceled]
 
+  # after_create :projects_in_apple
+
   def land_sale_date
     sp = SaleProduct.where(product_type: :Land, product_id: self.id ).first
     sp.sale.date.strftime('%d-%m-%y')

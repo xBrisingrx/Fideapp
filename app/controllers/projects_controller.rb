@@ -6,6 +6,8 @@ class ProjectsController < ApplicationController
   end
 
   def show
+    @title_modal = "Información del projecto"
+    @status_color = 'lightblue'
   end
 
   def new
