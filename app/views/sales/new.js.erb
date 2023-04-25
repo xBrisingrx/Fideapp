@@ -1,9 +1,5 @@
 $("#modal-land").html("<%= j (render partial: 'shared/modal', locals:{ size: 'xl' } ) %>")
 $('.select-2-client-land').select2({ width: '80%',theme: "bootstrap4" })
-// $('.payment-currency').select2({ width: '80%',theme: "bootstrap4", placeholder: 'Tipo de pago' })
-
-// document.getElementById('value_in_pesos').style.display = 'none'
-// document.getElementById('calculo_en_pesos').style.display = 'none'
 
 $("#modal-land").modal('show')
 
@@ -452,3 +448,33 @@ function suma_cuotas_sale_land(){
 	// 		document.getElementById('first_payment_1').style.display = ''
 	// 	}
 	// })
+document.getElementById('form-clothing-package').addEventListener('submit', (e) => {
+  e.preventDefault()
+  e.stopPropagation()
+  let form = new FormData()
+  let clothes_list = document.getElementsByClassName('clothes_body')
+  let clothe_index = 1
+  form.append( `clothing_package[name]`, document.querySelector('#clothing_package_name').value )
+  form.append( `clothing_package[description]`, document.querySelector('#clothing_package_description').value )
+  form.append( `clothing_package[days_of_validity]`, document.querySelector('#clothing_package_days_of_validity').value )
+  for (let data of clothes_list) {
+    form.append( `clothing_package[clothes_packs_attributes][${clothe_index}][clothe_id]`, data.querySelector('#td_clothe_id').dataset.value )
+    clothe_index++
+  }
+  fetch('/clothing_packages/', {
+      method: 'POST',
+      headers: {           
+        'X-CSRF-Token': document.getElementsByName('csrf-token')[0].content,
+      },
+      body: form
+    })
+    .then( response => response.json() )
+    .then( response => {
+      if (response.status === 'success') {
+        noty_alert(response.status, response.msg)
+        clothing_packages_table.ajax.reload(null,false)
+        $("#modal").modal('hide')
+      }
+    } )
+    .catch( error => noty_alert('error', 'Ocurrio un error') )
+})
