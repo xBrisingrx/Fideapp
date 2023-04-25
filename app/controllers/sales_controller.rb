@@ -196,6 +196,13 @@ class SalesController < ApplicationController
       render json: {status: 'error', msg: 'Error: no se pudo realizar la eliminacion de venta'}, status: 402
   end
 
+  def payment_summary
+    sale = Sale.find params[:id]
+    @fees = sale.fees.where(payed: true).no_cero
+    @row_color = 'table-active'
+    @cant_payments = 0
+  end
+
   private
     def set_sale
       @sale = Sale.find(params[:id])
