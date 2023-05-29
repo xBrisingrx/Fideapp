@@ -19,6 +19,9 @@ let fee_data = {
 	sumar_sin_ajuste() {
 		return this.recargo_sugerido + this.adeuda + this.valor_cuota
 	},
+	sumar_pago_parcial(){
+		return this.total_a_pagar + this.ajuste
+	},
 	convertir_a_pesos() {
 		if ( (this.payment > 0.0) && ( this.tomado_en > 0.0 )  && ( !isNaN(this.payment) ) && ( !isNaN(this.tomado_en) ) ) {
 			return this.payment * this.tomado_en

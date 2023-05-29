@@ -31,16 +31,13 @@ class Sale < ApplicationRecord
 	belongs_to :land 
 	has_many :fees, dependent: :destroy 
 	has_many :fee_payments, through: :fees
+	has_many :payments
 
 	before_create :set_attributes 
-	
-	enum status: [:not_approved, :approved, :payed]
+	after_create :register_activity
+	accepts_nested_attributes_for :sale_clients, :sale_products, :fees
 
-	def set_attributes
-		self.date = Time.now.strftime("%Y/%m/%d") if self.date.blank? 
-		self.due_day = 10 if self.due_day.blank? 
-		self.arrear = 0 if self.arrear.blank? 
-	end
+	enum status: [:not_approved, :approved, :payed]
 
 	def calculate_total_value!
 		# Se calcula el valor final de la venta, al momento de vender el lote
@@ -108,7 +105,7 @@ class Sale < ApplicationRecord
 		self.fees.where(payed: true).sum(:payment)
 	end
 
-	def get_all_owes
+	def get_all_owes # el valor que falta pagar para cancelar la venta
 		self.fees.sum(:owes)
 	end
 
@@ -132,11 +129,24 @@ class Sale < ApplicationRecord
 	end
 
 	def saldo_pagado
-		pagado = 0
-		self.fees.each do | fee |
-			pagado += fee.fee_payments.actives.sum(:total)
-		end
-		pagado
+		# pagado = 0
+		# self.fees.each do | fee |
+		# 	pagado += fee.fee_payments.actives.sum(:total)
+		# end
+		# pagado
+		self.payments.actives.sum(:total)
 	end
 	
+	private
+
+	def register_activity
+		ActivityHistory.new( action: :create_record, description: "Venta realizada", 
+      record: self, date: Time.now, user: Current.user )
+	end
+
+	def set_attributes
+		self.date = Time.now.strftime("%Y/%m/%d") if self.date.blank? 
+		self.due_day = 10 if self.due_day.blank? 
+		self.arrear = 0 if self.arrear.blank? 
+	end
 end

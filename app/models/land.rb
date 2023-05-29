@@ -61,7 +61,7 @@ class Land < ApplicationRecord
   def get_all_pay
     total_pay = 0
     self.sales.each do |sale|
-      total_pay +=  sale.fee_payments.actives.sum(:total)
+      total_pay +=  sale.saldo_pagado
     end
     total_pay
   end

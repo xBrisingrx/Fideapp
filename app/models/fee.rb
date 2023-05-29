@@ -30,6 +30,7 @@
 class Fee < ApplicationRecord
   belongs_to :sale
   has_many :adjusts, dependent: :destroy
+  has_many :interests, dependent: :destroy
   has_many :fee_payments, dependent: :destroy
 
   scope :actives, -> { where(active: true) }
@@ -72,6 +73,12 @@ class Fee < ApplicationRecord
 
   def get_fee_owes
     self.total_value - self.fee_payments.sum(:valor_acarreado)
+  end
+
+  def get_total_value
+    adjust = self.adjusts.sum(:value)
+    interest = self.interests.sum(:value)
+    self.value + adjust + interest
   end
 
  ##### AJUSTE ####

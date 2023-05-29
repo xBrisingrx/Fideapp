@@ -16,6 +16,8 @@
 #  updated_at     :datetime         not null
 #
 class Client < ApplicationRecord
+	has_many :sale_clients
+	
 	validates :code, presence: true
 	validates :name, presence: true
 	validates :last_name, presence: true

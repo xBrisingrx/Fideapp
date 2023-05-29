@@ -22,6 +22,13 @@
         </thead>
         <tbody>
           <% @fees.each do |fee| %>
+            <% if fee.number == 0 %>
+              <tr>
+                <td colspan='10'>1er entrega</td>
+              </tr>
+              <% next %>
+            <% end %>
+
             <% @row_color = ( @row_color == '' ) ? 'table-active' : '' %>
             <% @cant_payments = ( fee.fee_payments.actives.where('payment > 0').count == 0 ) ? 1 : fee.fee_payments.actives.where('payment > 0').count %>
             <tr class="<%= @row_color %>">

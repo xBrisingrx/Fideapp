@@ -16,7 +16,6 @@ class FeesController < ApplicationController
     number = last_fee.number
 
     due_date = last_fee.due_date
-    byebug
     for i in 1..params[:fee][:number_of_fees].to_i do 
       number += 1
       due_date += 1.month
@@ -55,11 +54,51 @@ class FeesController < ApplicationController
     end
 	end
 
-  def update # Actualizar los valores de una cuota sigifica que se pago esa cuota
+  def update
+    ActiveRecord::Base.transaction do 
+      # payment es lo que se pago, ese valor viene en calculo_en_pesos
+      # cuota.payment = params[:calculo_en_pesos].to_f
+      fee = Fee.find(params[:id])
+      # chequeamos si se le sumo intereses
+      if params[:interest].to_f > 0
+        # discrimino el interes aplicado en la cuota
+        # cuota.interest = params[:interest].to_f
+        fee.interests.create(value: params[:interest].to_f, date: params[:pay_date])
+      end
+
+      if params[:adjust].to_f > 0 # Si agregaron algo al ajuste 
+        fee.adjusts.create(value:  params[:adjust].to_f, comment:  params[:comment_adjust])
+        # cuota.apply_adjust(params[:adjust].to_f, params[:comment_adjust]) # y las siguientes
+      end
+      
+      sale = Sale.find(fee.sale.id)
+      payment = sale.payments.new( 
+              date: params[:pay_date], 
+              payment: params[:payment], 
+              taken_in: params[:value_in_pesos],
+              comment: params[:name_pay],
+              payments_currency_id: params[:payments_currency_id])
+          if !params[:images].nil?
+            payment.images = params[:images]
+          end
+
+      if payment.save
+        render json: { status: 'success', msg: 'Pago registrado' }, status: 200
+      else
+        render json: { status: 'error', msg: 'No se pudo registrar el pago' }, status: 422
+      end
+    end # transaction
+    rescue => e
+      @response = e.message.split(':')
+      puts @response
+      render json: { status: 'error', msg: 'Error del sistema' }, status: 402
+  end
+
+  def update_old # Actualizar los valores de una cuota sigifica que se pago esa cuota
     cuota = Fee.find(params[:id])
     ActiveRecord::Base.transaction do 
       # payment es lo que se pago, ese valor viene en calculo_en_pesos
-      cuota.payment = params[:calculo_en_pesos].to_f
+      # cuota.payment = params[:calculo_en_pesos].to_f
 
       # chequeamos si se le sumo intereses
       if params[:interest].to_f > 0
@@ -112,7 +151,6 @@ class FeesController < ApplicationController
         if pago_de_cuota.save!
           pago_de_cuota.update(code: pago_de_cuota.id) 
           cuota.aplicar_pago( params[:calculo_en_pesos].to_f, cuota.pay_date, pago_de_cuota.code )
-          # raise 'rollbackaso'
           render json: { status: 'success', msg: 'Pago registrado' }, status: 200
         else
           render json: { status: 'error', msg: 'No se pudo registrar el pago' }, status: 422
@@ -120,11 +158,9 @@ class FeesController < ApplicationController
       else
         render json: { status: 'error', msg: 'No se pudo registrar el pago' }, status: 422
       end
-      # raise 'lands fees/update'
     end # end transaction
     rescue => e
       @response = e.message.split(':')
-      puts @response
       render json: { status: 'error', msg: 'No se pudo registrar el pago' }, status: 402
   end
 

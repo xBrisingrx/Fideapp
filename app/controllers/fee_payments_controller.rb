@@ -26,6 +26,7 @@ class FeePaymentsController < ApplicationController
   end
 
   def create
+    raise '============================'
     fee = Fee.find(params[:fee_id])
     fee_payments = fee.fee_payments.new(
       payment: params[:payment],

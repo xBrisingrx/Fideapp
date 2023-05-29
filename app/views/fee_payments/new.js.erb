@@ -7,32 +7,10 @@ $("#modal-sale-product").modal('show')
 
 // document.getElementById('fee_payment_aply_interest').checked = <%= @fee.apply_arrear? %>
 fee_data.valor_cuota = parseFloat(<%= @fee.total_value %>)
-fee_data.total_a_pagar = parseFloat(<%= @fee.total_value %>)
+fee_data.total_a_pagar = parseFloat(<%= @fee.owes + @fee.get_deuda %>)
 fee_data.adeuda = parseFloat(<%= @adeuda %>)
 fee_data.reset()
-
-// if (<%= @fee.apply_arrear? %>) {
-// 	// Si corresponde, manejamos los campos del interes/recargo sugerido
-// 	fee_data.recargo_sugerido = parseFloat(<%= @interes_sugerido %>)
-// 	document.getElementById('fee_payment_interest').value = fee_data.recargo_sugerido
-// 	document.getElementById('fee_payment_aply_interest').addEventListener('click', function(event) {
-// 		$( '#fee_payment_interest').prop("disabled", !this.checked )
-// 		if ( this.checked ) {
-// 			fee_data.recargo_sugerido = parseFloat(<%= @interes_sugerido %>)
-// 			fee_data.total_a_pagar = fee_data.sumar_todo()
-// 			document.getElementById('fee_payment_interest').value = <%= @interes_sugerido %>
-// 			document.getElementById('fee_payment_total_to_pay').value = fee_data.total_a_pagar
-// 		} else {
-// 			fee_data.recargo_sugerido = 0.0
-// 			fee_data.total_a_pagar = fee_data.sumar_sin_recargo()
-// 			document.getElementById('fee_payment_interest').value = fee_data.recargo_sugerido
-// 			document.getElementById('fee_payment_total_to_pay').value = fee_data.total_a_pagar
-// 		}
-// 	})
-// } else {
-// 	// Si no corresponde aplicar interes solo se paga la cuota 
-// 	document.getElementById('esta_vencido').style.display = 'none'
-// }
+console.log(fee_data)
 
 document.getElementById('fee_payment_payment').addEventListener('change', function(e){
 	fee_payment_data.check_input(e, this, 'payment')
@@ -47,13 +25,7 @@ document.getElementById('fee_payment_adjust').addEventListener('change', functio
 	if (isNaN(fee_data.ajuste)) {
 		fee_data.ajuste = 0
 	}
-	// if (document.getElementById('fee_payment_aply_interest').checked) {
-	// 	fee_data.total_a_pagar = fee_data.sumar_todo()
-	// } else {
-	// 	fee_data.total_a_pagar = fee_data.sumar_sin_recargo()
-	// }
-	fee_data.total_a_pagar = fee_data.sumar_sin_recargo()
-	document.getElementById('fee_payment_total_to_pay').value = fee_data.total_a_pagar
+	document.getElementById('fee_payment_total_to_pay').value = fee_data.total_a_pagar + fee_data.ajuste
 })
 
 document.getElementById('submit-fee-payment').addEventListener('click', function(e){

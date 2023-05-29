@@ -1,9 +1,5 @@
 $("#modal-land").html("<%= j (render partial: 'shared/modal', locals:{ size: 'xl' } ) %>")
 $('.select-2-client-land').select2({ width: '80%',theme: "bootstrap4" })
-// $('.payment-currency').select2({ width: '80%',theme: "bootstrap4", placeholder: 'Tipo de pago' })
-
-// document.getElementById('value_in_pesos').style.display = 'none'
-// document.getElementById('calculo_en_pesos').style.display = 'none'
 
 $("#modal-land").modal('show')
 
@@ -387,6 +383,11 @@ function validaciones_sale_form() {
 			noty_alert('error', 'Datos invalidos en primer pago', sale.form.get("num_pays"))
 			return false
 		}
+
+		if (suma_cuotas_sale_land() < sale.resto) {
+			noty_alert('error', `El valor a pagar en cuotas es menor al que corresponde: $${numberFormat.format(suma_cuotas_sale_land()) }, deberia ser $${numberFormat.format(sale.resto) }`)
+			return false
+		}
 	}
 
 	return true
@@ -428,27 +429,3 @@ function suma_cuotas_sale_land(){
 	}
 	return suma
 }
-
-// function populate_currencies() {
-// 	let nodo = event.target.parentElement.parentElement
-// 	let select_currencies = nodo.querySelector('#currency_id')
-// 	select_currencies.innerHTML = ''
-// 	fetch( `/payments_types/${event.target.value}` )
-// 		.then( response => response.json() )
-// 		.then( response => {
-// 			for (var i = response.length - 1; i >= 0; i--) {
-// 				console.log(response[i])
-// 				select_currencies.innerHTML += `<option id=${response[i].id}>${response[i].name}</option>`
-// 			}
-// 		})
-// 	}
-
-	// document.getElementById('pactar_entrega').addEventListener('click', () => {
-	// 	if (event.target.checked) {
-	// 		document.getElementById('monto_primer_entrega_pactado').style.display = ''
-	// 		document.getElementById('first_payment_1').style.display = 'none'
-	// 	} else {
-	// 		document.getElementById('monto_primer_entrega_pactado').style.display = 'none'
-	// 		document.getElementById('first_payment_1').style.display = ''
-	// 	}
-	// })

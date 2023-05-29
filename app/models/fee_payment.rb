@@ -31,7 +31,11 @@ class FeePayment < ApplicationRecord
   belongs_to :fee
   belongs_to :payments_currency
   has_one :currency, through: :payments_currency
+  has_one :payments_type, through: :payments_currency
   has_many_attached :images
+
+  validates :tomado_en,:date, :payment, :valor_acarreado, :code, presence: true 
+
 
   scope :actives, -> { where(active: true) }
 
@@ -43,6 +47,10 @@ class FeePayment < ApplicationRecord
         payment.fee.update_payment_data
       end
     end
+  end
+
+  def payment_method
+    "#{self.payments_type.name} en #{self.currency.name}"
   end
 
 end

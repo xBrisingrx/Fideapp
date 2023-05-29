@@ -1,9 +1,10 @@
 <%= form_with(model: [ @fee, @fee.fee_payments.build ], id: 'register-fee-payment',
               class: 'needs-validation g-brd-around g-brd-gray-light-v4 g-pa-10 g-mb-10') do |form| %>
   <p id='valor_cuota'> Valor de la cuota: <b> $ <%= format_currency( @fee.total_value ) %> </b></p>
-  <% if (@fee.pay_status != 'pendiente') && (@fee.owes > 0) %>
-    <p>Adeuda de esta cuota: <b>$ <%= format_currency( @fee.owes ) %></b></p>
+  <% if @fee.get_deuda > 0 %>
+    <p>Adeuda de cuotas anteriores: <b>$ <%= format_currency( @fee.get_deuda ) %></b></p>
   <% end %>
+  <p>Total adeudado: <b>$ <%= format_currency( @fee.owes + @fee.get_deuda ) %></b></p>
 
   <div class="form-group row">
     <%= form.label :date, 'Fecha:' , class: 'col-3' %>
