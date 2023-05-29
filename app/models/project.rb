@@ -44,4 +44,27 @@ class Project < ApplicationRecord
       self.lands.first.sector.name
     end
   end
+
+  def project_status
+    lands = self.land_projects.count
+    pending = self.land_projects.where(status: :pending).count
+    process = self.land_projects.where(status: :process).count
+    payed = self.land_projects.where(status: :payed).count
+    status_label = ''
+
+    if lands == pending
+      status_label = 'Pendiente'
+    end
+
+    if process > 0
+      status_label = 'En proceso'
+    end
+
+    if lands == payed
+      status_label = 'Completado'
+    end
+
+    status_label
+  end
+
 end
