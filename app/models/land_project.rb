@@ -27,5 +27,5 @@ class LandProject < ApplicationRecord
   belongs_to :land
   belongs_to :project
 
-  enum status: [:pending, :process, :payed]
+  enum status: [:pending, :process, :payed, :refinancied]
 end

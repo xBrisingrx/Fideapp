@@ -28,6 +28,11 @@ class SalesController < ApplicationController
         land_project = LandProject.where(land_id: params[:land_id], project_id: @product.id ).first
         @price = land_project.price
         render :sale_project
+      when 'sale'
+        @product = Sale.select(:id, :price).find(@product_id)
+        @title_modal = "Refinanciando"
+        @price = @product.get_all_owes
+        render :sale_project
       else 
         raise "No es un producto reconocido"
     end

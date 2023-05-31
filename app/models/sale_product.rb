@@ -31,6 +31,12 @@ class SaleProduct < ApplicationRecord
       when 'Land'
         product = Land.find self.product_id
         product.update(status: :bought)
+      when 'Sale'
+        sale = Sale.find( self.product_id )
+        if sale.sale_products.first.product_type != 'Land'
+          project = LandProject.where(project_id: self.product_id, land_id: self.sale.land_id ).first
+          project.update(status: :process)
+        end
       when 'Project'
         project = LandProject.where(project_id: self.product_id, land_id: self.sale.land_id ).first
         project.update(status: :process)

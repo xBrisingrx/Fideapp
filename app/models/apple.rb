@@ -61,8 +61,6 @@ class Apple < ApplicationRecord
 
   def total_price
     total_price = 0
-    pp self.code 
-    pp self.id
     self.lands.each do |land|
       total_price += land.total_price
     end

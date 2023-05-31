@@ -14,34 +14,40 @@
 <div id="sale_information_<%= sale.id %>" data-show='show' >
   <%= render(partial: 'first_pay', locals: { sale: sale }) %>
   
-  <div class="col-auto">
-    <%= link_to "<i class='icon-finance-234 u-line-icon-pro'></i> Agregar ajuste".html_safe,
-                modal_apply_adjust_path(sale.id),
-                remote: true,
-                data: {toggle: :modal},
-                class: 'btn u-btn-outline-cyan u-btn-hover-v1-2 g-font-weight-600 g-letter-spacing-0_5 g-brd-2 g-rounded-10 g-mr-10 g-mb-15' %>
+  <div class="row justify-content-between">
+    <div class="col-6">
+      <% if !sale.refinanced?%>
+      <%= link_to "<i class='icon-finance-234 u-line-icon-pro'></i> Agregar ajuste".html_safe,
+                  modal_apply_adjust_path(sale.id),
+                  remote: true,
+                  data: {toggle: :modal},
+                  class: 'btn u-btn-outline-cyan u-btn-hover-v1-2 g-font-weight-600 g-letter-spacing-0_5 g-brd-2 g-rounded-10 g-mr-10 g-mb-15' %>
 
-    <%= link_to "<i class='icon-finance-152 u-line-icon-pro'></i> Agregar cuota".html_safe,
-                new_fee_path( sale_id: sale.id ),
-                remote: true,
-                data: {toggle: :modal},
-                class: 'btn u-btn-outline-blue u-btn-hover-v1-2 g-font-weight-600 g-letter-spacing-0_5 g-brd-2 g-rounded-10 g-mr-10 g-mb-15' %>
-    <%= link_to "<i class='icon-education-161 u-line-icon-pro'></i> Ver notas de credito".html_safe,
+      <%= link_to "<i class='icon-finance-152 u-line-icon-pro'></i> Agregar cuota".html_safe,
+                  new_fee_path( sale_id: sale.id ),
+                  remote: true,
+                  data: {toggle: :modal},
+                  class: 'btn u-btn-outline-blue u-btn-hover-v1-2 g-font-weight-600 g-letter-spacing-0_5 g-brd-2 g-rounded-10 g-mr-10 g-mb-15' %>
+      <%= link_to "<i class='icon-finance-260 u-line-icon-pro'></i> Refinanciar".html_safe,
+                  new_sale_path( land_id: sale.land.id, product_type: :sale, product_id: sale.id ),
+                  remote: true,
+                  class: 'btn u-btn-outline-pink u-btn-hover-v1-2 g-font-weight-600 g-letter-spacing-0_5 g-brd-2 g-rounded-10 g-mr-10 g-mb-15' %>
+      <% end %>
+    </div>
+
+    <div class="col-6">
+      <%= link_to "<i class='icon-education-161 u-line-icon-pro'></i> Ver notas de credito".html_safe,
                 credit_notes_path( sale_id: sale.id),
                 remote: true,
                 data: {toggle: :modal},
                 class: 'btn u-btn-outline-pink u-btn-hover-v1-2 g-font-weight-600 g-letter-spacing-0_5 g-brd-2 g-rounded-10 g-mr-10 g-mb-15' %>
-    <%= link_to "<i class='icon-finance-260 u-line-icon-pro'></i> Listar pagos".html_safe,
-                payment_summary_sale_path(sale.id),
-                remote: true,
-                data: {toggle: :modal},
-                class: 'btn u-btn-outline-indigo u-btn-hover-v1-2 g-font-weight-600 g-letter-spacing-0_5 g-brd-2 g-rounded-10 g-mr-10 g-mb-15' %>
+      <%= link_to "<i class='icon-finance-260 u-line-icon-pro'></i> Listar pagos".html_safe,
+                  payment_summary_sale_path(sale.id),
+                  remote: true,
+                  data: {toggle: :modal},
+                  class: 'btn u-btn-outline-indigo u-btn-hover-v1-2 g-font-weight-600 g-letter-spacing-0_5 g-brd-2 g-rounded-10 g-mr-10 g-mb-15' %>
+    </div>
 
-    <%= link_to "<i class='icon-finance-260 u-line-icon-pro'></i> Refinanciar".html_safe,
-                payment_summary_sale_path(sale.id),
-                remote: true,
-                data: {toggle: :modal},
-                class: 'btn u-btn-outline-pink u-btn-hover-v1-2 g-font-weight-600 g-letter-spacing-0_5 g-brd-2 g-rounded-10 g-mr-10 g-mb-15' %>
 
     <%# link_to "<i class='icon-finance-152 u-line-icon-pro'></i> Ingresar pago".html_safe,
                 new_payment_path(sale_id: sale.id),

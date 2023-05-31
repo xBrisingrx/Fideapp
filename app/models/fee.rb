@@ -38,8 +38,9 @@ class Fee < ApplicationRecord
   scope :actives, -> { where(active: true) }
   scope :no_cero, -> { where( "number > 0" ) }
   scope :no_payed, -> { where.not(pay_status: :pagado) }
+  scope :no_refinancied, -> { where.not(pay_status: :refinancied) }
 
-  enum pay_status: [:pendiente, :pagado, :pago_parcial]
+  enum pay_status: [:pendiente, :pagado, :pago_parcial, :refinancied]
 
   def calcular_primer_pago
     primer_pago = self.fee_payments.sum(:total)
@@ -294,6 +295,12 @@ class Fee < ApplicationRecord
     fees = Fee.where(sale_id: self.sale_id)
     fees.each do |fee|
       fee.update(pay_status: :pendiente, owes: fee.get_total_value, payed: false)
+    end
+  end
+
+  def set_refinancied
+    if self.pay_status != :pagado
+      self.update(owes: 0, pay_status: :refinancied)
     end
   end
 

@@ -23,7 +23,12 @@
         <tbody>
           <% if !@first_payments.empty? %>
             <tr>
-              <td colspan='10'>1</td>
+              <td colspan='7'>Primer entrega</td>
+              <% @first_payments.each do |first_pay| %>
+                <td><%= format_currency(first_pay.payment) %></td>
+                <td><%= "$#{format_currency(first_pay.taken_in)}" %></td>
+                <td><%= "$#{format_currency(first_pay.total)}" %></td>
+              <% end %>
             </tr>
           <% end %>
 
@@ -32,7 +37,6 @@
             <% @payments = fee.get_payments_list %>
 
             <% @cant_payments = ( @payments.count > 0) ? @payments.count : 1 %>
-            <%# @cant_payments = ( payment.payment_payments.actives.where('payment > 0').count == 0 ) ? 1 : payment.payment_payments.actives.where('payment > 0').count %>
             <tr class="<%= @row_color %>">
               <td rowspan="<%= @cant_payments %>"><%= fee.number %></td>
               <td rowspan="<%= @cant_payments %>"><%= "$ #{format_currency(fee.get_total_value)}" %></td>

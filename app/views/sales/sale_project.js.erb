@@ -342,7 +342,8 @@ document.getElementById('submit-form-project-sale').addEventListener('click', (e
 })
 
 function send_sale(){
-	fetch('/sales/', {
+	let url = (<%= @product_type == 'sale' %>) ? '/refinancied_sales/' : '/sales/';
+	fetch(url, {
       method: 'POST',
       headers: {           
         'X-CSRF-Token': document.getElementsByName('csrf-token')[0].content,
@@ -353,8 +354,8 @@ function send_sale(){
   .then( response => response.json() )
   .then( response => {
   	if (response.status === 'success') {
-  		lands_table.ajax.reload(null,false)
-	    $("#modal").modal('hide')
+  		// lands_table.ajax.reload(null,false)
+	    // $("#modal").modal('hide')
 	    location.reload()
   	}
   	noty_alert(response.status, response.msg)

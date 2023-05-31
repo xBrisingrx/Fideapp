@@ -120,12 +120,31 @@ class Sale < ApplicationRecord
 
 	def product_name
 		product = self.sale_products.first
+		case product.product_type
+		when 'Land'
+			name = 'Tierra'
+		when 'Sale'
+			name = refinanced_name( product.product_id )
+		else
+			name = Project.find(product.product_id).project_type.name
+		end
+		# if product.product_type == 'Land'
+		# 	name = 'Tierra'
+		# else
+		# 	name = Project.find(product.product_id).project_type.name
+		# end
+		name
+	end
+
+	def refinanced_name( sale_id )
+		sale = Sale.find(sale_id)
+		product = sale.sale_products.first 
 		if product.product_type == 'Land'
 			name = 'Tierra'
 		else
 			name = Project.find(product.product_id).project_type.name
 		end
-		name
+		"Refinanciacion de #{name}"
 	end
 
 	def saldo_pagado
@@ -140,10 +159,23 @@ class Sale < ApplicationRecord
 	def total_value # aca tenemos el valor total de la venta (cuotas + ajustes + moras)
 		total = self.payments.is_first_pay.sum(:total) #1er pago
 		
-		self.fees.each do |fee|
-			total += fee.get_total_value
+		if self.refinanced?
+			total += self.payments.no_first_pay.sum(:total)
+		else
+			self.fees.each do |fee|
+				total += fee.get_total_value
+			end
 		end
 		total
+	end
+
+	def set_refinancied
+		ActiveRecord::Base.transaction do
+			self.update(refinanced: true)
+			self.fees.each do |fee|
+				fee.set_refinancied()
+			end
+		end
 	end
 	
 	private
@@ -158,4 +190,6 @@ class Sale < ApplicationRecord
 		self.due_day = 10 if self.due_day.blank? 
 		self.arrear = 0 if self.arrear.blank? 
 	end
+
+
 end
