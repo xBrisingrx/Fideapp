@@ -54,7 +54,7 @@ class Land < ApplicationRecord
     # si no es cero, el valor del lote es valor tierra + valor proyectos 
     total_price = 0 
     self.sale_products.each do |product|
-      total_price += product.sale.price
+      total_price += product.sale.total_value
     end
 
     return ( total_price  > 0 ) ? total_price : self.price

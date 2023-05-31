@@ -165,24 +165,32 @@ document.getElementById('submit-form-field-pay-quote').addEventListener('click',
 	  }
   }
 
+  if (document.getElementById('payments_currency_id').value == '0') {
+  	addClassInvalid(document.getElementById('payments_currency_id'))
+  	noty_alert('error', 'Debe seleccionar un tipo de pago')
+  	return
+  } else {
+  	addClassValid(document.getElementById('payments_currency_id'))
+  }
+
   if ( !valid_number( fee_data.form_data.get('payment') ) ) {
-  	noty_alert('error', 'Datos invalidos')
+  	noty_alert('error', 'Datos invalidos 1')
   	addClassInvalid(document.getElementById('fee_payment'))
   	return
   }
   if ( isNaN( fee_data.form_data.get('value_in_pesos') ) || fee_data.form_data.get('value_in_pesos') <= 0 ) {
-  	noty_alert('error', 'Datos invalidos')
+  	noty_alert('error', 'Datos invalidos 2')
   	addClassInvalid(document.getElementById('fee_value_in_pesos'))
   	return
   }
   if ( isNaN( fee_data.form_data.get('calculo_en_pesos') ) || fee_data.form_data.get('calculo_en_pesos') <= 0 ) {
-  	noty_alert('error', 'Datos invalidos')
+  	noty_alert('error', 'Datos invalidos 3')
   	addClassInvalid(document.getElementById('fee_calculo_en_pesos'))
   	return
   }
 
   if ( isNaN( fee_data.form_data.get('interest') ) ) {
-  	noty_alert('error', 'Datos invalidos')
+  	noty_alert('error', 'Datos invalidos 4')
   	addClassInvalid(document.getElementById('fee_interest'))
   	return
   }

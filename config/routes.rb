@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :refinancied_sales, only: [:index, :new, :create]
   resources :payments
   resources :credit_notes
   get 'fee_payments/new'

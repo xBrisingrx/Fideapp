@@ -20,4 +20,10 @@ module FeesHelper
                     title: 'Pago parcial'
 	end
 
+	def btn_payment sale_id, fee_id
+		"#{link_to "<i class='hs-admin-money'></i>".html_safe, new_payment_path(sale_id: sale_id, fee_id: fee_id), 
+                     :remote => true, 'data-toggle' =>  'modal',
+                      class: ' u-link-v5 g-color-gray-dark-v2 g-color-secondary--hover g-text-underline--none--hover', title: 'Pagar cuota'}".html_safe
+	end
+
 end

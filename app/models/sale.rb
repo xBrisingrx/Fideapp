@@ -31,7 +31,7 @@ class Sale < ApplicationRecord
 	belongs_to :land 
 	has_many :fees, dependent: :destroy 
 	has_many :fee_payments, through: :fees
-	has_many :payments
+	has_many :payments, dependent: :destroy
 
 	before_create :set_attributes 
 	after_create :register_activity
@@ -41,7 +41,7 @@ class Sale < ApplicationRecord
 
 	def calculate_total_value!
 		# Se calcula el valor final de la venta, al momento de vender el lote
-		valor_venta = self.fees.sum(:total_value)
+		valor_venta = self.fees.sum(:total_value) + self.payments.is_first_pay.sum(:total)
 		self.update( price: valor_venta )
 	end
 
@@ -135,6 +135,15 @@ class Sale < ApplicationRecord
 		# end
 		# pagado
 		self.payments.actives.sum(:total)
+	end
+
+	def total_value # aca tenemos el valor total de la venta (cuotas + ajustes + moras)
+		total = self.payments.is_first_pay.sum(:total) #1er pago
+		
+		self.fees.each do |fee|
+			total += fee.get_total_value
+		end
+		total
 	end
 	
 	private

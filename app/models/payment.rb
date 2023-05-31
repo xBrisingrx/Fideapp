@@ -35,6 +35,7 @@ class Payment < ApplicationRecord
   has_many_attached :images
 
   validates :taken_in,:date, :payment, :total, presence: true
+  validates :taken_in, :payment, :total, numericality: true
 
   before_validation :check_attributes
   after_create :apply_payment_to_fees
@@ -42,6 +43,17 @@ class Payment < ApplicationRecord
   scope :actives, -> { where(active: true) }
   scope :no_first_pay, -> { where(first_pay: false) }
   scope :is_first_pay, -> { where(first_pay: true) }
+
+  def self.by_month sale_id, month
+    Payment.where( 'extract(month from date) = ?', month ).where(sale_id: sale_id).actives.no_first_pay
+  end
+
+  def disable 
+    ActiveRecord::Base.transaction do
+      self.update(active: false)
+      apply_payment_to_fees
+    end
+  end
 
   private 
 
@@ -52,75 +64,23 @@ class Payment < ApplicationRecord
 
   def apply_payment_to_fees
     return if self.first_pay?
-    byebug
     payment = Payment.where(sale_id: self.sale.id).no_first_pay.actives.sum(:total)
     fees = Fee.where(sale_id: self.sale.id).order('id ASC')
+    fees.first.reset
     fees.each do |fee|
       return if payment <= 0.0
       owes = fee.get_total_value
       fee.owes = fee.get_total_value
       if payment >= fee.owes
-        fee.update(owes: 0, pay_status: :pagado, payed: true)
+        # el pago supera el valor de la cuota, eso quiere decir q se cancela entera
+        # owes es el valor total q habia q pagar en esta cuota
+        fee.update(owes: 0, pay_status: :pagado, payed: true, payment: owes)
       else
-        fee.update!(owes: fee.owes - payment, pay_status: :pago_parcial, payed: true )
+        # no se pago entera, solo se pago lo que quedo en payment
+        fee.update!(owes: fee.owes - payment, pay_status: :pago_parcial, payed: true, payment: payment )
       end
       payment -= owes
     end
   end
-
-
-# def aplicar_pago payment, pay_date, code
-#     # Obtengo todas las cuotas que no estan pagadas distintas a la que se esta pagando en este momento
-#     fees_to_pay = Fee.where(sale_id: self.sale_id)
-#                         .where('owes > 0')
-#                         .order('id ASC')
-
-#     fees_to_pay.each do |cuota|
-      
-#       puts "\n\n Payment menor a cero => #{payment.to_f} \n\n" if payment <= 0.0
-
-#       return if payment <= 0.0
-      
-#       owes = cuota.owes #lo que se adeuda de esta cuota
-
-#       if cuota.id == self.id # llegamos a la cuota en q se realiza el pago
-#         fee_payment = FeePayment.find(code)
-#         fee_payment.valor_acarreado = (payment < cuota.owes) ? payment : owes
-#         fee_payment.save 
-#         self.update( owes: self.owes - fee_payment.valor_acarreado )
-#       else
-#         # pago a registrar, se deja en cero el monto porque es para lleva el registro de adelantos/pago deuda
-#         pago = cuota.fee_payments.new(
-#           date: pay_date, 
-#           payment: 0, 
-#           tomado_en: 1,
-#           total: 0,
-#           payments_currency_id: 1,
-#           code: code)
-
-#         if payment < cuota.owes
-#           cuota.update!(owes: cuota.owes - payment, pay_status: :pago_parcial, payed: true )
-#           pago.valor_acarreado = payment
-#           if cuota.due_date < pay_date 
-#             pago.comment = "Pago parcial de deuda de esta cuota realizado cuando se pago la cuota ##{self.number} por un monto de $"
-#           else 
-#             pago.comment = "Se realizo un adelanto parcial de esta cuota cuando se pago la cuota ##{self.number} por un monto de $" 
-#           end
-#         else
-#           cuota.update!(owes: 0.0, pay_status: :pagado, payed: true)
-#           pago.valor_acarreado = owes
-#           if cuota.due_date < pay_date 
-#             pago.comment = "Pago total de deuda de esta cuota realizado cuando se pago la cuota ##{self.number} por un monto de $" 
-#           else 
-#             pago.comment = "Se realizo un pago adelantado de esta cuota cuando se pago la cuota ##{self.number} por un monto de $" 
-#           end
-#         end # if payment <= cuota.owes
-#         # byebug
-#         pago.save
-#       end # if cuota.id == self.id
-#       payment -= owes
-#     end # fees_to_pay.each
-#   end # pago_supera_cuota
-
 
 end

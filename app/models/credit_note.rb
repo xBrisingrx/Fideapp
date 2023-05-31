@@ -25,7 +25,8 @@
 #  fk_rails_...  (user_id => users.id)
 #
 class CreditNote < ApplicationRecord
-  belongs_to :fee_payment
+  belongs_to :fee_payment, optional: true
+  belongs_to :payment
   belongs_to :sale
   belongs_to :user
 
@@ -36,6 +37,6 @@ class CreditNote < ApplicationRecord
   private
 
   def disable_payment
-    self.fee_payment.disable  
+    self.payment.disable  
   end
 end

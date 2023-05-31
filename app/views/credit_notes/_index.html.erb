@@ -21,7 +21,7 @@
             <% @credit_notes.each do |credit_note| %>
               <tr>
                 <td> <%= date_format(credit_note.date) %> </td>
-                <td> <%= "$#{format_currency(credit_note.fee_payment.total)}" %> </td>
+                <td> <%= "$#{format_currency(credit_note.payment.total)}" %> </td>
                 <td> <%= credit_note.description %> </td>
                 <td> <%= credit_note.user.username %> </td>
               </tr>

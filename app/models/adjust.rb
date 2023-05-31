@@ -21,4 +21,12 @@
 #
 class Adjust < ApplicationRecord
   belongs_to :fee
+
+  after_create :update_total_value_fee 
+
+  private
+
+  def update_total_value_fee
+    self.fee.update_total_value
+  end
 end

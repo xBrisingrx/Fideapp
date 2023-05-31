@@ -28,6 +28,8 @@
 #  fk_rails_...  (sale_id => sales.id)
 #
 class Fee < ApplicationRecord
+  # La cuota es un acuerdo de pagos
+  # Se pacta con el cliente 
   belongs_to :sale
   has_many :adjusts, dependent: :destroy
   has_many :interests, dependent: :destroy
@@ -46,8 +48,8 @@ class Fee < ApplicationRecord
 
   def calcular_interes
     interes_diario = ( (self.sale.arrear/100) * self.value)
-    primer_cuota_vencima = self.sale.fees.actives.no_payed.order('id ASC').first
-    dias_vencido = Date.today - Date.new( primer_cuota_vencima.due_date.year, primer_cuota_vencima.due_date.month, 01 )
+    primer_cuota_vencida = self.sale.fees.actives.no_payed.order('id ASC').first
+    dias_vencido = Date.today - Date.new( primer_cuota_vencida.due_date.year, primer_cuota_vencida.due_date.month, 01 )
     total = (interes_diario * dias_vencido).round(2)
     total
   end
@@ -57,14 +59,23 @@ class Fee < ApplicationRecord
   end
 
   def apply_arrear?
-    self.expired? && self.sale.apply_arrear
+    there_is_payment_this_month = Payment.where( 'extract(month from date) = ?', self.due_date.month ).where(sale_id: self.sale_id).actives.no_first_pay
+    self.expired? && self.sale.apply_arrear && there_is_payment_this_month.empty?
   end
 
   def get_deuda
+    #obtenemos los pagos de los meses hasta esta cuota
+    # y los restamos por el valor de las cuotas para saber cuanto se debe
+    # hasta ese mes 
+    Fee.where(sale_id: self.sale_id)
+      .where('number <= ?', self.number)
+      .sum('owes')  
+  end
+
+  def get_deuda_cuotas_anteriores
     Fee.where(sale_id: self.sale_id)
       .where('number < ?', self.number)
-      .where( 'due_date < ?', Time.new.strftime("%F") )
-      .where('owes > 0').sum('owes')
+      .sum('owes')
   end
 
   def has_debt?
@@ -79,6 +90,13 @@ class Fee < ApplicationRecord
     adjust = self.adjusts.sum(:value)
     interest = self.interests.sum(:value)
     self.value + adjust + interest
+  end
+
+  def update_total_value #actualizamos el valor total de la cuota
+    adjust = self.adjusts.sum(:value)
+    interest = self.interests.sum(:value)
+    total_value = self.value + adjust + interest
+    self.update(total_value: total_value)
   end
 
  ##### AJUSTE ####
@@ -117,6 +135,9 @@ class Fee < ApplicationRecord
     self.adjusts.sum(:value)
   end
 
+  def get_interests
+    self.interests.sum(:value)
+  end
 
   def aplicar_pago payment, pay_date, code
     # Obtengo todas las cuotas que no estan pagadas distintas a la que se esta pagando en este momento
@@ -164,7 +185,7 @@ class Fee < ApplicationRecord
             pago.comment = "Se realizo un pago adelantado de esta cuota cuando se pago la cuota ##{self.number} por un monto de $" 
           end
         end # if payment <= cuota.owes
-        # byebug
+
         pago.save
       end # if cuota.id == self.id
       payment -= owes
@@ -225,7 +246,27 @@ class Fee < ApplicationRecord
   end
 
   def get_payments
-    self.fee_payments.actives.sum(:total)
+    # self.fee_payments.actives.sum(:total)
+    desired_month = self.due_date.month
+    # pagos efectuados el mes indicado
+    Payment.where('extract(month from date) = ?', desired_month)
+      .where(sale_id: self.sale_id)
+      .no_first_pay.actives
+      .sum(:total)
+  end
+
+  def get_payments_list
+    sale = Sale.find(self.sale_id)
+    desired_month = self.due_date.month
+
+    if sale.fees.last.id == self.id 
+      # lista de pagos efectuados en la ultima cuota o mas tarde
+      Payment.where('extract(month from date) >= ?', desired_month).where(sale_id: self.sale_id).no_first_pay.actives.order(date: :asc)
+    else
+      # lista de pagos efectuados el mes indicado
+      Payment.where('extract(month from date) = ?', desired_month).where(sale_id: self.sale_id).no_first_pay.actives.order(date: :asc)
+    end
+    
   end
 
   def update_payment_data
@@ -237,6 +278,23 @@ class Fee < ApplicationRecord
     self.pay_status = ( self.owes == self.total_value ) ? 0 : 2
     self.payed = !self.pendiente?
     self.save
+  end
+
+  def self.current_fee( sale_id, date = Time.new )
+    month = date.month 
+    fee = Fee.where('extract(month  from due_date) = ?', month).where(sale_id: sale_id)
+    if fee.empty?
+      current_fee = Sale.find(sale_id).fees.last 
+    else 
+      current_fee = fee.first
+    end
+  end
+
+  def reset
+    fees = Fee.where(sale_id: self.sale_id)
+    fees.each do |fee|
+      fee.update(pay_status: :pendiente, owes: fee.get_total_value, payed: false)
+    end
   end
 
 end

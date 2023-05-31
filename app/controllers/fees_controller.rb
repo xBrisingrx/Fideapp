@@ -63,14 +63,14 @@ class FeesController < ApplicationController
       if params[:interest].to_f > 0
         # discrimino el interes aplicado en la cuota
         # cuota.interest = params[:interest].to_f
-        fee.interests.create(value: params[:interest].to_f, date: params[:pay_date])
+        fee.interests.create(value: params[:interest].to_f, date: params[:pay_date], comment: 'Mora por pago fuera de termino.')
       end
 
       if params[:adjust].to_f > 0 # Si agregaron algo al ajuste 
-        fee.adjusts.create(value:  params[:adjust].to_f, comment:  params[:comment_adjust])
+        fee.adjusts.create(value:  params[:adjust].to_f, comment:  params[:comment_adjust], date: params[:pay_date])
         # cuota.apply_adjust(params[:adjust].to_f, params[:comment_adjust]) # y las siguientes
       end
-      
+
       sale = Sale.find(fee.sale.id)
       payment = sale.payments.new( 
               date: params[:pay_date], 
@@ -190,6 +190,7 @@ class FeesController < ApplicationController
 
   def details
     @cuota = Fee.find(params[:id])
+    @payments = Payment.by_month( @cuota.sale_id,@cuota.due_date.month )
     @title_modal = 'Detalle del pago realizado'
   end
 end

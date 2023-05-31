@@ -9,7 +9,7 @@
   <%= render(partial: 'card_pay_small', 
              locals: { color: 'lightred-v2', paid: sale.get_all_owes, detail: 'Adeuda' })%>
   <%= render(partial: 'card_pay_small', 
-             locals: { color: 'indigo', paid: sale.price, detail: 'Valor' })%>
+             locals: { color: 'indigo', paid: sale.total_value, detail: 'Valor' })%>
 </div>   
 <div id="sale_information_<%= sale.id %>" data-show='show' >
   <%= render(partial: 'first_pay', locals: { sale: sale }) %>
@@ -36,6 +36,17 @@
                 remote: true,
                 data: {toggle: :modal},
                 class: 'btn u-btn-outline-indigo u-btn-hover-v1-2 g-font-weight-600 g-letter-spacing-0_5 g-brd-2 g-rounded-10 g-mr-10 g-mb-15' %>
+
+    <%= link_to "<i class='icon-finance-260 u-line-icon-pro'></i> Refinanciar".html_safe,
+                payment_summary_sale_path(sale.id),
+                remote: true,
+                data: {toggle: :modal},
+                class: 'btn u-btn-outline-pink u-btn-hover-v1-2 g-font-weight-600 g-letter-spacing-0_5 g-brd-2 g-rounded-10 g-mr-10 g-mb-15' %>
+
+    <%# link_to "<i class='icon-finance-152 u-line-icon-pro'></i> Ingresar pago".html_safe,
+                new_payment_path(sale_id: sale.id),
+                remote: true,
+                class: 'btn u-btn-outline-teal u-btn-hover-v1-2 g-font-weight-600 g-letter-spacing-0_5 g-brd-2 g-rounded-10 g-mr-10 g-mb-15' %>
   </div>
 
   <table id="sale_land_table" class="table hover dt-responsive w-100 mt-2">
@@ -59,10 +70,10 @@
           <td><%= fee.number %></td>
           <td><%= "$#{format_currency(fee.value)}" %></td>
           <td><%= "$#{format_currency(fee.get_adjusts)}" %></td>
-          <td><%= "$#{format_currency(fee.interest)}" %></td>
-          <td><%= "$#{format_currency(fee.total_value)}" %></td>
+          <td><%= "$#{format_currency(fee.get_interests)}" %></td>
+          <td><%= "$#{format_currency(fee.get_total_value)}" %></td>
           <td><%= fee.due_date.strftime('%d-%m-%y') %></td>
-          <td><%= show_owes(fee.show_owes_in_table) %></td>
+          <td><%= show_owes(fee.get_deuda) %></td>
           <td><%= "$#{format_currency(fee.get_payments)}" %></td>
           <% if fee.expired? && !fee.payed? %>
             <td>
@@ -84,16 +95,8 @@
             </td>
           <% end %>
           <td>
-            <% if !fee.fee_payments.actives.empty?
-              btn_detalle_pago = btn_fee_pay_detail(fee)
-            end %>
-            <% if !fee.payed? && fee.due_current_month %>
-              <%= btn_fee_show(fee) %>
-            <% elsif fee.payed? && fee.due_current_month %>
-              <%= "#{btn_detalle_pago}
-                    #{ btn_fee_partial_pay(fee) }".html_safe %>
-            <% else %>
-             <%= "#{btn_detalle_pago}".html_safe %>
+            <% if !sale.refinanced?%>
+              <%= "#{btn_fee_pay_detail(fee)} #{btn_payment(sale.id, fee.id)}".html_safe %>
             <% end %>
           </td>
         </tr>

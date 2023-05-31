@@ -215,7 +215,10 @@ class SalesController < ApplicationController
 
   def payment_summary
     sale = Sale.find params[:id]
-    @fees = sale.fees.where(payed: true)
+    @payments = ''
+    @fees = sale.fees 
+    @first_payments = sale.payments.is_first_pay.actives
+    pp @first_payments
     @row_color = 'table-active'
     @cant_payments = 0
   end
@@ -226,7 +229,7 @@ class SalesController < ApplicationController
     end
 
     def sale_params
-      params.require(:sale).permit(:apply_arrear, :arrear, :comment, :date, :number_of_payments, :price, :status,
+      params.require(:sale).permit(:apply_arrear, :arrear, :comment, :date, :number_of_payments, :price, :status, :refinanced,
         sale_clients_attributes: [:id, :client_id],
         sale_products_attributes: [:id, :product_id, :product_type],
         fees_attributes: [:id, :value, :due_date])

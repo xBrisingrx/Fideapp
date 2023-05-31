@@ -8,15 +8,15 @@
     </div>
     <div class="modal-body">
       <ul>
-        <% if @cuota.interest > 0 %>
-          <li> Interes pagado: <b>$<%= format_currency(@cuota.interest) %></b> </li>
+        <% if @cuota.interests.count > 0 %>
+          <li> Interes agregado: <b>$<%= format_currency(@cuota.get_interests) %></b> </li>
         <% end %>
 
         <% if @cuota.adjusts.count > 0 %>
-          <li> Ajuste: <b>$<%= format_currency(@cuota.get_adjusts) %></b> </li>
+          <li> Ajuste agregado: <b>$<%= format_currency(@cuota.get_adjusts) %></b> </li>
         <% end %>
 
-        <li> Total pagado: <b>$<%= format_currency(@cuota.get_payments) %></b> </li>
+        <li> Total pagado: <b>$<%= format_currency(@cuota.payment) %></b> </li>
       </ul>
       <div class="row mx-2">
         <p>Pagos realizados</p>
@@ -35,7 +35,7 @@
             </tr>
           </thead>
           <tbody>
-            <% @cuota.fee_payments.actives.each do |payment|%>
+            <% @payments.each do |payment|%>
               <tr>
                 <td>
                   <% if payment.date %>
@@ -50,23 +50,21 @@
                 <%else%>
                   <td><%= "#{payment.currency.name}#{format_currency( payment.payment )}" %></td>
                 <%end%>
-                <td><%= "$#{format_currency( payment.tomado_en )}" %></td>
+                <td><%= "$#{format_currency( payment.taken_in )}" %></td>
                 <td><%= "$#{format_currency( payment.total )}" %></td>
                 <td>
                   <% payment.images.each do |image| %>
                     <%= link_to '<i class="hs-admin-image"></i>'.html_safe, image, target: '_blank', class: 'btn u-btn-teal' %>
                   <% end %>
                 </td>
-                <td> <%= payment.detail %> </td>
+                <td> <%= payment.comment %> </td>
                 <td>
-                  <% if payment.valor_acarreado.to_f > 0 %>
-                    <%= payment.comment %> 
-                  <% end %>
+                  --
                 </td>
                 <td>
                   <% if payment.payment > 0 %>
                   <%= link_to "<i class='hs-admin-trash' aria-hidden='true'></i>".html_safe, 
-                              new_credit_note_path( fee_payment_id: payment.id ),
+                              new_credit_note_path( payment_id: payment.id ),
                               class: 'u-link-v5 g-color-gray-dark-v2 g-color-secondary--hover g-text-underline--none--hover g-ml-12',
                               remote: true %>
                   <% end %>
