@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_03_12_223408) do
+ActiveRecord::Schema.define(version: 2023_05_31_142149) do
 
   create_table "active_storage_attachments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci", force: :cascade do |t|
     t.string "name", null: false
@@ -33,6 +33,19 @@ ActiveRecord::Schema.define(version: 2023_03_12_223408) do
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
   end
 
+  create_table "activity_histories", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci", force: :cascade do |t|
+    t.string "record_type"
+    t.bigint "record_id"
+    t.integer "action", null: false
+    t.date "date", null: false
+    t.text "description"
+    t.bigint "user_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["record_type", "record_id"], name: "index_activity_histories_on_record_type_and_record_id"
+    t.index ["user_id"], name: "index_activity_histories_on_user_id"
+  end
+
   create_table "adjusts", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci", force: :cascade do |t|
     t.decimal "value", precision: 15, scale: 2, default: "0.0"
     t.decimal "porcent", precision: 15, scale: 2, default: "0.0"
@@ -41,6 +54,7 @@ ActiveRecord::Schema.define(version: 2023_03_12_223408) do
     t.bigint "fee_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.date "date"
     t.index ["fee_id"], name: "index_adjusts_on_fee_id"
   end
 
@@ -90,6 +104,22 @@ ActiveRecord::Schema.define(version: 2023_03_12_223408) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "credit_notes", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci", force: :cascade do |t|
+    t.date "date", null: false
+    t.string "description", null: false
+    t.bigint "fee_payment_id"
+    t.bigint "sale_id"
+    t.bigint "user_id"
+    t.boolean "active", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "payment_id"
+    t.index ["fee_payment_id"], name: "index_credit_notes_on_fee_payment_id"
+    t.index ["payment_id"], name: "index_credit_notes_on_payment_id"
+    t.index ["sale_id"], name: "index_credit_notes_on_sale_id"
+    t.index ["user_id"], name: "index_credit_notes_on_user_id"
+  end
+
   create_table "currencies", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci", force: :cascade do |t|
     t.string "name", limit: 40, null: false
     t.string "detail"
@@ -136,10 +166,23 @@ ActiveRecord::Schema.define(version: 2023_03_12_223408) do
     t.index ["sale_id"], name: "index_fees_on_sale_id"
   end
 
+  create_table "interests", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci", force: :cascade do |t|
+    t.date "date", null: false
+    t.decimal "value", precision: 15, scale: 2, null: false
+    t.bigint "fee_payment_id"
+    t.boolean "active", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "fee_id"
+    t.text "comment"
+    t.index ["fee_id"], name: "index_interests_on_fee_id"
+    t.index ["fee_payment_id"], name: "index_interests_on_fee_payment_id"
+  end
+
   create_table "land_projects", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci", force: :cascade do |t|
     t.bigint "land_id"
     t.bigint "project_id"
-    t.string "status"
+    t.integer "status"
     t.decimal "price", precision: 15, scale: 2, default: "0.0"
     t.decimal "porcent", precision: 15, scale: 2, default: "0.0"
     t.boolean "active", default: true
@@ -181,6 +224,22 @@ ActiveRecord::Schema.define(version: 2023_03_12_223408) do
     t.boolean "active", default: true
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "payments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci", force: :cascade do |t|
+    t.bigint "sale_id"
+    t.date "date", null: false
+    t.bigint "payments_currency_id"
+    t.decimal "payment", precision: 10, null: false
+    t.decimal "taken_in", precision: 15, scale: 2, default: "1.0", comment: "A que valor en $ se tomo la moneda"
+    t.decimal "total", precision: 15, scale: 2, comment: "Calculo del valor pagado en $"
+    t.boolean "first_pay", default: false, comment: "Si pertenece a la primer entrega"
+    t.text "comment"
+    t.boolean "active", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["payments_currency_id"], name: "index_payments_on_payments_currency_id"
+    t.index ["sale_id"], name: "index_payments_on_sale_id"
   end
 
   create_table "payments_currencies", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci", force: :cascade do |t|
@@ -322,6 +381,7 @@ ActiveRecord::Schema.define(version: 2023_03_12_223408) do
     t.boolean "active", default: true
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "refinanced", default: false
     t.index ["land_id"], name: "index_sales_on_land_id"
   end
 
@@ -355,17 +415,26 @@ ActiveRecord::Schema.define(version: 2023_03_12_223408) do
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "activity_histories", "users"
   add_foreign_key "adjusts", "fees"
   add_foreign_key "apple_projects", "apples"
   add_foreign_key "apple_projects", "projects"
   add_foreign_key "apples", "condominia"
   add_foreign_key "apples", "sectors"
+  add_foreign_key "credit_notes", "fee_payments"
+  add_foreign_key "credit_notes", "payments"
+  add_foreign_key "credit_notes", "sales"
+  add_foreign_key "credit_notes", "users"
   add_foreign_key "fee_payments", "fees"
   add_foreign_key "fee_payments", "payments_currencies"
   add_foreign_key "fees", "sales"
+  add_foreign_key "interests", "fee_payments"
+  add_foreign_key "interests", "fees"
   add_foreign_key "land_projects", "lands"
   add_foreign_key "land_projects", "projects"
   add_foreign_key "lands", "apples"
+  add_foreign_key "payments", "payments_currencies"
+  add_foreign_key "payments", "sales"
   add_foreign_key "payments_currencies", "currencies"
   add_foreign_key "payments_currencies", "payments_types"
   add_foreign_key "project_materials", "materials"

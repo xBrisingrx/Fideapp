@@ -13,6 +13,67 @@ let project = {
 	land_corner_price:0,
 	apple_has_corner: false,
 	form: new FormData(),
+	add_apple(){
+		const select = document.getElementById('apple_select')
+
+		let apple = select.options[select.selectedIndex];
+
+		if (apple.value == '') {
+			noty_alert('info', 'No ha seleccionado ninguna manzana')
+			return
+		}
+
+		if ( document.getElementById(`apple_id_${apple.value}`) != undefined ) {
+			noty_alert('info', 'Esta manzana ya se encuentra agregada')
+			return
+		}
+
+		let land_price = this.calculate_price_lands(apple.dataset.cant)
+
+		if (isNaN(land_price)) {
+			console.log('error en precio lote')
+			return
+		}
+
+		let apple_list_body = document.getElementById('apple_list_body')
+		let input_corner
+		if (apple.dataset.cant_corners > 0) {
+			input_corner = `<input id='land_corner_price' class='form-control' type='text' disabled placeholder='No tiene esquinas' value='0'> </input>`
+		} else {
+			input_corner = `<input id='land_corner_price' class='form-control' type='number'>${land_price}</input>`
+		}
+		
+		apple_list_body.innerHTML += `
+			<div id='apple_id_${apple.value}' class='row mb-2 apple-add'>
+				<div class="col-2">${apple.text}</div>
+	      <div class="col-2"><input id='land_price' class='form-control' type='number'>${land_price}</input></div>
+	      <div class="col-2"> ${input_corner} </input> </div>
+	      <div class="col-2"><button type='button' class="btn u-btn-red text-white" onclick="project.remove_apple('apple_id_${apple.value}')"><i class="fa fa-trash"></i></button></div>
+			</div>
+		`
+	},
+	remove_apple(div_id){
+		document.getElementById(div_id).remove()
+	},
+	calculate_land_price(){
+		// valor de los lotes
+		const apple_adds = document.getElementsByClassName('apple-add')
+		for ( let apple of apple_adds ) {
+			let land_price = paseInt(apple.querySelector('#land_price').value)
+			let land_corner_price = paseInt(apple.querySelector('#land_corner_price').value)
+			if (isNaN(land_price)) {
+				noty_alert('info', 'Valor de lote invalido')
+				apple.querySelector('#land_price').classList.add('is-valid')
+				return
+			}
+			if (isNaN(land_corner_price)) {
+				noty_alert('info', 'Valor de lote invalido')
+				apple.querySelector('#land_corner_price').classList.add('is-valid')
+				return
+			}
+			this.land_price += land_price + land_corner_price
+		}
+	},
 	add_provider( type_total ){
 		event.preventDefault()
 		let table_body = document.querySelector('#provider-list')
@@ -279,7 +340,7 @@ let project = {
 		this.form.append('subtotal', parseFloat( this.subtotal ) )
 		this.form.append('description', document.getElementById('project_description').value )
 		this.form.append('project_type_id', parseInt(document.getElementById('project_project_type_id').value ) )
-		this.form.append('apple_id', document.getElementById('apple_list').value )
+		// this.form.append('apple_id', document.getElementById('apple_list').value )
 
 		this.form.append('land_price', parseFloat( document.getElementById('project_land_price').value ) )
 		
@@ -325,7 +386,7 @@ let project = {
 		let sector_selected = this.sectors.filter( sector => sector.id == document.getElementById('sector_list').value )
 		const sector_id = sector_selected[0].id
 		fetch(`/apples/filter_for_sector/${sector_id}.json`).then( response => response.json() ).then( r => {
-			let apple_list = document.querySelector('#apple_list')
+			let apple_list = document.querySelector('#apple_select')
 			apple_list.innerHTML = '<option value=""> Elegir manzana </option>'
 			this.apples = r.data
 			for (let lote in this.apples){
@@ -538,28 +599,21 @@ let project = {
 
 	},
 	select_apple(){
-		let apple_selected = this.apples.filter( apple => apple.id == document.getElementById('apple_list').value )
+		let apple_selected = this.apples.filter( apple => apple.id == document.getElementById('apple_select').value )
 		this.cant_lands = apple_selected[0].lands
 		this.apple_has_corner = apple_selected[0].has_corner
 		this.cant_corners = apple_selected[0].count_corners
-		if (this.apple_has_corner) {
-			document.getElementById('label_corner').style.display = 'block'
-			document.getElementById('land_corner_input').style.display = 'block'
-		} else {
-			document.getElementById('label_corner').style.display = 'none'
-			document.getElementById('land_corner_input').style.display = 'none'
-		}
-		this.calculate_price_lands()
+		// if (this.apple_has_corner) {
+		// 	document.getElementById('label_corner').style.display = 'block'
+		// 	document.getElementById('land_corner_input').style.display = 'block'
+		// } else {
+		// 	document.getElementById('label_corner').style.display = 'none'
+		// 	document.getElementById('land_corner_input').style.display = 'none'
+		// }
+		// this.calculate_price_lands()
 	},
-	calculate_price_lands(){
-		if (!isNaN(this.cant_lands) && this.cant_lands > 0 ) {
-			this.land_price = (this.final_price/this.cant_lands).toFixed(2)
-			document.getElementById('project_land_price').value = this.land_price
-			if (this.apple_has_corner) {
-				this.land_corner_price = (this.final_price/this.cant_lands).toFixed(2)
-				document.getElementById('project_land_corner_price').value = this.land_corner_price
-			}
-		}
+	calculate_price_lands(cant_lands){
+		return (this.final_price/cant_lands).toFixed(2)
 	},
 	calculate_value_iva(iva, provider_price) {
 		return ( iva * provider_price ) / 100

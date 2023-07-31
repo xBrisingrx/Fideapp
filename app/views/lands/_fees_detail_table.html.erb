@@ -1,18 +1,28 @@
-<h4 class="u-tags-v1 g-color-purple g-brd-around g-brd-purple g-bg-purple--hover g-color-white--hover g-rounded-50 g-py-4 g-px-15"
-  onclick="show_information('sale_information_<%= sale.id %>')">
-  <%= sale.product_name  %> 
-  <i class="fa fa-eye"></i></h4>
+<div class="row justify-content-between">
+  <div class="col-4">
+    <h4 class="u-tags-v1 g-color-purple g-brd-around g-brd-purple g-bg-purple--hover g-color-white--hover g-rounded-50 g-py-4 g-px-15"
+        onclick="show_information('sale_information_<%= sale.id %>')">
+        <%= sale.product_name  %> 
+        <i class="fa fa-eye"></i>
+    </h4>
+  </div>
+  <div class="col-2">
+    <p class="ml-2"> <b>Fecha de compra:</b> <%= date_format(sale.date) %></p>
+  </div>
+</div>
 
 <div class="row mb-2">
   <%= render(partial: 'card_pay_small', 
-             locals: { color: 'teal-v2', paid: sale.saldo_pagado, detail: 'Pagado' })%>
+             locals: { color: 'teal-v2', paid: sale.saldo_pagado, detail: 'Haber' })%>
   <%= render(partial: 'card_pay_small', 
-             locals: { color: 'lightred-v2', paid: sale.get_all_owes, detail: 'Adeuda' })%>
+             locals: { color: 'lightred-v2', paid: sale.get_all_owes, detail: 'Debe' })%>
   <%= render(partial: 'card_pay_small', 
              locals: { color: 'indigo', paid: sale.total_value, detail: 'Valor' })%>
+  <%= render(partial: 'card_pay_small', 
+             locals: { color: 'blue', paid: sale.owes_this_month, detail: "Debe #{I18n.t("date.month_names")[Date.today.month]}" })%>
 </div>   
 <div id="sale_information_<%= sale.id %>" data-show='show' >
-  <%= render(partial: 'first_pay', locals: { sale: sale }) %>
+  <%# render(partial: 'first_pay', locals: { sale: sale }) %>
   
   <div class="row justify-content-between">
     <div class="col-6">

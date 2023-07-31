@@ -71,7 +71,7 @@ class Land < ApplicationRecord
   def get_all_owes
     total_owes = 0
     self.sales.each do |sale|
-      total_owes +=  sale.fees.sum(:owes)
+      total_owes +=  sale.total_value - sale.saldo_pagado
     end
     total_owes
   end

@@ -177,6 +177,24 @@ class Sale < ApplicationRecord
 			end
 		end
 	end
+
+	def owes_this_month
+		# obtenemos lo que se deberia pagar este mes sin sumar atrasos
+		# que no haya nada para pagar puede ser porque ya paso la fecha de todas las cuotas 
+		# o xq se pacto que las cuotas corren a partir un mes mas adelante ( cuando pactan q se empieza a pagar dentro de X meses )
+		month = Time.new.month
+		pay_this_month = 0
+		fee = self.fees.where( 'month(due_date) = ?', month ).first
+		if fee.blank? # si este mes no habia nada para pagar 
+			fee = self.fees.last # obtenemos la ultima cuota 
+			if fee.due_date.month > mont 
+				pay_this_month = fee.total_value
+			end
+		else
+			pay_this_month = fee.total_value
+		end
+		pay_this_month
+	end
 	
 	private
 
