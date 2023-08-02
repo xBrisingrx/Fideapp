@@ -38,6 +38,10 @@ class Project < ApplicationRecord
 
   accepts_nested_attributes_for :project_providers, :project_materials,:apple_projects
 
+  validates :land_price, :land_corner_price, 
+    presence: true, 
+    numericality: { greater_than: 0 }
+
   scope :actives, -> { where(active: true) }
   
   enum status: [:pendiente, :proceso, :terminado]
