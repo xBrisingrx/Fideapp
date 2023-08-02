@@ -77,7 +77,7 @@ class Land < ApplicationRecord
   end
 
   def projects_not_aprobed
-    self.land_projects.where(status: :pendiente).count > 0
+    self.land_projects.where(status: :pending).count > 0
   end
 
   def land_sale
