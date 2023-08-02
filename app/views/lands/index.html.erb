@@ -10,6 +10,8 @@
              locals: { color: 'lightred-v2', paid: @apple.get_all_owes, detail: 'Debe' })%>
   <%= render(partial: 'lands/card_pay', 
              locals: { color: 'indigo', paid: @apple.total_price, detail: 'Valor' })%>
+  <%= render(partial: 'lands/card_pay', 
+             locals: { color: 'blue', paid: @apple.owes_this_month, detail: "Debe #{I18n.t("date.month_names")[Date.today.month]}" }) %>
 </div>
 
 <table id="lands_table" class="table hover dt-responsive w-100">

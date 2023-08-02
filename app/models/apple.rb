@@ -66,4 +66,12 @@ class Apple < ApplicationRecord
     end
     total_price
   end
+
+  def owes_this_month
+    pay_this_month = 0
+    self.lands.each do |land|
+      pay_this_month += land.owes_this_month
+    end
+    pay_this_month
+  end
 end
