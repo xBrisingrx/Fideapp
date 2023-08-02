@@ -89,4 +89,12 @@ class Land < ApplicationRecord
     self.update(status: :available)
   end
 
+  def owes_this_month
+    pay_this_month = 0
+    self.sales.each do |sale|
+      pay_this_month += sale.owes_this_month
+    end
+    pay_this_month
+  end
+
 end
