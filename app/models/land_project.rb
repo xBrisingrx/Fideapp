@@ -27,5 +27,11 @@ class LandProject < ApplicationRecord
   belongs_to :land
   belongs_to :project
 
+  validates :price, 
+    presence: true, 
+    numericality: { greater_than: 0 }
+
+  validates :status, presence: true
+
   enum status: [:pending, :process, :payed, :refinancied]
 end
