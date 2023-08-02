@@ -37,6 +37,8 @@ class ProjectProvider < ApplicationRecord
   belongs_to :payment_method
   belongs_to :provider_role
 
-  # este campo me indica en base a que saca su valor valculado
+  # este campo me indica en base a que saca su valor calculado
+  # si es SUBTOTAL es xq lo sacamos en base a precio_projecto + materiales + precio proveedores
+  # si es PRICE es xq lo sacamos en base a precio_projecto
   enum type_total: [:price, :subtotal] 
 end

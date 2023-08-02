@@ -13,183 +13,79 @@ let project = {
 	land_corner_price:0,
 	apple_has_corner: false,
 	form: new FormData(),
-	add_apple(){
-		const select = document.getElementById('apple_select')
-
-		let apple = select.options[select.selectedIndex];
-
-		if (apple.value == '') {
-			noty_alert('info', 'No ha seleccionado ninguna manzana')
-			return
-		}
-
-		if ( document.getElementById(`apple_id_${apple.value}`) != undefined ) {
-			noty_alert('info', 'Esta manzana ya se encuentra agregada')
-			return
-		}
-
-		let land_price = this.calculate_price_lands(apple.dataset.cant)
-
-		if (isNaN(land_price)) {
-			console.log('error en precio lote')
-			return
-		}
-
-		let apple_list_body = document.getElementById('apple_list_body')
-		let input_corner
-		if (apple.dataset.cant_corners > 0) {
-			input_corner = `<input id='land_corner_price' class='form-control' type='text' disabled placeholder='No tiene esquinas' value='0'> </input>`
-		} else {
-			input_corner = `<input id='land_corner_price' class='form-control' type='number'>${land_price}</input>`
-		}
-		
-		apple_list_body.innerHTML += `
-			<div id='apple_id_${apple.value}' class='row mb-2 apple-add'>
-				<div class="col-2">${apple.text}</div>
-	      <div class="col-2"><input id='land_price' class='form-control' type='number'>${land_price}</input></div>
-	      <div class="col-2"> ${input_corner} </input> </div>
-	      <div class="col-2"><button type='button' class="btn u-btn-red text-white" onclick="project.remove_apple('apple_id_${apple.value}')"><i class="fa fa-trash"></i></button></div>
-			</div>
-		`
-	},
-	remove_apple(div_id){
-		document.getElementById(div_id).remove()
-	},
-	calculate_land_price(){
-		// valor de los lotes
-		const apple_adds = document.getElementsByClassName('apple-add')
-		for ( let apple of apple_adds ) {
-			let land_price = paseInt(apple.querySelector('#land_price').value)
-			let land_corner_price = paseInt(apple.querySelector('#land_corner_price').value)
-			if (isNaN(land_price)) {
-				noty_alert('info', 'Valor de lote invalido')
-				apple.querySelector('#land_price').classList.add('is-valid')
-				return
-			}
-			if (isNaN(land_corner_price)) {
-				noty_alert('info', 'Valor de lote invalido')
-				apple.querySelector('#land_corner_price').classList.add('is-valid')
-				return
-			}
-			this.land_price += land_price + land_corner_price
-		}
-	},
 	add_provider( type_total ){
 		event.preventDefault()
-		let table_body = document.querySelector('#provider-list')
-		let provider_id = parseInt( document.getElementById('project_provider_id').value )
-		let role_id = parseInt( document.getElementById('project_provider_role').value )
-		let payment_method_id = parseInt( document.getElementById('project_payment_method').value )
-		let provider_price = parseFloat(document.getElementById('project_provider_price').value)
-		let provider_iva = parseFloat( document.getElementById('provider_iva').value )
+		let provider = {
+			provider_id: parseInt( document.getElementById('project_provider_id').value ),
+			provider_role: parseInt( document.getElementById('project_provider_role').value ),
+			payment_method_id: parseInt( document.getElementById('project_payment_method').value ),
+			provider_price: parseFloat(document.getElementById('project_provider_price').value),
+			provider_iva: parseFloat( document.getElementById('provider_iva').value ),
+			type_total: type_total
+		}
 
-		if ( this.provider_validations(provider_id, role_id,payment_method_id,provider_price, provider_iva) ) {
-			let provider_name =  $('#project_provider_id option:selected').text()
-			let role_name =  $('#project_provider_role option:selected').text()
-			let payment_method_name =  $('#project_payment_method option:selected').text()
-			let provider_price_text = (payment_method_id == 1 ) ? `$${numberFormat.format(provider_price)}` : `${provider_price}%`
-			let precio_proveedor_calculado = this.calcular_precio_proveedor( parseInt(payment_method_id), provider_price, type_total )
+		if ( this.provider_validations(provider) ) {
+			provider.name = $('#project_provider_id option:selected').text()
+			provider.role_name =  $('#project_provider_role option:selected').text()
+			provider.payment_method_name =  $('#project_payment_method option:selected').text()
+			provider.provider_price_text = ( provider.payment_method_id == 1 ) ? `$${numberFormat.format(provider.provider_price)}` : `${provider.provider_price}%`
+			provider.provider_price_calculate = this.calcular_precio_proveedor( provider )
+			provider.value_iva = this.calculate_value_iva(provider)
+			provider.provider_porcent = 0
+			provider.total = provider.value_iva + provider.provider_price_calculate
+			provider.list_id = `${provider.provider_id}_${type_total}`
 
-			let data = {
-				provider_id: provider_id,
-				name: provider_name,
-				provider_role: role_id,
-				payment_method_id: payment_method_id,
-				provider_price: provider_price,
-				type_total: type_total,
-				provider_iva: provider_iva,
-				value_iva: this.calculate_value_iva(provider_iva, precio_proveedor_calculado),
-				provider_price_calculate: precio_proveedor_calculado,
-				provider_porcent: 0,
-				total: 0,
-				role_name: role_name, 
-				payment_method_name: payment_method_name, 
-				provider_price_text: provider_price_text,
-			}
-			data.total = data.value_iva + data.provider_price_calculate
+			this.providers_list.push( provider )
 
-			this.providers_list.push( data )
-
-			this.calculate_subtotal()
-
-			
 			this.disabled_and_reset_select('project_provider_id' , 'select-2-project-provider')
 			$(`.select-2-provider-role`).val('').trigger('change')
 			$(`.select-2-payment-method`).val('').trigger('change')
 			document.getElementById('project_provider_price').value = ''
-			this.update_providers_table()
-			this.update_summary_table()
+
+			this.calculate_subtotal()
 		}
 	},
 	add_other_provider( type_total ) {
 		event.preventDefault()
-		let table_body = document.querySelector('#other-provider-list')
-		let provider_id = parseInt( document.getElementById('project_other_provider_id').value )
-		let role_id = parseInt( document.getElementById('project_other_provider_role').value )
-		let provider_price = parseFloat(document.getElementById('project_other_provider_price').value)
-		let provider_iva = parseFloat( document.getElementById('other_provider_iva').value )
-		let payment_method_id = 2
-		if ( this.provider_validations(provider_id, role_id,payment_method_id,provider_price, provider_iva) ) {
-			let provider_name =  $('#project_other_provider_id option:selected').text()
-			let role_name =  $('#project_other_provider_role option:selected').text()
-			let provider_price_text = `${provider_price}%`
-			let precio_proveedor_calculado = this.calcular_precio_proveedor( parseInt(payment_method_id), provider_price, type_total )
+		let provider = {
+			provider_id: parseInt( document.getElementById('project_other_provider_id').value ),
+			provider_role: parseInt( document.getElementById('project_other_provider_role').value ),
+			provider_price: parseFloat(document.getElementById('project_other_provider_price').value),
+			provider_iva: parseFloat( document.getElementById('other_provider_iva').value ),
+			type_total: type_total,
+			payment_method_id: 2
+		}
+		if ( this.provider_validations(provider) ) {
+			provider.name =  $('#project_other_provider_id option:selected').text()
+			provider.role_name =  $('#project_other_provider_role option:selected').text()
+			provider.provider_price_calculate = this.calcular_precio_proveedor( provider )
+			provider.value_iva = this.calculate_value_iva(provider)
+			provider.provider_porcent = 0
+			provider.total = provider.value_iva + provider.provider_price_calculate
+			provider.list_id = `${provider.provider_id}_${type_total}`
 
-			let data = {
-				provider_id: provider_id,
-				name: provider_name,
-				provider_role: role_id,
-				payment_method_id: payment_method_id,
-				provider_price: provider_price,
-				type_total: type_total,
-				provider_iva: provider_iva,
-				value_iva: this.calculate_value_iva(provider_iva, precio_proveedor_calculado),
-				provider_price_calculate: precio_proveedor_calculado,
-				provider_porcent: 0,
-				total: 0
-			}
-			data.total = data.value_iva + data.provider_price_calculate
-
-			this.providers_list.push( data )
-
-			this.calculate_subtotal()
-
-			table_body.innerHTML += `
-				<tr id="row-${provider_id}">
-					<td>${provider_name}</td>
-					<td>${role_name}</td>
-					<td>${provider_price_text}</td>
-					<td> $${numberFormat.format(precio_proveedor_calculado)} </td>
-					<td>${provider_iva}%</td>
-					<td>$${ numberFormat.format(data.value_iva) }</td>
-					<th> $${ numberFormat.format( data.total) } </td>
-					<td id="porcentaje_representa_${provider_id}"> ${this.providers_list[ this.providers_list.length - 1 ].provider_porcent}% </td>
-					<td><button type="button" class="btn u-btn-red remove-provider" onclick="project.remove_other_provider(${provider_id})" 
-					title="Quitar interviniente"> <i class="fa fa-trash"></i> </button></td>
-				</tr>
-			`
+			this.providers_list.push( provider )
+			this.calculate_final_price()
+			this.update_other_providers_table()
 			// this.disabled_and_reset_select('project_provider_id' , 'select-2-project-provider')
 			$(`.select-2-provider-other-role`).val('').trigger('change')
 			document.getElementById('project_provider_price').value = ''
 			document.getElementById('table_other_provider').classList.remove('d-none')
-			this.update_providers_table()
-			this.update_summary_table()
 		}
 	},
 	remove_provider( id ) {
 		event.preventDefault()
-		this.providers_list = this.providers_list.filter( p => p.provider_id != id )
-		this.calculate_subtotal()
+		this.providers_list = this.providers_list.filter( p => p.list_id != `${id}_price` )
 		let element = document.querySelector(`#provider-list #row-${id}`)
 		element.remove()
 		$(`#project_provider_id option[value='${id}']`).attr('disabled', false)
-	
+		this.calculate_subtotal()
 		this.remove_provider_summary_table(id)
 		this.update_summary_table()
 	},
 	remove_other_provider( id ) {
 		event.preventDefault()
-		this.providers_list = this.providers_list.filter( p => p.provider_id != id )
+		this.providers_list = this.providers_list.filter( p => p.list_id != `${id}_subtotal` )
 		this.calculate_subtotal()
 		let element = document.querySelector(`#other-provider-list #row-${id}`)
 		element.remove()
@@ -251,56 +147,66 @@ let project = {
 		}
 		return proveedores
 	},
+	// ### MATERIALS
 	add_material(){
 		event.preventDefault()
-		let material = document.getElementById('project_material_id')
-		let type_unit = document.getElementById('type_unit').value
-		let units = parseInt( document.getElementById('material_units').value )
-		let material_price = parseFloat( document.getElementById('material_price').value )
-		if (material.value == null || material.value == '') {
+		let material = {
+			id: parseInt(document.getElementById('project_material_id').value),
+			type_units: document.getElementById('type_unit').value,
+			units: parseInt( document.getElementById('material_units').value ),
+			price: parseFloat( document.getElementById('material_price').value )
+		}
+
+		if (material.id == null || material.id == '') {
 			noty_alert('error', 'Error al agregar el material a la lista')
 			return
 		}
-		if ( units == null || isNaN(units)) {
+		if ( material.units == null || isNaN(material.units)) {
 			noty_alert('error', 'Las unidades deben ser un numero')
 			return
 		}
-		if ( material_price == null || isNaN(material_price) ) {
+		if ( material.price == null || isNaN(material.price) ) {
 			noty_alert('error', 'El precio debe ser un numero')
 			return
 		}
 
 		let material_name =  $('#project_material_id option:selected').text()
 		$('.project-material-body').append(`
-			<tr id="row-${material.value}">
+			<tr id="row-${material.id}">
 				<td>${material_name}</td>
-				<td>${type_unit}</td>
-				<td>${units}</td>
-				<td>${material_price}</td>
-				<td>${material_price * units}</td>
-				<td><button type="button" class="btn u-btn-red remove-material" onclick="project.remove_material(${material.value})" 
+				<td>${material.type_units}</td>
+				<td>${material.units}</td>
+				<td>${numberFormat.format(material.price)}</td>
+				<td><b>$${numberFormat.format(material.price * material.units)}</b></td>
+				<td><button type="button" class="btn u-btn-red remove-material" onclick="project.remove_material(${material.id})" 
 					title="Quitar material"> <i class="fa fa-trash"></i> </button></td>
 			</tr>
 		`)
-
-		let data = {
-			id: parseInt(material.value),
-			type_units: type_unit,
-			units: units,
-			price: material_price
-		}
-		this.materials_list.push( data )
+		this.materials_list.push( material )
 		$('#project_material_id option:selected').attr('disabled', 'disabled')
 		$('.select-2-project-material').val('').trigger('change')
 		document.getElementById('material_units').value = 0
 		document.getElementById('material_price').value = 0
+		this.calculate_subtotal()
 	},
 	remove_material(material_id){
 		event.preventDefault()
-		let element = document.getElementById(`row-${material_id}`)
+		let element = document.querySelector(`.project-material-body #row-${material_id}`)
 		element.remove()
 		$(`#project_material_id option[value='${material_id}']`).attr('disabled', false)
 		this.materials_list = this.materials_list.filter( m => m.id != material_id )
+		this.calculate_subtotal()
+	},
+	sum_material_price(){
+		let material_price = 0
+		for (let i = 0; i < this.materials_list.length; i++){
+			material_price += (this.materials_list[i].units * this.materials_list[i].price)
+		}
+		return material_price
+	},
+	material_porcent(){
+		const price_materials = this.sum_material_price()
+		return (( price_materials * 100 ) / this.final_price ).toFixed(2)
 	},
 	add_number_input(nodo,delete_btn, disabled, className, input_id, placeholder = ''){
 		let newNode = document.createElement("input");
@@ -315,7 +221,7 @@ let project = {
 		if (input_id == 'porcent_input') {
 
 			nodo.querySelector('#porcent_input').onchange = function(e){
-				console.info('un cosito')
+				console.info('cambio de porcentaje')
 			}
 		}
 	},
@@ -340,7 +246,7 @@ let project = {
 		this.form.append('subtotal', parseFloat( this.subtotal ) )
 		this.form.append('description', document.getElementById('project_description').value )
 		this.form.append('project_type_id', parseInt(document.getElementById('project_project_type_id').value ) )
-		// this.form.append('apple_id', document.getElementById('apple_list').value )
+		this.form.append('apple_id', document.getElementById('apple_list').value )
 
 		this.form.append('land_price', parseFloat( document.getElementById('project_land_price').value ) )
 		
@@ -386,7 +292,7 @@ let project = {
 		let sector_selected = this.sectors.filter( sector => sector.id == document.getElementById('sector_list').value )
 		const sector_id = sector_selected[0].id
 		fetch(`/apples/filter_for_sector/${sector_id}.json`).then( response => response.json() ).then( r => {
-			let apple_list = document.querySelector('#apple_select')
+			let apple_list = document.querySelector('#apple_list')
 			apple_list.innerHTML = '<option value=""> Elegir manzana </option>'
 			this.apples = r.data
 			for (let lote in this.apples){
@@ -396,17 +302,17 @@ let project = {
 			} 
 		})
 	},
-	provider_validations(provider, role,payment_method,provider_price, provider_iva){
-		if (isNaN(provider)) {
+	provider_validations({provider_id, provider_role,payment_method_id,provider_price, provider_iva}){
+		if (isNaN(provider_id)) {
 			noty_alert('error', 'Debe seleccionar un proveedor')
-			provider.classList.add('g-brd-pink-v2--error')
+			// provider_id.classList.add('g-brd-pink-v2--error')
 			return false
 		}
-		if ( isNaN(role) ) {
+		if ( isNaN(provider_role) ) {
 			noty_alert('error', 'Debe seleccionar funcion')
 			return false
 		}
-		if ( isNaN(payment_method) ) {
+		if ( isNaN(payment_method_id) ) {
 			noty_alert('error', 'Debe seleccionar metodo de pago')
 			return false
 		}
@@ -430,13 +336,12 @@ let project = {
 		$(`#${select_id} option:selected`).attr('disabled', 'disabled')
 		$(`.${select_class}`).val('').trigger('change')
 	},
-	calcular_precio_proveedor(payment_method, provider_price, type_total){
-		if (payment_method == 2) {
-			// porcentaje
+	calcular_precio_proveedor({payment_method_id,provider_price, type_total}){
+		if (payment_method_id == 2) { // porcentaje
 			const porcent = provider_price/100
 			const price = ( type_total == 'price' ) ? this.project_price : this.subtotal
 			return (price * porcent)
-		} else {
+		} else { // valor fijo
 			return provider_price
 		}
 	},
@@ -459,22 +364,29 @@ let project = {
 	calcular_porcentaje_representa(){
 		if ( this.final_price > 0 ) {
 			for (let i = 0; i < this.providers_list.length; i++){
-				this.providers_list[i].provider_porcent = ( ( this.providers_list[i].total * 100 ) / this.final_price ).toFixed(2)
+				if (this.providers_list[i].type_total == 'price') {
+					this.providers_list[i].provider_porcent = ( ( this.providers_list[i].total * 100 ) / this.subtotal ).toFixed(2)
+				} else {
+					this.providers_list[i].provider_porcent = ( ( this.providers_list[i].total * 100 ) / this.final_price ).toFixed(2)
+				}
 			}
 		} else {
 			noty_alert('warning', 'El valor del proyecto debe ser mayor a 0')
 			return `Valor de proyecto invalido`
 		}
 	},
+	represent_final_porcent({total}){
+		return ( ( total * 100 ) / this.final_price ).toFixed(2)
+	},
 	update_providers_table(){
 		// actualizamos el valor en la tabla
+		let table_body = document.querySelector('#provider-list')
 		for (let i = 0; i < this.providers_list.length; i++){
 			let provider = this.providers_list[i]
 			if (provider.type_total == 'price') {
-				if ( document.querySelector(`#row-${provider.provider_id}`) != null ) {
-				document.querySelector(`#porcentaje_representa_${provider.provider_id}`).textContent = `${provider.provider_porcent}%`
+				if ( table_body.querySelector(`#row-${provider.provider_id}`) != null ) {// si ya esta en la tabla solo actualizamos el %
+				table_body.querySelector(`#row-${provider.provider_id} #porcentaje_representa_${provider.provider_id}`).innerHTML = `${provider.provider_porcent}%`
 				} else {
-					let table_body = document.querySelector('#provider-list')
 					table_body.innerHTML += `
 						<tr id="row-${provider.provider_id}">
 							<td>${provider.name}</td>
@@ -484,7 +396,7 @@ let project = {
 							<td> $${numberFormat.format(provider.provider_price_calculate)} </td>
 							<td>${provider.provider_iva}%</td>
 							<td>$${ numberFormat.format(provider.value_iva) }</td>
-							<th> $${ numberFormat.format(provider.total ) } </td>
+							<td> <b>$${ numberFormat.format(provider.total ) }</b> </td>
 							<td id="porcentaje_representa_${provider.provider_id}"> ${provider.provider_porcent}% </td>
 							<td><button type="button" class="btn u-btn-red remove-provider" onclick="project.remove_provider(${provider.provider_id})" 
 							title="Quitar interviniente"> <i class="fa fa-trash"></i> </button></td>
@@ -494,39 +406,89 @@ let project = {
 			}
 		}
 	},
-	update_summary_table(){
-		// actualizamos el valor en la tabla
-		let project_porcent = `${ ((this.project_price * 100) / this.final_price).toFixed(2) }%`
-		if ( document.querySelector(`#summary-body #project_price_row`) != null ) {
-			document.querySelector(`#summary-body #project_price_row`).textContent = `$${numberFormat.format(this.project_price)}`
-			document.querySelector(`#summary-body #project_porcent_row`).textContent = project_porcent
+	update_other_providers_table(){
+		// actualizamos la tabla de otro proveedores
+		let table_body = document.querySelector('#other-provider-list')
+		for (let i = 0; i < this.providers_list.length; i++){
+			let provider = this.providers_list[i]
+			if (provider.type_total == 'subtotal') {
+				let tr_content = `
+					<td>${provider.name}</td>
+					<td>${provider.role_name}</td>
+					<td>${provider.provider_price}%</td>
+					<td> $${numberFormat.format(provider.provider_price_calculate)} </td>
+					<td>${provider.provider_iva}%</td>
+					<td>$${ numberFormat.format(provider.value_iva) }</td>
+					<th> $${ numberFormat.format( provider.total) } </td>
+					<td id="porcentaje_representa_${provider.provider_id}"> ${provider.provider_porcent}% </td>
+					<td><button type="button" class="btn u-btn-red remove-provider" onclick="project.remove_other_provider(${provider.provider_id})" 
+					title="Quitar interviniente"> <i class="fa fa-trash"></i> </button></td>
+				`
+				if ( table_body.querySelector(`#row-${provider.provider_id}`) != null ) {
+					table_body.querySelector(`#row-${provider.provider_id}`).innerHTML = tr_content
+				} else {
+					table_body.innerHTML += `
+						<tr id="row-${provider.provider_id}">${tr_content}</tr>
+					`
+				}
+			}
+		}
+	},
+	update_summary_table(){ // actualizamos la tabla RESUMEN
+		if ($('#project_project_type_id option:selected').val() == '') {
+			noty_alert('info', 'Por favor seleccione el tipo de proyecto')
+			return
+		}
+		if (isNaN(this.final_price) || this.final_price == 0) {
+			// hago una salvedad para cuando seleccionan el tipo de proyecto 
+			// en tipo de proyecto tengo un onchange por si sucede que ingresan valor al proyecto pero no seleccionaron el tipo de proyecto
+			return
+		}
+		// agregamos o en caso de ya haber sido agregada actualizamos el precio y % que representa el valor del proyecto
+		let sumary_body = document.getElementById('summary-body')
+		const project_porcent = `${ ((this.project_price * 100) / this.final_price).toFixed(2) }%`
+		const project_price = `$${numberFormat.format(this.project_price)}`
+		if ( sumary_body.querySelector(`#project_price_row`) != null ) {
+			sumary_body.querySelector(`#project_price_row`).textContent = project_price
+			sumary_body.querySelector(`#project_porcent_row`).textContent = project_porcent
 		} else {
 			document.getElementById('summary-body').innerHTML += `
 				<tr>
-					<td>${ $('#project_project_type_id option:selected').text() }</td>
-					<td id='project_porcent_row'>${project_porcent}%</td>
-					<td id='project_price_row'>$${numberFormat.format(this.project_price)}</td>
+					<td id='project_name'>${ $('#project_project_type_id option:selected').text() }</td>
+					<td id='project_porcent_row'>${project_porcent}</td>
+					<td id='project_price_row'>${project_price}</td>
 				</tr>
 			`
 		}
+		// agregamos o en caso de ya haber sido agregada actualizamos el precio y % que representa c/interviniente
 		for (let i = 0; i < this.providers_list.length; i++){
 			let provider = this.providers_list[i]
-
-			if ( document.querySelector(`#summary-body #summary_provider_id_${provider.provider_id}`) != null ) {
-				document.querySelector(`#summary-body #summary_provider_porcent_${provider.provider_id}`).textContent = `${provider.provider_porcent}%`
-				document.querySelector(`#summary-body #summary_provider_price_${provider.provider_id}`).textContent = `$${numberFormat.format(provider.total)}`
+			if ( sumary_body.querySelector(`#summary_provider_id_${provider.provider_id}`) != null ) {
+				sumary_body.querySelector(`#summary_provider_porcent_${provider.provider_id}`).textContent = `${this.represent_final_porcent(provider)}%`
+				sumary_body.querySelector(`#summary_provider_price_${provider.provider_id}`).textContent = `$${numberFormat.format(provider.total)}`
 			} else {
 				this.add_provider_summary_table(provider)
 			}
 		}
-
-		if ( document.querySelector(`#summary-body #summary_total_price`) != null ) {
-			document.querySelector(`#summary-body #summary_total_price`).remove()
+		if (sumary_body.querySelector(`#summary_material_price`) != null) {
+			sumary_body.querySelector(`#summary_material_price`).remove()
 		}
-		document.getElementById('summary-body').innerHTML += `
-			<tr id="summary_total_price" class="">
-        <td colspan="2"><b>Total: </b></td>
-        <td>$${ numberFormat.format(this.final_price) }</td>
+
+		sumary_body.innerHTML += `
+			<tr id="summary_material_price" class="">
+        <td>Materiales:</td>
+        <td>${this.material_porcent()}%</td>
+        <td>$${ numberFormat.format(this.sum_material_price()) }</td>
+      </tr>
+		`
+
+		if ( sumary_body.querySelector(`#summary_total_price`) != null ) {
+			sumary_body.querySelector(`#summary_total_price`).remove()
+		}
+		sumary_body.innerHTML += `
+			<tr id="summary_total_price" class="g-font-size-20">
+        <td colspan="2" ><b>Total: </b></td>
+        <td ><b>$${ numberFormat.format(this.final_price) }</b></td>
       </tr>
 		`
 	},
@@ -572,51 +534,55 @@ let project = {
 				this.subtotal += this.providers_list[i].total
 			}
 		}
+		this.subtotal += this.sum_material_price()
+		document.getElementById('project_subtotal').value = `$${numberFormat.format(this.subtotal)}`
 		this.calculate_final_price()
-
-		document.getElementById('project_subtotal').value = numberFormat.format(this.subtotal)
+	},
+	calculate_final_price(){
+		this.final_price = this.subtotal 
+		for (let i = 0; i < this.providers_list.length; i++){
+			if ( this.providers_list[i].type_total == 'subtotal' ) {
+				this.final_price += this.providers_list[i].total
+			}
+		}
+		document.getElementById('project_final_price').value = `$${numberFormat.format( this.final_price )}`
 		if ( this.providers_list.length > 0 ) {
 			this.calcular_porcentaje_representa()
 			this.update_providers_table()
+			this.update_other_providers_table()
 		}
-		
 		this.calculate_price_lands()
 		this.update_summary_table()
-	},
-	calculate_final_price(){
-		this.final_price = this.project_price 
-		for (let i = 0; i < this.providers_list.length; i++){
-			this.final_price += this.providers_list[i].total
-		}
-		document.getElementById('project_final_price').value = numberFormat.format( this.final_price )
-		this.calculate_price_lands()
-		if ( this.providers_list.length > 0 ) {
-			this.calcular_porcentaje_representa
-			this.update_providers_table
-		}
 	},
 	set_porcent_values(){
 
 	},
 	select_apple(){
-		let apple_selected = this.apples.filter( apple => apple.id == document.getElementById('apple_select').value )
+		let apple_selected = this.apples.filter( apple => apple.id == document.getElementById('apple_list').value )
 		this.cant_lands = apple_selected[0].lands
 		this.apple_has_corner = apple_selected[0].has_corner
 		this.cant_corners = apple_selected[0].count_corners
-		// if (this.apple_has_corner) {
-		// 	document.getElementById('label_corner').style.display = 'block'
-		// 	document.getElementById('land_corner_input').style.display = 'block'
-		// } else {
-		// 	document.getElementById('label_corner').style.display = 'none'
-		// 	document.getElementById('land_corner_input').style.display = 'none'
-		// }
-		// this.calculate_price_lands()
+		if (this.apple_has_corner) {
+			document.getElementById('label_corner').style.display = 'block'
+			document.getElementById('land_corner_input').style.display = 'block'
+		} else {
+			document.getElementById('label_corner').style.display = 'none'
+			document.getElementById('land_corner_input').style.display = 'none'
+		}
+		this.calculate_price_lands()
 	},
-	calculate_price_lands(cant_lands){
-		return (this.final_price/cant_lands).toFixed(2)
+	calculate_price_lands(){
+		if (!isNaN(this.cant_lands) && this.cant_lands > 0 ) {
+			this.land_price = (this.final_price/this.cant_lands).toFixed(2)
+			document.getElementById('project_land_price').value = this.land_price
+			if (this.apple_has_corner) {
+				this.land_corner_price = (this.final_price/this.cant_lands).toFixed(2)
+				document.getElementById('project_land_corner_price').value = this.land_corner_price
+			}
+		}
 	},
-	calculate_value_iva(iva, provider_price) {
-		return ( iva * provider_price ) / 100
+	calculate_value_iva({provider_iva, provider_price_calculate}) {
+		return ( provider_iva * provider_price_calculate ) / 100
 	},
 }
 

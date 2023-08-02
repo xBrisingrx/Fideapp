@@ -16,7 +16,8 @@
       <%= form.select(:project_type_id, @project_type.collect {|p| [p.name, p.id]}, 
                       {:include_blank => "Seleccione tipo"},
                       class: 'select-2-project-type', 
-                      required: true) %>
+                      required: true,
+                      onchange:'project.update_summary_table()') %>
       <div class="invalid-feedback project_type_id"></div>
     </div>
   </div>
@@ -55,29 +56,28 @@
       </select>
     </div>
     <div class="form-group col-2">
-      <select id="apple_select" class="form-control select-2-apple-list" onchange="project.select_apple()">
+      <select id="apple_list" class="form-control select-2-apple-list" onchange="project.select_apple()">
         <option value=""> Elegir manzana </option>
       </select>
     </div>
-    <div>
-      <button type="button" 
-        class="btn u-btn-teal"
-        onclick="project.add_apple()"> <i class="fa fa-plus"></i> </button>
-    </div>
   </div>
-  <div id="apple_list" class='mb-2'>
-    <div class="row">
-      <div class="col-2"><b>Manzana</b></div>
-      <div class="col-2"><b>Precio por lote</b></div>
-      <div class="col-2"><b>Precio esquina</b></div>
-      <div class="col-2"><b>Quitar</b></div>
-
-    </div>
-    <div id='apple_list_body'></div>
-  </div>
-  
-  <%= form.label :provider_id, 'Invervinientes:' %>
   <div class="form-group row">
+    <div class="col-2 col-md-1">
+      <%= form.label :land_price, 'Precio por lote' %>
+    </div>
+    <div class="col-2">
+       <%= form.number_field :land_price, class: 'form-control', step:'0.01', placeholder: 'Precio unitario por lote' %>
+    </div>
+    <div class="col-2 col-md-1" id="label_corner" style="display:none">
+      <%= form.label :land_corner_price, 'Precio esquinas' %>
+    </div>
+    <div class="col-2" style="display:none" id="land_corner_input">
+       <%= form.number_field :land_corner_price, class: 'form-control', step:'0.01', placeholder: 'Precio esquinas' %>
+    </div>
+  </div>
+
+  <%= form.label :provider_id, 'Invervinientes:' %>
+  <div id="provider_select" class="form-group row">
     <div class="form-group col-3">
       <%= form.select(:provider_id, @providers.collect {|p| [p.name, p.id]}, 
                       {:include_blank => "Seleccione interviniente"},
@@ -182,7 +182,7 @@
 
   <div class="form-group row">
     <div class="col-2 col-md-2">
-      <%= form.label :subtotal, 'Subtotal:'%>
+      <%= form.label :subtotal, '<b>Subtotal:</b>'.html_safe, class: 'g-font-size-16'%>
     </div>
     <%= form.text_field :subtotal, class: 'form-control rounded-0 col-4 col-md-2', disabled: true %>
     <div class="invalid-feedback field_price"></div>
@@ -241,7 +241,7 @@
   
   <div class="form-group row">
     <div class="col-2 col-md-2">
-      <%= form.label :final_price, 'Total:'%>
+      <%= form.label :final_price, '<b>Total:</b>'.html_safe, class: 'g-font-size-16' %>
     </div>
     <%= form.text_field :final_price, class: 'form-control rounded-0 col-4 col-md-6', disabled: true %>
     <div class="invalid-feedback field_price"></div>
