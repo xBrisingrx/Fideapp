@@ -187,7 +187,7 @@ class Sale < ApplicationRecord
 		fee = self.fees.where( 'month(due_date) = ?', month ).first
 		if fee.blank? # si este mes no habia nada para pagar 
 			fee = self.fees.last # obtenemos la ultima cuota 
-			if fee.due_date.month > mont 
+			if fee.due_date.month > month 
 				pay_this_month = fee.total_value
 			end
 		else
