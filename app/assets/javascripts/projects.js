@@ -239,21 +239,21 @@ let project = {
 	submit(){
 		event.preventDefault()
 		event.stopPropagation()
-		this.form.append('number', document.getElementById('project_number').value )
-		this.form.append('name', document.getElementById('project_name').value )
-		this.form.append('price', project.project_price )
-		this.form.append('final_price', parseFloat( this.final_price ) )
-		this.form.append('subtotal', parseFloat( this.subtotal ) )
-		this.form.append('description', document.getElementById('project_description').value )
-		this.form.append('project_type_id', parseInt(document.getElementById('project_project_type_id').value ) )
-		this.form.append('apple_id', document.getElementById('apple_list').value )
+		this.form.append('project[number]', document.getElementById('project_number').value )
+		this.form.append('project[name]', document.getElementById('project_name').value )
+		this.form.append('project[price]', project.project_price )
+		this.form.append('project[final_price]', parseFloat( this.final_price ) )
+		this.form.append('project[subtotal]', parseFloat( this.subtotal ) )
+		this.form.append('project[description]', document.getElementById('project_description').value )
+		this.form.append('project[project_type_id]', parseInt(document.getElementById('project_project_type_id').value ) )
+		this.form.append('project[apple_projects_attributes][0][apple_id]', document.getElementById('apple_list').value )
 
-		this.form.append('land_price', parseFloat( document.getElementById('project_land_price').value ) )
+		this.form.append('project[land_price]', parseFloat( document.getElementById('project_land_price').value ) )
 		
 		if (this.apple_has_corner) {
-			this.form.append('land_corner_price', parseFloat( document.getElementById('project_land_corner_price').value ) )
+			this.form.append('project[land_corner_price]', parseFloat( document.getElementById('project_land_corner_price').value ) )
 		} else {
-			this.form.append('land_corner_price', parseFloat( document.getElementById('project_land_price').value ) )
+			this.form.append('project[land_corner_price]', parseFloat( document.getElementById('project_land_price').value ) )
 		}
 
 		this.add_providers()
@@ -505,26 +505,26 @@ let project = {
 		document.getElementById(`summary_provider_id_${provider_id}`).remove()
 	},
 	add_providers(){
-		this.form.append(`cant_providers`, this.providers_list.length)
+		// this.form.append(`cant_providers`, this.providers_list.length)
 		for (let i = 0; i < this.providers_list.length; i++){
-			this.form.append(`provider_id_${i}`, this.providers_list[i].provider_id)
-			this.form.append(`provider_role_id_${i}`, this.providers_list[i].provider_role)
-			this.form.append(`payment_method_id_${i}`, this.providers_list[i].payment_method_id)
-			this.form.append(`provider_price_${i}`, this.providers_list[i].provider_price)
-			this.form.append(`provider_iva_${i}`, this.providers_list[i].provider_iva)
-			this.form.append(`value_iva_${i}`, this.providers_list[i].value_iva)
-			this.form.append(`provider_price_calculate_${i}`, this.providers_list[i].provider_price_calculate)
-			this.form.append(`provider_porcent_${i}`, this.providers_list[i].provider_porcent)
-			this.form.append(`type_total_${i}`, this.providers_list[i].type_total)
+			this.form.append( `project[project_providers_attributes][${i}][provider_id]` , this.providers_list[i].provider_id)
+			this.form.append( `project[project_providers_attributes][${i}][provider_role_id]` , this.providers_list[i].provider_role)
+			this.form.append( `project[project_providers_attributes][${i}][payment_method_id]` , this.providers_list[i].payment_method_id)
+			this.form.append( `project[project_providers_attributes][${i}][price]` , this.providers_list[i].provider_price)
+			this.form.append( `project[project_providers_attributes][${i}][iva]` , this.providers_list[i].provider_iva)
+			this.form.append( `project[project_providers_attributes][${i}][value_iva]` , this.providers_list[i].value_iva)
+			this.form.append( `project[project_providers_attributes][${i}][price_calculate]` , this.providers_list[i].provider_price_calculate)
+			this.form.append( `project[project_providers_attributes][${i}][porcent]` , this.providers_list[i].provider_porcent)
+			this.form.append( `project[project_providers_attributes][${i}][type_total]` , this.providers_list[i].type_total)
 		}
 	},
 	add_materials(){
-		this.form.append(`cant_materials`, this.materials_list.length)
+		// this.form.append(`cant_materials`, this.materials_list.length)
 		for (let i = 0; i < this.materials_list.length; i++){
-			this.form.append(`material_id_${i}`, this.materials_list[i].id)
-			this.form.append(`material_type_units_${i}`, this.materials_list[i].type_unit)
-			this.form.append(`material_units_${i}`, this.materials_list[i].units)
-			this.form.append(`material_price_${i}`, this.materials_list[i].price)
+			this.form.append( `project[project_materials_attributes][${i}][material_id]` , this.materials_list[i].id)
+			this.form.append( `project[project_materials_attributes][${i}][type_units]` , this.materials_list[i].type_units)
+			this.form.append( `project[project_materials_attributes][${i}][units]` , this.materials_list[i].units)
+			this.form.append( `project[project_materials_attributes][${i}][price]` , this.materials_list[i].price)
 		}
 	},
 	calculate_subtotal(){

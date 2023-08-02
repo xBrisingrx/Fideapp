@@ -35,10 +35,86 @@
       <div class="card-block g-px-20 g-px-30--sm g-py-15 g-py-20--sm">
         <div class="g-mb-25">
           <h5 class="g-font-size-default g-color-gray-dark-v6 g-mb-5">Intervinientes</h5>
-          <% @project.providers.each do |provider| %>
-            <p class="g-color-black mb-0"> <%= provider.name %> </p>
-          <% end %>
-          
+          <table class="table table-sm table-striped text-center">
+            <thead>
+              <th>Interviniente</th>
+              <th>Función</th>
+              <th>Precio</th>
+              <th>IVA</th>
+              <th>Valor IVA</th>
+              <th>TOTAL</th>
+              <th>% representa subtotal</th>
+              <th>% representa TOTAL </th>
+            </thead>
+            <tbody>
+              <% @project.project_providers.intervinientes.actives.each do |provider| %>
+                <tr>
+                  <td><%= provider.provider.name %></td>
+                  <td><%= provider.provider_role.name %></td>
+                  <td><%= format_currency(provider.price) %></td>
+                  <td><%= provider.iva %></td>
+                  <td><%= "#{provider.value_iva}%" %></td>
+                  <td><%= "$#{format_currency(provider.price_calculate)}" %></td>
+                  <td><%= "#{provider.porcent}%" %></td>
+                  <td><%= "#{provider.porcent}%" %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card-block g-px-20 g-px-30--sm g-py-15 g-py-20--sm">
+        <div class="g-mb-25">
+          <h5 class="g-font-size-default g-color-gray-dark-v6 g-mb-5">Otros intervinientes</h5>
+          <table class="table table-sm table-striped text-center">
+            <thead>
+              <th>Interviniente</th>
+              <th>Función</th>
+              <th>Precio</th>
+              <th>IVA</th>
+              <th>Valor IVA</th>
+              <th>TOTAL</th>
+              <th>% representa TOTAL </th>
+            </thead>
+            <tbody>
+              <% @project.project_providers.otros_intervinientes.actives.each do |provider| %>
+                <tr>
+                  <td><%= provider.provider.name %></td>
+                  <td><%= provider.provider_role.name %></td>
+                  <td><%= format_currency(provider.price) %></td>
+                  <td><%= provider.iva %></td>
+                  <td><%= "#{provider.value_iva}%" %></td>
+                  <td><%= "$#{format_currency(provider.price_calculate)}" %></td>
+                  <td><%= "#{provider.porcent}%" %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card-block g-px-20 g-px-30--sm g-py-15 g-py-20--sm">
+        <div class="g-mb-25">
+          <h5 class="g-font-size-default g-color-gray-dark-v6 g-mb-5">Materiales</h5>
+          <table class="table table-sm table-striped text-center">
+            <thead>
+              <th>Material</th>
+              <th>Tipo de unidad</th>
+              <th>Unidades</th>
+              <th>Precio por unidad</th>
+              <th>Total</th>
+            </thead>
+            <tbody>
+              <% @project.project_materials.actives.each do |material| %>
+                <tr>
+                  <td><%= material.material.name %></td>
+                  <td><%= material.type_units %></td>
+                  <td><%= material.units %></td>
+                  <td><%= "$#{format_currency(material.price)}" %></td>
+                  <td><%= "$#{format_currency(material.price * material.units)}" %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

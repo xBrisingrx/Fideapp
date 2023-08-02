@@ -37,8 +37,11 @@ class ProjectProvider < ApplicationRecord
   belongs_to :payment_method
   belongs_to :provider_role
 
+  scope :intervinientes, -> { where( type_total: :price ) }
+  scope :otros_intervinientes, -> { where( type_total: :subtotal ) }
+  scope :actives, -> { where(active: true) }
   # este campo me indica en base a que saca su valor calculado
   # si es SUBTOTAL es xq lo sacamos en base a precio_projecto + materiales + precio proveedores
   # si es PRICE es xq lo sacamos en base a precio_projecto
-  enum type_total: [:price, :subtotal] 
+  # enum type_total: [:price, :subtotal] 
 end

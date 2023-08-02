@@ -29,11 +29,14 @@ class Project < ApplicationRecord
 	has_many :project_providers
   has_many :project_materials
   has_many :land_projects
+  has_many :apple_projects
   belongs_to :project_type
 
   has_many :providers, through: :project_providers
   has_many :materials, through: :project_materials
   has_many :lands, through: :land_projects
+
+  accepts_nested_attributes_for :project_providers, :project_materials,:apple_projects
 
   scope :actives, -> { where(active: true) }
   
