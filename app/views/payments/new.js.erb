@@ -123,19 +123,16 @@ document.getElementById('submit-form-payment').addEventListener('click', functio
 	payment.sale_id = <%= @sale_id %>;
 	payment.form_data = new FormData()
 	payment.form_data.append("payment[sale_id]", document.getElementById('payment_sale_id').value)
-	payment.form_data.append("fee_id", document.getElementById('payment_fee_id').value)
-	payment.form_data.append("aply_interest", document.getElementById('payment_aply_interest').value)
-	payment.form_data.append("comment_adjust", document.getElementById('payment_comment_adjust').value )
+	payment.form_data.append("payment[date]", document.getElementById('payment_date').value)
 	payment.form_data.append("payment[payments_currency_id]", document.getElementById('payments_currency_id').value)
 	payment.form_data.append("payment[comment]", document.getElementById('payment_name_pay').value)
-	payment.form_data.append("comment", document.getElementById('payment_comment').value)
-	// valores numericos
-	payment.form_data.append("interest", parseFloat( document.getElementById('payment_interest').value ) )
-	payment.form_data.append("adjust",  parseFloat( document.getElementById('payment_adjust').value ) )
 	payment.form_data.append("payment[payment]", parseFloat( document.getElementById('payment_payment').value ) )
 	payment.form_data.append("payment[taken_in]", parseFloat( document.getElementById('payment_value_in_pesos').value ) )
-	payment.form_data.append("calculo_en_pesos", parseFloat( document.getElementById('payment_calculo_en_pesos').value ) )
-	payment.form_data.append("payment[date]", document.getElementById('payment_date').value)
+	// intereses por mora aplicados
+	payment.form_data.append("interest", parseFloat( document.getElementById('payment_interest').value ) )
+	// ajuste aplicado
+	payment.form_data.append("adjust",  parseFloat( document.getElementById('payment_adjust').value ) )
+	payment.form_data.append("comment_adjust", document.getElementById('payment_comment_adjust').value )
 
 	let files = document.getElementById('payment-images')
   let totalFiles = files.files.length
@@ -164,25 +161,19 @@ document.getElementById('submit-form-payment').addEventListener('click', functio
   let currency_selected = document.getElementById('payments_currency_id').options[document.getElementById('payments_currency_id').selectedIndex]
   let currency_name = currency_selected.text
 
-  if( currency_selected.dataset.exchange == 'true' ) {
-  	pay_data.innerHTML += `
-  		<tr><td><b>Forma de pago:</b> ${currency_name}</td></tr>
-  		<tr><td><b>Ingresado:</b>  ${numberFormat.format( payment.form_data.get('payment[payment]') )}</td></tr>
-  		<tr><td><b>Tomado en:</b>  $${numberFormat.format( payment.form_data.get('payment[taken_in]') )}</td></tr>
-  		<tr><td><b>Valor en pesos:</b>  ${numberFormat.format( payment.form_data.get('calculo_en_pesos') )}</td></tr>
-  		<tr><td><b>Detalle:</b> ${payment.form_data.get('payment[comment]')} </td></tr>
-  	` 
-  }
-
-  if (currency_selected.dataset.exchange == 'false') {
-  	pay_data.innerHTML += `
+  pay_data.innerHTML += `
   		<tr><td><b>Forma de pago:</b> ${currency_name}</td></tr>
   		<tr><td><b>Ingresado:</b>  $${numberFormat.format( payment.form_data.get('payment[payment]') )}</td></tr>
-  		<tr><td><b>Detalle:</b> ${payment.form_data.get('payment[comment]')} </td></tr>
+  	` 
+  if( currency_selected.dataset.exchange == 'true' ) {
+  	pay_data.innerHTML += `
+  		<tr><td><b>Tomado en:</b>  $${numberFormat.format( payment.form_data.get('payment[taken_in]') )}</td></tr>
+  		<tr><td><b>Valor en pesos:</b>  ${numberFormat.format( document.getElementById('payment_calculo_en_pesos').value )}</td></tr>
   	` 
   }
+  pay_data.innerHTML += `<tr><td><b>Detalle:</b> ${payment.form_data.get('payment[comment]')} </td></tr>`
+
 	$("#modal-pay-confirm").modal('show')
-	
 })
 
 function form_payment_validation() {
