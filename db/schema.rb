@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_05_31_142149) do
+ActiveRecord::Schema.define(version: 2023_08_06_195238) do
 
   create_table "active_storage_attachments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci", force: :cascade do |t|
     t.string "name", null: false
@@ -55,7 +55,9 @@ ActiveRecord::Schema.define(version: 2023_05_31_142149) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.date "date"
+    t.bigint "payment_id", comment: "Se agrega solo si el ajuste se genero al registrar un pago. Si es epago se cancela podemos cancelar este ajuste"
     t.index ["fee_id"], name: "index_adjusts_on_fee_id"
+    t.index ["payment_id"], name: "index_adjusts_on_payment_id"
   end
 
   create_table "apple_projects", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci", force: :cascade do |t|
@@ -175,8 +177,10 @@ ActiveRecord::Schema.define(version: 2023_05_31_142149) do
     t.datetime "updated_at", null: false
     t.bigint "fee_id"
     t.text "comment"
+    t.bigint "payment_id", comment: "Se agrega solo si el ajuste se genero al registrar un pago. Si es epago se cancela podemos cancelar este ajuste"
     t.index ["fee_id"], name: "index_interests_on_fee_id"
     t.index ["fee_payment_id"], name: "index_interests_on_fee_payment_id"
+    t.index ["payment_id"], name: "index_interests_on_payment_id"
   end
 
   create_table "land_projects", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci", force: :cascade do |t|
@@ -230,7 +234,7 @@ ActiveRecord::Schema.define(version: 2023_05_31_142149) do
     t.bigint "sale_id"
     t.date "date", null: false
     t.bigint "payments_currency_id"
-    t.decimal "payment", precision: 10, null: false
+    t.decimal "payment", precision: 15, scale: 2, default: "0.5", null: false
     t.decimal "taken_in", precision: 15, scale: 2, default: "1.0", comment: "A que valor en $ se tomo la moneda"
     t.decimal "total", precision: 15, scale: 2, comment: "Calculo del valor pagado en $"
     t.boolean "first_pay", default: false, comment: "Si pertenece a la primer entrega"
@@ -417,6 +421,7 @@ ActiveRecord::Schema.define(version: 2023_05_31_142149) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "activity_histories", "users"
   add_foreign_key "adjusts", "fees"
+  add_foreign_key "adjusts", "payments"
   add_foreign_key "apple_projects", "apples"
   add_foreign_key "apple_projects", "projects"
   add_foreign_key "apples", "condominia"
@@ -430,6 +435,7 @@ ActiveRecord::Schema.define(version: 2023_05_31_142149) do
   add_foreign_key "fees", "sales"
   add_foreign_key "interests", "fee_payments"
   add_foreign_key "interests", "fees"
+  add_foreign_key "interests", "payments"
   add_foreign_key "land_projects", "lands"
   add_foreign_key "land_projects", "projects"
   add_foreign_key "lands", "apples"
