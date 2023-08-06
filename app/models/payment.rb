@@ -17,7 +17,6 @@
 #
 class Payment < ApplicationRecord
   # si el pago no esta activo es q pertenece a una nota de credito
-
   belongs_to :sale
   belongs_to :payments_currency
   has_one :currency, through: :payments_currency
@@ -34,8 +33,12 @@ class Payment < ApplicationRecord
   scope :no_first_pay, -> { where(first_pay: false) }
   scope :is_first_pay, -> { where(first_pay: true) }
 
-  def self.by_month sale_id, month
+  def self.by_month sale_id, month # pagos ingresados en la fecha correspondiente a esta cuoda
     Payment.where( 'extract(month from date) = ?', month ).where(sale_id: sale_id).actives.no_first_pay
+  end
+
+  def self.payments_last_fee sale_id, month # pagos ingresados en la fecha de la ultima cuota o mas adelante
+    Payment.where( 'extract(month from date) >= ?', month ).where(sale_id: sale_id).actives.no_first_pay
   end
 
   def disable 

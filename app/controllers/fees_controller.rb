@@ -191,7 +191,11 @@ class FeesController < ApplicationController
 
   def details
     @cuota = Fee.find(params[:id])
-    @payments = Payment.by_month( @cuota.sale_id,@cuota.due_date.month )
+    if @cuota.is_last_fee?
+      @payments = Payment.payments_last_fee( @cuota.sale_id,@cuota.due_date.month )
+    else
+      @payments = Payment.by_month( @cuota.sale_id,@cuota.due_date.month )
+    end
     @title_modal = 'Detalle del pago realizado'
   end
 end
