@@ -17,6 +17,8 @@
 #
 class Payment < ApplicationRecord
   # si el pago no esta activo es q pertenece a una nota de credito
+  # los pagos pertenecen a una venta
+  # no se le asigna un id de cuota, el pago pertenece a la cuota dependiendo en que fecha fue ingresado
   belongs_to :sale
   belongs_to :payments_currency
   has_one :currency, through: :payments_currency
