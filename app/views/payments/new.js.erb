@@ -190,16 +190,13 @@ function form_payment_validation() {
   	addClassInvalid(document.getElementById('payment_payment'))
   	return false
   }
-  if ( isNaN( payment.form_data.get('payment[taken_in]') ) || payment.form_data.get('payment[taken_in]') <= 0 ) {
+
+  if ( !valid_number( payment.form_data.get('payment[taken_in]') ) ) {
   	noty_alert('error', 'El valor no es valido')
   	addClassInvalid(document.getElementById('payment_value_in_pesos'))
   	return false
   }
-  if ( isNaN( payment.form_data.get('calculo_en_pesos') ) || payment.form_data.get('calculo_en_pesos') <= 0 ) {
-  	noty_alert('error', 'Datos invalidos')
-  	addClassInvalid(document.getElementById('payment_calculo_en_pesos'))
-  	return false
-  }
+
   if (<%= @apply_arrear %>) {
   	if ( isNaN( payment.form_data.get('interest') ) ) {
 	  	noty_alert('error', 'El valor de interes ingresado no es valido')
@@ -207,19 +204,19 @@ function form_payment_validation() {
 	  	return false
 	  }
   }
-
+  // si corresponde aplicar interes debe ser mayor a cero
   if ( document.getElementById('payment_aply_interest').checked && payment.form_data.get('interest') <= 0 ) {
   	noty_alert('error', 'Debe ingresar un valor en interes')
   	addClassInvalid(document.getElementById('payment_interest'))
   	return false
   }
-
-  if ( isNaN( payment.form_data.get('calculo_en_pesos') ) || payment.form_data.get('calculo_en_pesos') <= 0 ) {
+  // por las dudas chequeo el calculo a pesos
+  if ( !valid_number( parseFloat( document.getElementById('payment_calculo_en_pesos').value ) ) ) {
   	noty_alert('error', 'Datos invalidos')
   	addClassInvalid(document.getElementById('payment_calculo_en_pesos'))
   	return false
   }
-
+  // fecha requerida
   if ( payment.form_data.get('payment[date]') == ''  ) {
   	noty_alert('error', 'Debe ingresar una fecha')
   	addClassInvalid(document.getElementById('payment_date'))
