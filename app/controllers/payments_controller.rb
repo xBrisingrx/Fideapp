@@ -39,27 +39,25 @@ class PaymentsController < ApplicationController
   end
 
   def create
+    payment = Payment.new(payment_params)
     ActiveRecord::Base.transaction do 
       # payment es lo que se pago, ese valor viene en calculo_en_pesos
       sale = Sale.find(params[:payment][:sale_id])
       fee = Fee.current_fee( sale.id, params[:payment][:date].to_time )
+      payment.save
       if params[:interest].to_f > 0 # chequeamos si se le sumo intereses
         # discrimino el interes aplicado en la cuota
-        fee.interests.create(value: params[:interest].to_f, date: params[:payment][:date], comment: 'Mora por pago fuera de termino.')
+        interest = fee.interests.create(value: params[:interest].to_f, date: params[:payment][:date], comment: 'Mora por pago fuera de termino.', payment: payment)
       end
-
       if params[:adjust].to_f > 0 # Si agregaron algo al ajuste 
-        fee.adjusts.create(value:  params[:adjust].to_f, comment:  params[:comment_adjust], date: params[:payment][:date])
-      end
-
-      payment = Payment.new(payment_params)
-
-      if payment.save
-        render json: { status: 'success', msg: 'Pago registrado' }, status: 200
-      else
-        render json: { status: 'error', msg: 'No se pudo registrar el pago' }, status: 422
+        adjust = fee.adjusts.create(value:  params[:adjust].to_f, comment:  params[:comment_adjust], date: params[:payment][:date], payment: payment)
       end
     end # transaction
+
+    # aplicamos el pago a las cuotas
+    payment.apply_payment_to_fees
+    render json: { status: 'success', msg: 'Pago registrado' }, status: 200
+
     rescue => e
       @response = e.message.split(':')
       puts @response
@@ -77,7 +75,7 @@ class PaymentsController < ApplicationController
       end
     end
   end
-  
+
   private
     def set_payment
       @payment = Payment.find(params[:id])

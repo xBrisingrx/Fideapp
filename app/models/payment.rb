@@ -29,7 +29,7 @@ class Payment < ApplicationRecord
   validates :taken_in, :payment, :total, numericality: true
 
   before_validation :check_attributes
-  after_create :apply_payment_to_fees
+  # after_create :apply_payment_to_fees
 
   scope :actives, -> { where(active: true) }
   scope :no_first_pay, -> { where(first_pay: false) }
@@ -48,13 +48,6 @@ class Payment < ApplicationRecord
       self.update(active: false)
       apply_payment_to_fees
     end
-  end
-
-  private 
-
-  def check_attributes
-    self.date = self.sale.date if self.date.blank?
-    self.total = self.payment * self.taken_in
   end
 
   def apply_payment_to_fees
@@ -77,5 +70,14 @@ class Payment < ApplicationRecord
       payment -= owes
     end
   end
+
+  private 
+
+  def check_attributes
+    self.date = self.sale.date if self.date.blank?
+    self.total = self.payment * self.taken_in
+  end
+
+  
 
 end
