@@ -61,6 +61,11 @@ class Fee < ApplicationRecord
     self.expired? && self.sale.apply_arrear && there_is_payment_this_month.empty?
   end
 
+  def is_last_fee? #verificamos si esta es la ultima cuota de esta venta
+    last_fee = Fee.where( sale_id: self.sale_id ).actives.order(:number).last 
+    self.id == last_fee.id 
+  end
+
   def get_deuda
     #obtenemos los pagos de los meses hasta esta cuota
     # y los restamos por el valor de las cuotas para saber cuanto se debe
@@ -209,16 +214,6 @@ class Fee < ApplicationRecord
     first_month_day = Date.today.beginning_of_month
     last_month_day = Date.today.end_of_month
     label = '0'
-    # if ( self.due_date <= last_month_day ) && ( self.due_date >= first_month_day )
-    #   deuda = self.get_deuda + self.owes
-    #   pp deuda
-    #   label = deuda
-    # end
-
-    # if ( self.due_date < last_month_day ) && ( self.id == self.sale.fees.last.id )
-    #   deuda = self.get_deuda + self.owes
-    #   label = deuda
-    # end
     if ( self.due_date < last_month_day )
       label = self.get_deuda + self.owes
     end
