@@ -41,7 +41,8 @@ class Project < ApplicationRecord
   validates :land_price, :land_corner_price, 
     presence: true, 
     numericality: { greater_than: 0 }
-
+  validates :number, presence: true, numericality: { only_integer: true }
+  
   scope :actives, -> { where(active: true) }
   
   enum status: [:pendiente, :proceso, :terminado]
@@ -73,5 +74,6 @@ class Project < ApplicationRecord
 
     status_label
   end
+  
 
 end
