@@ -47,10 +47,15 @@ class Fee < ApplicationRecord
     self.update( payment: primer_pago , value: primer_pago ,total_value: primer_pago )
   end
 
-  def calcular_interes
+  def interes_diario 
+    ( (self.sale.arrear/100) * self.value )
+  end
+
+  def calcular_interes date = nil
     interes_diario = ( (self.sale.arrear/100) * self.value)
     primer_cuota_vencida = self.sale.fees.actives.no_payed.order('id ASC').first
-    dias_vencido = Date.today - Date.new( primer_cuota_vencida.due_date.year, primer_cuota_vencida.due_date.month, 01 )
+    compare_date = (date.nil?) ? Date.today : date
+    dias_vencido = compare_date - Date.new( primer_cuota_vencida.due_date.year, primer_cuota_vencida.due_date.month, 01 )
     total = (interes_diario * dias_vencido).round(2)
     total
   end

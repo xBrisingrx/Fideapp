@@ -1,6 +1,7 @@
 <%= form_with(model: @payment, class: 'needs-validation g-brd-around g-brd-gray-light-v4 g-pa-10 g-mb-10', id: 'form-payment') do |form| %>
   <%= form.hidden_field :sale_id, value: @sale_id%>
   <%= form.hidden_field :fee_id, value: @fee_id%>
+  <%= form.hidden_field :start_date_owes, value: @fecha_primer_cuota_impaga %>
   <div class="form-group row">
     <div class="col-4 col-lg-3">
       <%= form.label :date, 'Fecha' %>

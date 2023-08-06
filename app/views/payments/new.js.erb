@@ -21,7 +21,7 @@ if (<%= @apply_arrear %>) {
 		} else {
 			payment.recargo_sugerido = 0.0
 			document.getElementById('payment_interest').value = payment.recargo_sugerido
-			document.getElementById('payment_total_to_pay').innerHTML = `<b>$${numberFormat.format(payment.total_to_pay())}`
+			document.getElementById('payment_total_to_pay').innerHTML = `$${numberFormat.format(payment.total_to_pay())}`
 		}
 	})
 } else {
@@ -258,5 +258,12 @@ function send_payment(){
 }
 
 document.getElementById('payment_date').addEventListener('change', e => {
-	if (true) {}
+	if (<%= @apply_arrear %>) {
+		const interes_diario = <%= @interes_diario %>;
+		const end_date = new Date(e.target.value)
+		const start_date = new Date(document.getElementById('payment_start_date_owes').value)
+		const diffInDays = Math.floor((end_date - start_date) / (1000 * 60 * 60 * 24));
+		document.getElementById("payment_interest").value = (interes_diario * diffInDays).toFixed(2)
+		debugger
+	}
 })

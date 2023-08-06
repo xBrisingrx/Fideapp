@@ -187,13 +187,23 @@ class Sale < ApplicationRecord
 		fee = self.fees.where( 'month(due_date) = ?', month ).first
 		if fee.blank? # si este mes no habia nada para pagar 
 			fee = self.fees.last # obtenemos la ultima cuota 
-			if fee.due_date.month > month 
+			if fee.due_date.month < month 
 				pay_this_month = fee.total_value
 			end
 		else
 			pay_this_month = fee.total_value
 		end
 		pay_this_month
+	end
+
+	def primer_cuota_impaga 
+		# es importante tenes la primer cuota impaga para calcular los intereses y la deuda
+		self.fees.where(payed: false).order(:number).first
+	end
+
+	def fecha_inicio_interes
+		date = self.primer_cuota_impaga.due_date
+		"#{date.year}-#{date.month}-01"
 	end
 	
 	private
