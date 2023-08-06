@@ -6,11 +6,9 @@ class PaymentsController < ApplicationController
     @payments = Payment.all
   end
 
-  # GET /payments/1 or /payments/1.json
   def show
   end
 
-  # GET /payments/new
   def new
     @title_modal = 'Registrar pago'
     @sale_id = params[:sale_id]
@@ -37,15 +35,12 @@ class PaymentsController < ApplicationController
     @payment = Payment.new
   end
 
-  # GET /payments/1/edit
   def edit
   end
 
-  # POST /payments or /payments.json
   def create
     ActiveRecord::Base.transaction do 
       # payment es lo que se pago, ese valor viene en calculo_en_pesos
-      # cuota.payment = params[:calculo_en_pesos].to_f
       sale = Sale.find(params[:payment][:sale_id])
       fee = Fee.current_fee( sale.id, params[:payment][:date].to_time )
       if params[:interest].to_f > 0 # chequeamos si se le sumo intereses
@@ -71,7 +66,6 @@ class PaymentsController < ApplicationController
       render json: { status: 'error', msg: 'Error del sistema' }, status: 402
   end
 
-  # PATCH/PUT /payments/1 or /payments/1.json
   def update
     respond_to do |format|
       if @payment.update(payment_params)
@@ -83,24 +77,12 @@ class PaymentsController < ApplicationController
       end
     end
   end
-
-  # DELETE /payments/1 or /payments/1.json
-  def destroy
-    @payment.destroy
-
-    respond_to do |format|
-      format.html { redirect_to payments_url, notice: "Payment was successfully destroyed." }
-      format.json { head :no_content }
-    end
-  end
-
+  
   private
-    # Use callbacks to share common setup or constraints between actions.
     def set_payment
       @payment = Payment.find(params[:id])
     end
 
-    # Only allow a list of trusted parameters through.
     def payment_params
       params.require(:payment).permit(:sale_id, :date, :payment, :payments_currency_id, :total, :taken_in, :active, :comment, images:[])
     end
