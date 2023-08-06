@@ -263,7 +263,8 @@ document.getElementById('payment_date').addEventListener('change', e => {
 		const end_date = new Date(e.target.value)
 		const start_date = new Date(document.getElementById('payment_start_date_owes').value)
 		const diffInDays = Math.floor((end_date - start_date) / (1000 * 60 * 60 * 24));
-		document.getElementById("payment_interest").value = (interes_diario * diffInDays).toFixed(2)
-		debugger
+		payment.recargo_sugerido = parseFloat( (interes_diario * diffInDays).toFixed(2) )
+		document.getElementById("payment_interest").value = payment.recargo_sugerido
+		document.getElementById('payment_total_to_pay').innerHTML = `$${numberFormat.format(payment.total_to_pay())}`
 	}
 })
