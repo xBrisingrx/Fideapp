@@ -2,27 +2,20 @@
 #
 # Table name: sales
 #
-#  id                                        :bigint           not null, primary key
-#  active                                    :boolean          default(TRUE)
-#  apply_arrear(Venta aplica mora)           :boolean          default(FALSE), not null
-#  arrear(% de mora)                         :integer          default(0), not null
-#  comment                                   :text(65535)
-#  date(Fecha en que se realizo la venta)    :date             not null
-#  due_day(Num dia de vencimiento de pagos)  :integer          default(10), not null
-#  number_of_payments(Num de cuotas inicial) :integer          not null
-#  price(Valor inicial de venta)             :decimal(15, 2)   default(0.0), not null
-#  status                                    :boolean          default(NULL)
-#  created_at                                :datetime         not null
-#  updated_at                                :datetime         not null
-#  land_id                                   :bigint
-#
-# Indexes
-#
-#  index_sales_on_land_id  (land_id)
-#
-# Foreign Keys
-#
-#  fk_rails_...  (land_id => lands.id)
+#  id                 :bigint           not null, primary key
+#  status             :boolean          default(NULL)
+#  apply_arrear       :boolean          default(TRUE), not null
+#  arrear             :decimal(15, 2)   default(0.5), not null
+#  comment            :text(65535)
+#  date               :date             not null
+#  due_day            :integer          default(10), not null
+#  number_of_payments :integer          not null
+#  price              :decimal(15, 2)   default(0.0), not null
+#  land_id            :bigint
+#  active             :boolean          default(TRUE)
+#  created_at         :datetime         not null
+#  updated_at         :datetime         not null
+#  refinanced         :boolean          default(FALSE)
 #
 class Sale < ApplicationRecord
 	has_many :sale_clients, dependent: :destroy

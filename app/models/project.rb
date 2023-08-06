@@ -2,28 +2,20 @@
 #
 # Table name: projects
 #
-#  id                                                :bigint           not null, primary key
-#  active                                            :boolean          default(TRUE)
-#  description                                       :text(65535)
-#  final_price                                       :decimal(15, 2)   default(0.0), not null
-#  land_corner_price(Precio por lote que es esquina) :decimal(15, 2)   default(0.0), not null
-#  land_price(Precio por lote)                       :decimal(15, 2)   default(0.0), not null
-#  name                                              :string(255)
-#  number                                            :integer          not null
-#  price                                             :decimal(15, 2)   default(0.0), not null
-#  status                                            :integer          default("pendiente")
-#  subtotal                                          :decimal(15, 2)   default(0.0), not null
-#  created_at                                        :datetime         not null
-#  updated_at                                        :datetime         not null
-#  project_type_id                                   :bigint
-#
-# Indexes
-#
-#  index_projects_on_project_type_id  (project_type_id)
-#
-# Foreign Keys
-#
-#  fk_rails_...  (project_type_id => project_types.id)
+#  id                :bigint           not null, primary key
+#  number            :integer          not null
+#  name              :string(255)
+#  active            :boolean          default(TRUE)
+#  price             :decimal(15, 2)   default(0.0), not null
+#  subtotal          :decimal(15, 2)   default(0.0), not null
+#  final_price       :decimal(15, 2)   default(0.0), not null
+#  status            :integer          default("pendiente")
+#  description       :text(65535)
+#  land_price        :decimal(15, 2)   default(0.0), not null
+#  land_corner_price :decimal(15, 2)   default(0.0), not null
+#  project_type_id   :bigint
+#  created_at        :datetime         not null
+#  updated_at        :datetime         not null
 #
 class Project < ApplicationRecord
 	has_many :project_providers

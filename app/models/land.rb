@@ -2,29 +2,21 @@
 #
 # Table name: lands
 #
-#  id                                                                 :bigint           not null, primary key
-#  active                                                             :boolean          default(TRUE)
-#  area                                                               :decimal(15, 2)   default(0.0)
-#  code(denominacion)                                                 :string(255)      not null
-#  is_corner                                                          :boolean          default(FALSE)
-#  is_green_space                                                     :boolean          default(FALSE)
-#  land_type                                                          :integer          default(0)
-#  measure                                                            :string(255)
-#  price                                                              :decimal(15, 2)   default(0.0)
-#  space_not_available(Espacio de el lote que no puede ser utilizado) :decimal(15, 2)   default(0.0)
-#  status                                                             :integer          default("available")
-#  ubication                                                          :string(255)
-#  created_at                                                         :datetime         not null
-#  updated_at                                                         :datetime         not null
-#  apple_id                                                           :bigint
-#
-# Indexes
-#
-#  index_lands_on_apple_id  (apple_id)
-#
-# Foreign Keys
-#
-#  fk_rails_...  (apple_id => apples.id)
+#  id                  :bigint           not null, primary key
+#  code                :string(255)      not null
+#  is_corner           :boolean          default(FALSE)
+#  is_green_space      :boolean          default(FALSE)
+#  land_type           :integer          default(0)
+#  measure             :string(255)
+#  price               :decimal(15, 2)   default(0.0)
+#  space_not_available :decimal(15, 2)   default(0.0)
+#  status              :integer          default("available")
+#  area                :decimal(15, 2)   default(0.0)
+#  ubication           :string(255)
+#  apple_id            :bigint
+#  active              :boolean          default(TRUE)
+#  created_at          :datetime         not null
+#  updated_at          :datetime         not null
 #
 class Land < ApplicationRecord
   belongs_to :apple

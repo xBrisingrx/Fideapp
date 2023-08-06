@@ -2,28 +2,18 @@
 #
 # Table name: payments
 #
-#  id                                           :bigint           not null, primary key
-#  active                                       :boolean          default(TRUE)
-#  comment                                      :text(65535)
-#  date                                         :date             not null
-#  first_pay(Si pertenece a la primer entrega)  :boolean          default(FALSE)
-#  payment                                      :decimal(10, )    not null
-#  taken_in(A que valor en $ se tomo la moneda) :decimal(15, 2)   default(1.0)
-#  total(Calculo del valor pagado en $)         :decimal(15, 2)
-#  created_at                                   :datetime         not null
-#  updated_at                                   :datetime         not null
-#  payments_currency_id                         :bigint
-#  sale_id                                      :bigint
-#
-# Indexes
-#
-#  index_payments_on_payments_currency_id  (payments_currency_id)
-#  index_payments_on_sale_id               (sale_id)
-#
-# Foreign Keys
-#
-#  fk_rails_...  (payments_currency_id => payments_currencies.id)
-#  fk_rails_...  (sale_id => sales.id)
+#  id                   :bigint           not null, primary key
+#  sale_id              :bigint
+#  date                 :date             not null
+#  payments_currency_id :bigint
+#  payment              :decimal(15, 2)   default(0.5), not null
+#  taken_in             :decimal(15, 2)   default(1.0)
+#  total                :decimal(15, 2)
+#  first_pay            :boolean          default(FALSE)
+#  comment              :text(65535)
+#  active               :boolean          default(TRUE)
+#  created_at           :datetime         not null
+#  updated_at           :datetime         not null
 #
 class Payment < ApplicationRecord
   # si el pago no esta activo es q pertenece a una nota de credito

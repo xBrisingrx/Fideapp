@@ -2,30 +2,22 @@
 #
 # Table name: fees
 #
-#  id                                               :bigint           not null, primary key
-#  active                                           :boolean          default(TRUE)
-#  comment                                          :string(255)      default("")
-#  due_date                                         :date
-#  interest(Interes)                                :decimal(15, 2)   default(0.0), not null
-#  number                                           :integer          not null
-#  owes(Lo que adeuda)                              :decimal(15, 2)   default(0.0), not null
-#  pay_date                                         :date
-#  pay_status                                       :integer          default("pendiente")
-#  payed                                            :boolean          default(FALSE)
-#  payment(Valor pagado)                            :decimal(15, 2)   default(0.0), not null
-#  total_value(Valor inicial + ajustes + intereses) :decimal(15, 2)   default(0.0), not null
-#  value(Valor inicial)                             :decimal(15, 2)   default(0.0), not null
-#  created_at                                       :datetime         not null
-#  updated_at                                       :datetime         not null
-#  sale_id                                          :bigint
-#
-# Indexes
-#
-#  index_fees_on_sale_id  (sale_id)
-#
-# Foreign Keys
-#
-#  fk_rails_...  (sale_id => sales.id)
+#  id          :bigint           not null, primary key
+#  due_date    :date
+#  interest    :decimal(15, 2)   default(0.0), not null
+#  number      :integer          not null
+#  owes        :decimal(15, 2)   default(0.0), not null
+#  pay_date    :date
+#  payed       :boolean          default(FALSE)
+#  payment     :decimal(15, 2)   default(0.0), not null
+#  total_value :decimal(15, 2)   default(0.0), not null
+#  value       :decimal(15, 2)   default(0.0), not null
+#  comment     :string(255)      default("")
+#  pay_status  :integer          default("pendiente")
+#  sale_id     :bigint
+#  active      :boolean          default(TRUE)
+#  created_at  :datetime         not null
+#  updated_at  :datetime         not null
 #
 class Fee < ApplicationRecord
   # La cuota es un acuerdo de pagos
