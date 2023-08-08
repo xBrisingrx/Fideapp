@@ -24,7 +24,10 @@ class Adjust < ApplicationRecord
   validates :value, 
     presence: true,
     numericality: { greater_than: 0 }
-    
+  scope :actives, ->{ where(active:true) }
+  def disable
+    self.update(active: false)
+  end
   private
 
   def update_total_value_fee
