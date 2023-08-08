@@ -23,6 +23,8 @@ class Payment < ApplicationRecord
   belongs_to :payments_currency
   has_one :currency, through: :payments_currency
   has_one :payments_type, through: :payments_currency
+  has_one :adjust
+  has_one :interest
   has_many_attached :images
 
   validates :taken_in,:date, :payment, :total, presence: true
