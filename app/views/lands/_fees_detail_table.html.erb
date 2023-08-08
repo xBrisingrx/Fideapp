@@ -112,7 +112,10 @@
           <% end %>
           <td>
             <% if !sale.refinanced?%>
-              <%= "#{btn_fee_pay_detail(fee)} #{btn_payment(sale.id, fee.id)}".html_safe %>
+              <%= "#{btn_fee_pay_detail(fee)}".html_safe %>
+            <% end %>
+            <% if !sale.refinanced && fee.pay_status != 'pagado' %>
+              <%= "#{btn_payment(sale.id, fee.id)}".html_safe %>
             <% end %>
           </td>
         </tr>
