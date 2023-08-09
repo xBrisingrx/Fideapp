@@ -6,7 +6,7 @@
 #  sale_id              :bigint
 #  date                 :date             not null
 #  payments_currency_id :bigint
-#  payment              :decimal(15, 2)   default(0.5), not null
+#  payment              :decimal(15, 2)   not null
 #  taken_in             :decimal(15, 2)   default(1.0)
 #  total                :decimal(15, 2)
 #  first_pay            :boolean          default(FALSE)
@@ -26,6 +26,7 @@ class Payment < ApplicationRecord
   has_one :adjust
   has_one :interest
   has_many_attached :images
+  has_one :credit_note, dependent: :destroy
 
   validates :taken_in,:date, :payment, :total, presence: true
   validates :taken_in, :payment, :total, numericality: true

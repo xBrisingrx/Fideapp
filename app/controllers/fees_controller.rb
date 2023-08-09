@@ -14,8 +14,7 @@ class FeesController < ApplicationController
   def create
     sale = Sale.find( params[:fee][:sale_id])
     last_fee = sale.fees.order(number: 'ASC').last
-    number = last_fee.number
-
+    number = (last_fee.blank?) ? 1 : last_fee.number #excenario donde no hayan agregado cuotas
     due_date = last_fee.due_date
     for i in 1..params[:fee][:number_of_fees].to_i do 
       number += 1
@@ -23,13 +22,10 @@ class FeesController < ApplicationController
       sale.fees.create(
         due_date: due_date, 
         value: params[:fee][:value], 
-        number: number, 
-        owes: params[:fee][:value], 
-        total_value: params[:fee][:value]
+        number: number
       )
     end
     sale.calculate_total_value!
-
     render json: { status: 'success', msg: 'Cuotas agregadas' }
   end
 

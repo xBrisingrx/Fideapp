@@ -90,7 +90,7 @@
           <td><%= fee.due_date.strftime('%d-%m-%y') %></td>
           <td><%= show_owes(fee.get_deuda) %></td>
           <td><%= "$#{format_currency(fee.get_payments)}" %></td>
-          <% if fee.expired? && !fee.payed? %>
+          <% if fee.expired? && !fee.payed? && !fee.refinancied?%>
             <td>
               <span class='u-tags-v1 text-center g-width-100 g-brd-around g-brd-lightred-v2 g-bg-lightred-v2
                         g-font-size-default g-color-white g-rounded-50 '>Cuota vencida

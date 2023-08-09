@@ -1,3 +1,10 @@
 $("#modal-sale-product").html("<%= j (render 'modal_add_fee' ) %>")
 
 $("#modal-sale-product").modal('show')
+
+$("#form-fee").on("ajax:success", function(event) {
+    location.reload()
+    $("#modal").modal('hide')
+  }).on("ajax:error", function(event) {
+	noty_alert('error', 'No se pudo registrar la cuota')
+})

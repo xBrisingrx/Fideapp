@@ -2,22 +2,20 @@
 #
 # Table name: fees
 #
-#  id          :bigint           not null, primary key
-#  due_date    :date
-#  interest    :decimal(15, 2)   default(0.0), not null
-#  number      :integer          not null
-#  owes        :decimal(15, 2)   default(0.0), not null
-#  pay_date    :date
-#  payed       :boolean          default(FALSE)
-#  payment     :decimal(15, 2)   default(0.0), not null
-#  total_value :decimal(15, 2)   default(0.0), not null
-#  value       :decimal(15, 2)   default(0.0), not null
-#  comment     :string(255)      default("")
-#  pay_status  :integer          default("pendiente")
-#  sale_id     :bigint
-#  active      :boolean          default(TRUE)
-#  created_at  :datetime         not null
-#  updated_at  :datetime         not null
+#  id         :bigint           not null, primary key
+#  due_date   :date
+#  interest   :decimal(15, 2)   default(0.0), not null
+#  number     :integer          not null
+#  pay_date   :date
+#  payed      :boolean          default(FALSE)
+#  payment    :decimal(15, 2)   default(0.0), not null
+#  value      :decimal(15, 2)   default(0.0), not null
+#  comment    :string(255)      default("")
+#  pay_status :integer          default("pendiente")
+#  sale_id    :bigint
+#  active     :boolean          default(TRUE)
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
 #
 class Fee < ApplicationRecord
   # La cuota es un acuerdo de pagos

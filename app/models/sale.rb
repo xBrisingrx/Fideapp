@@ -25,6 +25,7 @@ class Sale < ApplicationRecord
 	has_many :fees, dependent: :destroy 
 	has_many :fee_payments, through: :fees
 	has_many :payments, dependent: :destroy
+	has_many :credit_notes, dependent: :destroy
 
 	before_create :set_attributes 
 	after_create :register_activity
@@ -34,8 +35,8 @@ class Sale < ApplicationRecord
 
 	def calculate_total_value!
 		# Se calcula el valor final de la venta, al momento de vender el lote
-		valor_venta = self.fees.sum(:total_value) + self.payments.is_first_pay.sum(:total)
-		self.update( price: valor_venta )
+		# valor_venta = self.fees.sum(:total_value) + self.payments.is_first_pay.sum(:total)
+		self.update( price: self.total_value )
 	end
 
 	def generar_cuotas number_cuota_increase, valor_cuota_aumentada, valor_cuota, fee_start_date
@@ -63,9 +64,7 @@ class Sale < ApplicationRecord
       self.fees.create!(
       	due_date: due_date, 
         value: value, 
-        number: i, 
-        owes: value, 
-        total_value: value
+        number: i
       )
     end
 	end # generar cuota
@@ -87,9 +86,7 @@ class Sale < ApplicationRecord
 			self.fees.create!(
       	due_date: due_date, 
         value: valor.to_f, 
-        number: i, 
-        owes: valor.to_f, 
-        total_value: valor.to_f
+        number: i
       )
 		end
 	end
@@ -149,8 +146,7 @@ class Sale < ApplicationRecord
 
 	def total_value # aca tenemos el valor total de la venta (cuotas + ajustes + moras)
 		total = self.payments.is_first_pay.sum(:total) #1er pago
-		
-		if self.refinanced?
+		if self.refinanced
 			total += self.payments.no_first_pay.sum(:total)
 		else
 			self.fees.each do |fee|
@@ -170,30 +166,30 @@ class Sale < ApplicationRecord
 	end
 
 	def owes_this_month
-		# obtenemos lo que se deberia pagar este mes sin sumar atrasos
+		# obtenemos lo que se deberia pagar este mes sumando atrasos
 		# que no haya nada para pagar puede ser porque ya paso la fecha de todas las cuotas 
 		# o xq se pacto que las cuotas corren a partir un mes mas adelante ( cuando pactan q se empieza a pagar dentro de X meses )
-		month = Time.new.month
+		return 0 if self.refinanced
+		
+		today = Date.today
+		date = "#{today.year}-#{today.month}-31"
 		pay_this_month = 0
-		fee = self.fees.where( 'month(due_date) = ?', month ).first
-		if fee.blank? # si este mes no habia nada para pagar 
-			fee = self.fees.last # obtenemos la ultima cuota 
-			if fee.due_date.month < month 
-				pay_this_month = fee.total_value
-			end
-		else
-			pay_this_month = fee.total_value
+		fees = self.fees.where( 'due_date <= ?', date ).actives.order(:number)
+		if !fees.blank? # si este mes no habia nada para pagar 
+			pay_this_month = fees.last.get_deuda
 		end
 		pay_this_month
 	end
 
-	def has_no_payed_fees?
-		!self.fees.where(payed: false).empty?
+	def has_expires_fees?
+		today = Date.today
+		date = "#{today.year}-#{today.month}-#{today.day}"
+		!self.fees.no_payed.where("due_date <= ?", date).actives.empty?
 	end
 
 	def primer_cuota_impaga 
 		# es importante tenes la primer cuota impaga para calcular los intereses y la deuda
-		self.fees.where(payed: false).order(:number).first
+		self.fees.no_payed.order(:number).first
 	end
 
 	def fecha_inicio_interes

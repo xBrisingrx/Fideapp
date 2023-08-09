@@ -29,7 +29,7 @@ class SalesController < ApplicationController
         @price = land_project.price
         render :sale_project
       when 'sale'
-        @product = Sale.select(:id, :price).find(@product_id)
+        @product = Sale.select(:id, :price, :refinanced).find(@product_id)
         @title_modal = "Refinanciación"
         @price = @product.get_all_owes
         render :sale_project

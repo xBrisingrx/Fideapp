@@ -7,7 +7,7 @@
       </button>
     </div>
     <div class="modal-body">
-      <%= form_with( model: @fee, class: 'needs-validation g-brd-around g-brd-gray-light-v4 g-pa-10 g-mb-10', id: 'form-field-pay-quote' ) do |form| %>
+      <%= form_with( model: @fee, class: 'needs-validation g-brd-around g-brd-gray-light-v4 g-pa-10 g-mb-10', id: 'form-fee' ) do |form| %>
 
       <%= form.hidden_field :sale_id, value: @fee.sale_id %>
 

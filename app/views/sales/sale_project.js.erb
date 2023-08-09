@@ -341,7 +341,7 @@ document.getElementById('submit-form-project-sale').addEventListener('click', (e
 })
 
 function send_sale(){
-	let url = (<%= @product_type == 'Sale' %>) ? '/refinancied_sales/' : '/sales/';
+	let url = (<%= @product_type == 'sale' %>) ? '/refinancied_sales/' : '/sales/';
 	fetch(url, {
       method: 'POST',
       headers: {           
