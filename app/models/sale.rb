@@ -95,11 +95,14 @@ class Sale < ApplicationRecord
 	end
 
 	def total_pagado
-		self.fees.where(payed: true).sum(:payment)
+		# self.fees.where(payed: true).sum(:payment)
+		# self.payments.actives.sum(:payment)
+		puts '###### MODEL SALE -> TOTAL PAGADO'
+		byebug
 	end
 
 	def get_all_owes # el valor que falta pagar para cancelar la venta
-		self.fees.sum(:owes)
+		self.total_value - self.saldo_pagado
 	end
 
 	def get_primer_pago
@@ -141,11 +144,6 @@ class Sale < ApplicationRecord
 	end
 
 	def saldo_pagado
-		# pagado = 0
-		# self.fees.each do | fee |
-		# 	pagado += fee.fee_payments.actives.sum(:total)
-		# end
-		# pagado
 		self.payments.actives.sum(:total)
 	end
 
@@ -156,7 +154,7 @@ class Sale < ApplicationRecord
 			total += self.payments.no_first_pay.sum(:total)
 		else
 			self.fees.each do |fee|
-				total += fee.get_total_value
+				total += fee.total_value
 			end
 		end
 		total
@@ -189,6 +187,10 @@ class Sale < ApplicationRecord
 		pay_this_month
 	end
 
+	def has_no_payed_fees?
+		!self.fees.where(payed: false).empty?
+	end
+
 	def primer_cuota_impaga 
 		# es importante tenes la primer cuota impaga para calcular los intereses y la deuda
 		self.fees.where(payed: false).order(:number).first
@@ -211,6 +213,4 @@ class Sale < ApplicationRecord
 		self.due_day = 10 if self.due_day.blank? 
 		self.arrear = 0 if self.arrear.blank? 
 	end
-
-
 end

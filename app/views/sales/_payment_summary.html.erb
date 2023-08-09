@@ -39,7 +39,7 @@
             <% @cant_payments = ( @payments.count > 0) ? @payments.count : 1 %>
             <tr class="<%= @row_color %>">
               <td rowspan="<%= @cant_payments %>"><%= fee.number %></td>
-              <td rowspan="<%= @cant_payments %>"><%= "$ #{format_currency(fee.get_total_value)}" %></td>
+              <td rowspan="<%= @cant_payments %>"><%= "$ #{format_currency(fee.total_value)}" %></td>
               <td rowspan="<%= @cant_payments %>"><%= "$ #{format_currency(fee.get_adjusts)}" %></td>
               <td rowspan="<%= @cant_payments %>"><%= "$ #{format_currency(fee.get_interests)}" %></td>
               <td rowspan="<%= @cant_payments %>"><%= date_format(fee.due_date) %></td>

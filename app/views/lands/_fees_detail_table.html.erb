@@ -22,7 +22,6 @@
              locals: { color: 'blue', paid: sale.owes_this_month, detail: "Debe #{I18n.t("date.month_names")[Date.today.month]}" })%>
 </div>   
 <div id="sale_information_<%= sale.id %>" data-show='show' >
-  <%# render(partial: 'first_pay', locals: { sale: sale }) %>
   
   <div class="row justify-content-between">
     <div class="col-6">
@@ -74,7 +73,7 @@
         <th>Mora</th>
         <th>Total</th>
         <th>Fecha vencimiento</th>
-        <th id="total_debe"> Debe <b>($<%= format_currency(sale.fees.sum(:owes) ) %>)</b></th>
+        <th id="total_debe"> Debe <b>($<%= format_currency(sale.get_all_owes ) %>)</b></th>
         <th id="total_haber"> Haber <b>($<%= format_currency(sale.saldo_pagado ) %>)</b></th>
         <th>Estado</th>
         <th>Acciones</th>
@@ -87,7 +86,7 @@
           <td><%= "$#{format_currency(fee.value)}" %></td>
           <td><%= "$#{format_currency(fee.get_adjusts)}" %></td>
           <td><%= "$#{format_currency(fee.get_interests)}" %></td>
-          <td><%= "$#{format_currency(fee.get_total_value)}" %></td>
+          <td><%= "$#{format_currency(fee.total_value)}" %></td>
           <td><%= fee.due_date.strftime('%d-%m-%y') %></td>
           <td><%= show_owes(fee.get_deuda) %></td>
           <td><%= "$#{format_currency(fee.get_payments)}" %></td>

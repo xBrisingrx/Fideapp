@@ -14,7 +14,7 @@
 
   <p id='fee_value'> Valor de la cuota: <b> $ <%= format_currency( @fee_total_value ) %> </b></p>
   <% if @adeuda > 0 %>
-    <p> Adeuda de cuota anterior: <b> $ <%= format_currency( @adeuda ) %> </b></p>
+    <p> Adeuda: <b> $ <%= format_currency( @adeuda ) %> </b></p>
   <% end %>
 
   <div id="esta_vencido">
@@ -49,7 +49,6 @@
 
   <div class="form-group row">
     <%= form.label :total_to_pay, 'Total a pagar:' , class: 'col-4 col-sm-4 col-md-2' %>
-    <%# form.number_field :total_to_pay, class: 'form-control rounded-0 col-3', step:'0.01' , value: @total_a_pagar, disabled: true %>
     <p id="payment_total_to_pay" class="font-weight-bold">$<%= format_currency(@total_a_pagar) %></p>
     <div class="invalid-feedback field_price"></div>
   </div>

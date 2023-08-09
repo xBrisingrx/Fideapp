@@ -22,10 +22,12 @@
 class Fee < ApplicationRecord
   # La cuota es un acuerdo de pagos
   # Se pacta con el cliente 
+  # total_value es el valor de la cuota + ajustes + interes
+
   belongs_to :sale
   has_many :adjusts, dependent: :destroy
   has_many :interests, dependent: :destroy
-  has_many :fee_payments, dependent: :destroy
+  has_many :fee_payments, dependent: :destroy #esta relacion ya no se usa
 
   scope :actives, -> { where(active: true) }
   scope :no_cero, -> { where( "number > 0" ) }
@@ -36,7 +38,7 @@ class Fee < ApplicationRecord
 
   def calcular_primer_pago
     primer_pago = self.fee_payments.sum(:total)
-    self.update( payment: primer_pago , value: primer_pago ,total_value: primer_pago )
+    self.update( payment: primer_pago , value: primer_pago )
   end
 
   def interes_diario 
@@ -44,12 +46,17 @@ class Fee < ApplicationRecord
   end
 
   def calcular_interes date = nil
+    # la ultima cuota vencida es toda cuota que no este en estado PAGADO
     interes_diario = ( (self.sale.arrear/100) * self.value)
-    primer_cuota_vencida = self.sale.fees.actives.no_payed.order('id ASC').first
-    compare_date = (date.nil?) ? Date.today : date
-    dias_vencido = compare_date - Date.new( primer_cuota_vencida.due_date.year, primer_cuota_vencida.due_date.month, 01 )
-    total = (interes_diario * dias_vencido).round(2)
-    total
+    primer_cuota_vencida = self.sale.fees.actives.no_payed.order(:number).first
+    if primer_cuota_vencida.blank?
+      0
+    else
+      compare_date = (date.nil?) ? Date.today : date
+      dias_vencido = compare_date - Date.new( primer_cuota_vencida.due_date.year, primer_cuota_vencida.due_date.month, 01 )
+      total = (interes_diario * dias_vencido).round(2)
+      total
+    end
   end
 
   def expired?
@@ -70,26 +77,49 @@ class Fee < ApplicationRecord
     #obtenemos los pagos de los meses hasta esta cuota
     # y los restamos por el valor de las cuotas para saber cuanto se debe
     # hasta ese mes 
-    Fee.where(sale_id: self.sale_id)
-      .where('number <= ?', self.number)
-      .sum('owes')  
+    fees = Fee.where(sale_id: self.sale_id).where('number <= ?', self.number)
+    #obtenemos los pagos realizados en las cuotas, omitimos la primer entrega
+    paymets = Payment.where( sale_id: self.sale_id ).actives.no_first_pay.sum(:total)
+    owes = 0
+    fees.each do |fee|
+      owes += fee.total_value
+    end
+    owes -= paymets
+    if owes < 0 && !self.is_last_fee?
+      # el pago supera a lo adeudado hasta esta cuota, significa que fue cancelada
+      0
+    else
+      owes
+    end
   end
 
-  def get_deuda_cuotas_anteriores
-    Fee.where(sale_id: self.sale_id)
-      .where('number < ?', self.number)
-      .sum('owes')
+  # def get_deuda_cuotas_anteriores
+  #   fees = Fee.where(sale_id: self.sale_id).where('number < ?', self.number).order(:number)
+  #   if fees.blank? # es la 1er cuota, significa q no hay pagos de cuotas anteriores
+  #     0
+  #   else
+  #     paymets = Payment.until_fee( self.sale_id, fees.last.due_date) # pagos de esta venta hasta la cuota anterior a esta
+  #     owes = 0
+  #     fees.each do |fee|
+  #       owes += fee.total_value
+  #     end
+  #     owes - paymets
+  #   end
+  # end
+
+  def owes
+    self.get_deuda
   end
 
   def has_debt?
     self.get_deuda > 0
   end
 
-  def get_fee_owes
-    self.total_value - self.fee_payments.sum(:valor_acarreado)
-  end
+  # def get_fee_owes
+  #   self.total_value - self.fee_payments.sum(:valor_acarreado)
+  # end
 
-  def get_total_value
+  def total_value
     adjust = self.adjusts.sum(:value)
     interest = self.interests.sum(:value)
     self.value + adjust + interest
@@ -99,17 +129,22 @@ class Fee < ApplicationRecord
     adjust = self.adjusts.sum(:value)
     interest = self.interests.sum(:value)
     total_value = self.value + adjust + interest
-    self.update(total_value: total_value)
+    # self.update(total_value: total_value)
+    # UPDATE TOTAL VALUE
+    byebug
+    total_value
   end
 
  ##### AJUSTE ####
   def increase_adjust adjust, comment
     self.adjusts.create( value: adjust, comment: comment )
+    # ya no hace falta actualizar valores
+    # OWES y TOTAL VALUE son calculados
 
-    self.total_value = self.value + self.get_adjusts + self.interest
-    self.owes = self.total_value - self.fee_payments.sum(:valor_acarreado)
+    # self.total_value = self.value + self.get_adjusts + self.interest
+    # self.owes = self.total_value - self.fee_payments.sum(:valor_acarreado)
 
-    self.save
+    # self.save
   end
 
   def apply_adjust_one_fee adjust, comment
@@ -124,13 +159,10 @@ class Fee < ApplicationRecord
   end
 ############# AJUSTE
   
-  def apply_adjust adjust, comment
-    puts "\n\n\n\n\n ****************5 Aplicamos el ajuste a partir de la cuota #{self.number} \n"
+  def apply_adjust adjust, comment # aplicamos ajuste a partir de la cuota indicada (inclusive)
     cuotas = Fee.where(["sale_id = ? and number >= ?", self.sale_id, self.number ])
     cuotas.each do |cuota|
-      "\n Ajustamos en la cuota #{cuota.number} \n"
       cuota.adjusts.create(value:  adjust, comment: comment)
-      "\n Update exitoso"
     end
   end
 
@@ -143,6 +175,8 @@ class Fee < ApplicationRecord
   end
 
   def aplicar_pago payment, pay_date, code
+    ## APLICAR PAGO
+    byebug
     # Obtengo todas las cuotas que no estan pagadas distintas a la que se esta pagando en este momento
     fees_to_pay = Fee.where(sale_id: self.sale_id)
                         .where('owes > 0')
@@ -195,26 +229,28 @@ class Fee < ApplicationRecord
     end # fees_to_pay.each
   end # pago_supera_cuota
 
-  def reset_payments
-    self.fee_payments.destroy_all
-    self.update(
-      owes: self.value,
-      total_value: self.value,
-      comment: '',
-      comment_adjust:'',
-      adjust: 0,
-      pay_status: :pendiente,
-      payment: 0,
-      payed: 0,
-      interest: 0
-    )
-  end
+  # def reset_payments
+  #   self.fee_payments.destroy_all
+  #   self.update(
+  #     owes: self.value,
+  #     total_value: self.value,
+  #     comment: '',
+  #     comment_adjust:'',
+  #     adjust: 0,
+  #     pay_status: :pendiente,
+  #     payment: 0,
+  #     payed: 0,
+  #     interest: 0
+  #   )
+  # end
 
   def show_owes_in_table
     first_month_day = Date.today.beginning_of_month
     last_month_day = Date.today.end_of_month
     label = '0'
     if ( self.due_date < last_month_day )
+      # show_owes_in_table
+      byebug
       label = self.get_deuda + self.owes
     end
     label
@@ -238,14 +274,12 @@ class Fee < ApplicationRecord
     self.pago_parcial? || (self.payed? && self.owes > 0)
   end
 
-  def get_payments
-    # self.fee_payments.actives.sum(:total)
-    desired_month = self.due_date.month
-    # pagos efectuados el mes indicado
-    Payment.where('extract(month from date) = ?', desired_month)
-      .where(sale_id: self.sale_id)
-      .no_first_pay.actives
-      .sum(:total)
+  def get_payments #obtenemos los pagos realizados el mes de esta cuota
+    from_date = "#{self.due_date.year}-#{self.due_date.month}-01"
+    to_date = "#{self.due_date.year}-#{self.due_date.month}-31"
+    payments = Payment.where(sale_id: self.sale_id).no_first_pay.actives.where('date >= ?', from_date)
+    payments = payments.where( 'date <= ?', to_date ) if !self.is_last_fee?   
+    payments.sum(:total)
   end
 
   def get_payments_list
@@ -259,10 +293,11 @@ class Fee < ApplicationRecord
       # lista de pagos efectuados el mes indicado
       Payment.where('extract(month from date) = ?', desired_month).where(sale_id: self.sale_id).no_first_pay.actives.order(date: :asc)
     end
-    
   end
 
   def update_payment_data
+    # update_payment_data
+    byebug
     payments = self.fee_payments.actives
     self.interest = 0
     self.total_value = self.value + self.get_adjusts
@@ -286,13 +321,13 @@ class Fee < ApplicationRecord
   def reset
     fees = Fee.where(sale_id: self.sale_id)
     fees.each do |fee|
-      fee.update(pay_status: :pendiente, owes: fee.get_total_value, payed: false)
+      fee.update(pay_status: :pendiente, payed: false)
     end
   end
 
   def set_refinancied
     if self.pay_status != :pagado
-      self.update(owes: 0, pay_status: :refinancied)
+      self.update(pay_status: :refinancied)
     end
   end
 

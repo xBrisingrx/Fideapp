@@ -10,27 +10,31 @@ class PaymentsController < ApplicationController
   end
 
   def new
-    @title_modal = 'Registrar pago'
+    @fee = Fee.find(params[:fee_id]) #obtengo la cuota que corresponde pagar 
+    @title_modal = "Registrar pago cuota ##{@fee.number}"
     @sale_id = params[:sale_id]
     current_month = Time.new.month
-    @fee = Fee.find(params[:fee_id]) #obtengo la cuota que corresponde pagar 
     @fee_total_value = @fee.total_value
-    @adeuda = @fee.get_deuda_cuotas_anteriores
+    @adeuda = @fee.get_deuda
     @apply_arrear = @fee.apply_arrear?
     @payments_currencies = PaymentsCurrency.actives
     if @apply_arrear
-      # fecha primer cuota vencima
-      # @due_date = @fee.get_due_date_sale
+      if @fee.sale.has_no_payed_fees?
+        @fecha_primer_cuota_impaga = @fee.sale.fecha_inicio_interes
+        # Esto es el valor calculado del interes diario
+        @interes_diario = @fee.interes_diario
+      else
+        # el pago esta al dia
+        @fecha_primer_cuota_impaga = Date.today
+        @interes_diario = 0
+      end
       # El % que se seteo cuando se hizo la venta
       @porcentaje_interes = @fee.sale.arrear
-      @fecha_primer_cuota_impaga = @fee.sale.fecha_inicio_interes
-      # Esto es el valor calculado del interes diario
-      @interes_diario = @fee.interes_diario
       @interes_sugerido = @fee.calcular_interes
-      @total_a_pagar = ( @interes_sugerido + @adeuda + @fee.total_value ).round(2)
+      @total_a_pagar = ( @interes_sugerido + @adeuda ).round(2)
     else
       @porcentaje_interes = 0
-      @total_a_pagar = ( @adeuda + @fee.total_value ).round(2)
+      @total_a_pagar = ( @adeuda ).round(2)
     end
     @payment = Payment.new
   end

@@ -4,7 +4,7 @@ setInputDate("#payment_date")
 payment.reset()
 
 payment.date = document.getElementById('payment_date').value
-payment.valor_cuota = parseFloat(<%= @fee.total_value %>)
+payment.valor_cuota = 0
 payment.adeuda = parseFloat(<%= @adeuda %>)
 
 if (<%= @apply_arrear %>) {

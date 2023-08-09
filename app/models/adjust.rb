@@ -19,7 +19,7 @@ class Adjust < ApplicationRecord
   # con eso ganamos que al eliminar un pago se elimina esta mora 
   belongs_to :payment, optional: true
 
-  after_create :update_total_value_fee 
+  # after_create :update_total_value_fee 
 
   validates :value, 
     presence: true,
@@ -30,7 +30,7 @@ class Adjust < ApplicationRecord
   end
   private
 
-  def update_total_value_fee
-    self.fee.update_total_value
-  end
+  # def update_total_value_fee
+  #   self.fee.update_total_value
+  # end
 end

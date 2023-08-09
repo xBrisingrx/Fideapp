@@ -37,18 +37,28 @@ class Payment < ApplicationRecord
   scope :no_first_pay, -> { where(first_pay: false) }
   scope :is_first_pay, -> { where(first_pay: true) }
 
-  def self.by_month sale_id, month # pagos ingresados en la fecha correspondiente a esta cuoda
-    Payment.where( 'extract(month from date) = ?', month ).where(sale_id: sale_id).actives.no_first_pay
+  def self.by_month sale_id, date # pagos ingresados en la fecha correspondiente a esta cuoda
+    from_date = "#{date.year}-#{date.month}-01"
+    to_date = "#{date.year}-#{date.month}-31"
+    Payment.where('date >= ?', from_date).where('date <= ?', to_date).where(sale_id: sale_id).actives.no_first_pay
   end
 
-  def self.payments_last_fee sale_id, month # pagos ingresados en la fecha de la ultima cuota o mas adelante
-    Payment.where( 'extract(month from date) >= ?', month ).where(sale_id: sale_id).actives.no_first_pay
+  def self.payments_last_fee sale_id, date # pagos ingresados en la fecha de la ultima cuota o mas adelante
+    from_date = "#{date.year}-#{date.month}-01"
+    Payment.where('date >= ?', from_date).where(sale_id: sale_id).actives.no_first_pay
   end
+
+  # def self.until_fee sale_id, date
+  #   date = "#{date.year}-#{date.month}-31"
+  #   Payment.where(sale_id:sale_id).no_first_pay.actives.where( 'date <= ?', date ).sum(:total)
+  # end
 
   def disable 
     ActiveRecord::Base.transaction do
       self.update(active: false)
       apply_payment_to_fees
+      self.adjust.destroy if !self.adjust.blank?
+      self.interest.destroy if !self.interest.blank?
     end
   end
 
@@ -59,15 +69,13 @@ class Payment < ApplicationRecord
     fees.first.reset
     fees.each do |fee|
       return if payment <= 0.0
-      owes = fee.get_total_value
-      fee.owes = fee.get_total_value
-      if payment >= fee.owes
+      owes = fee.total_value
+      if payment >= owes
         # el pago supera el valor de la cuota, eso quiere decir q se cancela entera
-        # owes es el valor total q habia q pagar en esta cuota
-        fee.update(owes: 0, pay_status: :pagado, payed: true, payment: owes)
+        fee.update(pay_status: :pagado, payed: true, payment: owes)
       else
         # no se pago entera, solo se pago lo que quedo en payment
-        fee.update!(owes: fee.owes - payment, pay_status: :pago_parcial, payed: true, payment: payment )
+        fee.update!(pay_status: :pago_parcial, payed: true, payment: payment )
       end
       payment -= owes
     end

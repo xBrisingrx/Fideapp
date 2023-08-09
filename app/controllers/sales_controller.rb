@@ -30,7 +30,7 @@ class SalesController < ApplicationController
         render :sale_project
       when 'sale'
         @product = Sale.select(:id, :price).find(@product_id)
-        @title_modal = "Refinanciando"
+        @title_modal = "Refinanciación"
         @price = @product.get_all_owes
         render :sale_project
       else 
@@ -66,33 +66,6 @@ class SalesController < ApplicationController
         sale.sale_products.create!(product_type: params[:product_type].capitalize,product_id: params[:product_id]) # reg venta del producto
 
         if params[:num_pays].to_i > 0 # Se ingreso un primer pago
-          # cuota_cero = sale.fees.create(
-          #   due_date: sale.date,
-          #   pay_date: sale.date,
-          #   value: 1,
-          #   number:0, 
-          #   payed: true,
-          #   pay_status: :pagado,
-          #   comment: "Primer entrega")
-
-          # for i in 1..params[:num_pays].to_i do 
-          #   payments_currency_id = params["payment_currency_id_#{i}".to_sym].to_i
-          #   value_in_pesos = params["value_in_pesos_#{i}".to_sym].to_f
-          #   paid = params["payment_#{i}".to_sym].to_f
-          #   fee_payment = cuota_cero.fee_payments.new(
-          #     payments_currency_id: payments_currency_id,
-          #     payment: paid,
-          #     total: value_in_pesos,
-          #     tomado_en: params["tomado_en_#{i}".to_sym].to_f,
-          #     detail: params["detail_#{i}".to_sym],
-          #     date: ( params["pay_date_#{i}".to_sym].empty? ) ? sale.date : params["pay_date_#{i}".to_sym]
-          #   )
-          #   if !params["files_#{i}".to_sym].blank?
-          #     fee_payment.images = params["files_#{i}".to_sym]
-          #   end
-          #   fee_payment.save!
-          # end
-          # cuota_cero.calcular_primer_pago
           for i in 1..params[:num_pays].to_i do  
             payments_currency_id = params["payment_currency_id_#{i}".to_sym].to_i
             taken_in = params["value_in_pesos_#{i}".to_sym].to_f
