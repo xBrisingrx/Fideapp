@@ -1,5 +1,12 @@
 <h1>Proyectos</h1>
-<%= link_to 'Agregar projecto', new_project_path, class:'btn u-btn-primary justify-content-end mb-2' %>
+<div class="row justify-content-between">
+  <div class="col-4">
+    <%= link_to 'Agregar proyecto', new_project_path, class:'btn u-btn-primary justify-content-end mb-2' %>
+  </div>
+  <div class="col-4">
+    <%= link_to 'Tipos de proyectos', project_types_path, class:'btn u-btn-cyan justify-content-end mb-2' %>
+  </div>
+</div>
 
 <table id="projects_table" class="table hover dt-responsive w-100">
   <thead>
