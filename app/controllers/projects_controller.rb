@@ -13,13 +13,13 @@ class ProjectsController < ApplicationController
   def new
     @title_modal = "Nuevo proyecto"
     @project = Project.new
-    @project_type = ProjectType.actives
-    @materials = Material.actives
-    @providers = Provider.actives
+    @project_type = ProjectType.actives.order(:name)
+    @materials = Material.actives.order(:name)
+    @providers = Provider.actives.order(:name)
     @sectors = Sector.where(active: true)
     @urbanizations = Urbanization.actives
-    @provider_roles = ProviderRole.where(active: true)
-    @payment_methods = PaymentMethod.where(active: true)
+    @provider_roles = ProviderRole.where(active: true).order(:name)
+    @payment_methods = PaymentMethod.where(active: true).order(:name)
   end
 
   def edit
