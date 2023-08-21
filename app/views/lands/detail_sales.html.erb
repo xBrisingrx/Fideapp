@@ -1,4 +1,4 @@
-<h1 class="h1 g-font-weight-400"> Lote <%= @land.code %> - <%= @land.apple.code %> - <%= @land.apple.condominium.name %> </h1>
+<h1 class="h1 g-font-weight-400"> <%= @land.sector.name %> / <%= @land.code %> / <%= @land.apple.code %> / <%= @land.apple.condominium.name %> </h1>
 
 <%= link_to '<i class= "hs-admin-back-left"></i> Volver a manzanas'.html_safe, 
   apples_path, class: 'btn u-btn-blue mb-2 mr-2'%>
@@ -7,7 +7,7 @@
 
 <div class="row">
   <% @land_sale.sale.clients.each do |client| %>
-    <div class="g-brd-blue-left u-shadow-v2 g-brd-around g-brd-gray-light-v4 g-line-height-2 g-pa-10 g-mb-30 col-3 g-mr-5" role="alert">
+    <div class="g-brd-blue-left u-shadow-v2 g-brd-around g-brd-gray-light-v4 g-line-height-2 g-pa-10 g-mb-30 col-3 g-mr-5">
       <h3 class="h3 g-font-weight-300 g-mb-5"><%= client.fullname %></h3>
       <p class="mb-0"><strong>DNI:</strong> <%= client.dni %></p>
       <p class="mb-0"><strong>Dirección:</strong> <%= client.direction %></p>
