@@ -71,6 +71,11 @@ class Fee < ApplicationRecord
     self.id == last_fee.id 
   end
 
+  def is_first_fee? #verificamos si esta es la ultima cuota de esta venta
+    last_fee = Fee.where( sale_id: self.sale_id ).actives.order(:number).first 
+    self.id == last_fee.id 
+  end
+
   def get_deuda
     #obtenemos los pagos de los meses hasta esta cuota
     # y los restamos por el valor de las cuotas para saber cuanto se debe
@@ -129,7 +134,7 @@ class Fee < ApplicationRecord
     total_value = self.value + adjust + interest
     # self.update(total_value: total_value)
     # UPDATE TOTAL VALUE
-    byebug
+    # byebug
     total_value
   end
 
@@ -174,7 +179,7 @@ class Fee < ApplicationRecord
 
   def aplicar_pago payment, pay_date, code
     ## APLICAR PAGO
-    byebug
+    # byebug
     # Obtengo todas las cuotas que no estan pagadas distintas a la que se esta pagando en este momento
     fees_to_pay = Fee.where(sale_id: self.sale_id)
                         .where('owes > 0')
@@ -248,7 +253,7 @@ class Fee < ApplicationRecord
     label = '0'
     if ( self.due_date < last_month_day )
       # show_owes_in_table
-      byebug
+      # byebug
       label = self.get_deuda + self.owes
     end
     label
@@ -275,7 +280,10 @@ class Fee < ApplicationRecord
   def get_payments #obtenemos los pagos realizados el mes de esta cuota
     from_date = "#{self.due_date.year}-#{self.due_date.month}-01"
     to_date = "#{self.due_date.year}-#{self.due_date.month}-31"
-    payments = Payment.where(sale_id: self.sale_id).no_first_pay.actives.where('date >= ?', from_date)
+    payments = Payment.where(sale_id: self.sale_id).no_first_pay.actives
+    # si es la primer cuota, le corresponden todo los pagos previos al 31 de su mes
+    payments = payments.where('date >= ?', from_date) if !self.is_first_fee? 
+    # si es la ultima cuota, le corresponden todo los pagos posteriores al 1ero de su mes
     payments = payments.where( 'date <= ?', to_date ) if !self.is_last_fee?   
     payments.sum(:total)
   end
@@ -295,7 +303,7 @@ class Fee < ApplicationRecord
 
   def update_payment_data
     # update_payment_data
-    byebug
+    # byebug
     payments = self.fee_payments.actives
     self.interest = 0
     self.total_value = self.value + self.get_adjusts
