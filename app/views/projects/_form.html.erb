@@ -45,7 +45,7 @@
     <div class="form-group col-2">
       <%= form.select(:urbanization_id, @urbanizations.collect {|u| [u.name, u.id]}, 
                       {:include_blank => "Seleccione urbanizacion"},
-                      class: 'form-control', 
+                      class: 'form-control select-2-apple-list', 
                       required: true,
                       onchange:"project.charge_sectors()") %>
       <div class="invalid-feedback sector_id"></div>
@@ -64,6 +64,17 @@
       <button id="add-apple" class="btn u-btn-teal"><i class="fa fa-plus"></i></button>
     </div>
   </div>
+
+  <table class="table table-sm mx-auto table-striped g-my-20">
+    <thead class="thead-dark">
+      <tr>
+        <th>Urbanización</th>
+        <th>Sector</th>
+        <th>Manzana</th>
+      </tr>
+    </thead>
+    <tbody id="apple_adds"></tbody>
+  </table>
 
   <%= form.label :provider_id, 'Invervinientes:' %>
   <div id="provider_select" class="form-group row">

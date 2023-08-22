@@ -275,8 +275,7 @@ let project = {
 	  .catch( error => noty_alert('error', 'Ocurrio un error, no se pudo registrar la venta') )
 	},
 	charge_sectors(){
-		const node = event.target
-		const urbanization_id = parseInt(node.value)
+		const urbanization_id = document.getElementById("project_urbanization_id").value
 		fetch(`/sectors/filter_for_urbanization/${urbanization_id}.json`).then( response => response.json() ).then( r => {
 			let sector_list = document.querySelector('#sector_list')
 			sector_list.innerHTML = '<option value=""> Elegir sector </option>'
@@ -570,6 +569,16 @@ let project = {
 			document.getElementById('land_corner_input').style.display = 'none'
 		}
 		this.calculate_price_lands()
+		$('#apple_adds').append(`
+			<tr id="row-${apple_selected.id}">
+				<td>${$( "#project_urbanization_id option:selected" ).text()}</td>
+				<td>${$( "#project_urbanization_id option:selected" ).text()}</td>
+				<td>${$("#apple_list option:selected").text()}</td>
+				<td><button type="button" class="btn u-btn-red remove-material" 
+					title="Quitar material"> <i class="fa fa-trash"></i> </button></td>
+			</tr>
+		`)
+		$('.select-2-project-material').val('').trigger('change')
 	},
 	calculate_price_lands(){
 		if (!isNaN(this.cant_lands) && this.cant_lands > 0 ) {
