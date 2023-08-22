@@ -17,7 +17,7 @@
 #
 class Client < ApplicationRecord
 	has_many :sale_clients
-	
+	has_many :contacts
 	validates :code, presence: true
 	validates :name, presence: true
 	validates :last_name, presence: true

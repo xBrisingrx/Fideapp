@@ -1,0 +1,19 @@
+<div class="modal-dialog" role="document">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title">Eliminar contacto</h5>
+      <button type="button" class="close" onclick="close_modal('client-modal')">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <%= form_with(url: disable_client_contact_path( client_id: @client.id, id: @contact.id ), id: 'form-contact', class: 'needs-validation g-brd-around g-brd-gray-light-v4 g-pa-15 g-mb-15') do |form| %>
+        Confirma eliminar el contacto <%= @contact.name %>?
+        <div class="actions">
+          <%= form.submit 'Eliminar', class: 'btn u-btn-darkred mr-2'  %>
+          <button type="button" class="btn u-btn-cyan" onclick="close_modal('client-modal')">Cerrar</button>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

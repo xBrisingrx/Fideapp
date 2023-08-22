@@ -1,0 +1,37 @@
+<div class="modal-dialog" role="document">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title">Agregar contacto alternativo</h5>
+      <button type="button" class="close" onclick="close_modal('client-modal')">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <%= form_with(model: [ @client, @client.contacts.build ], id: 'form-contact', class: 'needs-validation g-brd-around g-brd-gray-light-v4 g-pa-15 g-mb-15') do |form| %>
+        <%= form.hidden_field :client_id, value: @client.id  %>
+        <div class="form-group row">
+          <%= form.label :name, 'Nombre:' ,class: 'col-8 col-sm-3' %>
+          <%= form.text_field :name, class: 'form-control rounded-0 col-10 col-sm-6', required: true %>
+          <div class="g-ml-30 invalid-feedback contact_name"></div>
+        </div>
+
+        <div class="form-group row">
+          <%= form.label :relationship, 'Parentezco:' ,class: 'col-8 col-sm-3' %>
+          <%= form.text_field :relationship, class: 'form-control rounded-0 col-10 col-sm-6', required: true %>
+          <div class="g-ml-30 invalid-feedback contact_relationship"></div>
+        </div>
+
+        <div class="form-group row">
+          <%= form.label :phone, 'Teléfono:' ,class: 'col-8 col-sm-3' %>
+          <%= form.text_field :phone, class: 'form-control rounded-0 col-10 col-sm-6', required: true %>
+          <div class="g-ml-30 invalid-feedback contact_phone"></div>
+        </div>
+
+        <div class="actions">
+          <%= form.submit 'Guardar', class: 'btn u-btn-teal mr-2'  %>
+          <button type="button" class="btn u-btn-darkred" onclick="close_modal('client-modal')">Cerrar</button>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

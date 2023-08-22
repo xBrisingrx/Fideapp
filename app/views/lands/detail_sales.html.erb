@@ -13,11 +13,15 @@
       <p class="mb-0"><strong>Dirección:</strong> <%= client.direction %></p>
       <p class="mb-0"><strong>Tel:</strong> <%= client.phone %></p>
       <p class="mb-0"><strong>Email:</strong> <%= client.email %></p>
-      <p class="mb-0"><strong>Estado civil:</strong> <%= client.marital_status %></p>
+      <p class="mb-0"><strong>Estado civil:</strong> <%= client.marital_status %>
+        <%= link_to "<i class='fa fa-users'></i> Ver contactos".html_safe, 
+                  client_contacts_path(client_id: client.id),
+                  remote: true,
+                  class: 'u-tags-v1 g-color-white g-bg-cyan g-bg-black--hover g-py-1 g-px-5 g-ml-20' %>
+      </p>
     </div>
   <% end %>
 </div>
-
 
 <% if @land.projects_not_aprobed %>
   <p>Tiene proyectos pendientes a financiar: </p>

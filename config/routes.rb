@@ -1,5 +1,4 @@
 Rails.application.routes.draw do
-  
   match "/404", via: :all, to: "errors#not_found"
   match "/500", via: :all, to: "errors#internal_server_error"
   
@@ -32,7 +31,12 @@ Rails.application.routes.draw do
   end
   post 'disable_apple', to: 'apples#disable', as: 'disable_apple'
   post 'disable_land', to: 'lands#disable', as: 'disable_land'
-  resources :clients, except: [:destroy, :show]
+  resources :clients, except: [:destroy, :show] do
+    resources :contacts,  except: [:destroy, :show] do 
+      get "modal_disable", on: :member
+      post "disable", on: :member
+    end
+  end
   post 'disable_client', to: 'clients#disable', as: 'disable_client'
   resources :providers, except: [:destroy, :show]
   post 'disable_provider', to: 'providers#disable', as: 'disable_provider'
