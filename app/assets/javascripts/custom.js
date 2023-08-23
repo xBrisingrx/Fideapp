@@ -1,4 +1,5 @@
 const datatables_lang = "/assets/plugins/datatables_lang_spa.json";
+const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Deciembre"];
 
 function noty_alert(type, message, time = 7000) {
   let icon = ''
@@ -76,4 +77,8 @@ function addClassInvalid( input ) {
 
 function valid_number( value ) {
   return ( !isNaN( value ) && value > 0 )
+}
+
+function close_modal( modal_id) {
+  $(`#${modal_id}`).modal('hide')
 }
