@@ -276,20 +276,22 @@ let project = {
 	},
 	charge_sectors(){
 		const urbanization_id = document.getElementById("project_urbanization_id").value
-		fetch(`/sectors/filter_for_urbanization/${urbanization_id}.json`).then( response => response.json() ).then( r => {
-			let sector_list = document.querySelector('#sector_list')
-			sector_list.innerHTML = '<option value=""> Elegir sector </option>'
-			this.sectors = r.data
-			for (let apple in this.sectors){
-			  sector_list.innerHTML += `
-			  	<option value='${this.sectors[apple].id}' data-cant='${this.sectors[apple].apples}'> ${this.sectors[apple].name} </option>
-			  `
-			} 
+		fetch(`/sectors/filter_for_urbanization/${urbanization_id}.json`).then( response => response.json() )
+			.then( r => {
+				let sector_list = document.querySelector('#sector_list')
+				sector_list.innerHTML = '<option value=""> Elegir sector </option>'
+				this.sectors = r.data
+				for (let sector in this.sectors){
+				  sector_list.innerHTML += `
+				  	<option value='${this.sectors[sector].id}' data-cant='${this.sectors[sector].apples}' data-name='${this.sectors[sector].name}'>
+				  		${this.sectors[sector].name} (${this.sectors[sector].apples})
+				  	</option>
+				  `
+				}
 		})
 	},
 	charge_apples(){
-		let sector_selected = this.sectors.filter( sector => sector.id == document.getElementById('sector_list').value )
-		const sector_id = sector_selected[0].id
+		const sector_id = this.sectors.filter( sector => sector.id == document.getElementById('sector_list').value )[0].id
 		fetch(`/apples/filter_for_sector/${sector_id}.json`).then( response => response.json() ).then( r => {
 			let apple_list = document.querySelector('#apple_list')
 			apple_list.innerHTML = '<option value=""> Elegir manzana </option>'
@@ -550,49 +552,67 @@ let project = {
 			this.update_providers_table()
 			this.update_other_providers_table()
 		}
-		this.calculate_price_lands()
+		this.calculate_price_apples()
 		this.update_summary_table()
 	},
 	set_porcent_values(){
 
 	},
-	select_apple(){
-		let apple_selected = this.apples.filter( apple => apple.id == document.getElementById('apple_list').value )
-		this.cant_lands = apple_selected[0].lands
-		this.apple_has_corner = apple_selected[0].has_corner
-		this.cant_corners = apple_selected[0].count_corners
-		if (this.apple_has_corner) {
-			document.getElementById('label_corner').style.display = 'block'
-			document.getElementById('land_corner_input').style.display = 'block'
-		} else {
-			document.getElementById('label_corner').style.display = 'none'
-			document.getElementById('land_corner_input').style.display = 'none'
-		}
-		this.calculate_price_lands()
+	add_apple(){
+		let apple_selected = this.apples.filter( apple => apple.id == document.getElementById('apple_list').value )[0]
 		$('#apple_adds').append(`
-			<tr id="row-${apple_selected.id}">
+			<tr id="apple-${apple_selected.id}" data-id="${apple_selected.id}" class="apples-adds" data-lands="${$( "#apple_list option:selected" ).data('cant')}">
 				<td>${$( "#project_urbanization_id option:selected" ).text()}</td>
-				<td>${$( "#project_urbanization_id option:selected" ).text()}</td>
+				<td>${$( "#sector_list option:selected" ).data('name')}</td>
 				<td>${$("#apple_list option:selected").text()}</td>
-				<td><button type="button" class="btn u-btn-red remove-material" 
-					title="Quitar material"> <i class="fa fa-trash"></i> </button></td>
+				<td><button type="button" class="btn u-btn-red"
+					onclick="project.remove_apple(${apple_selected.id})"
+					title="Quitar manzana"> <i class="fa fa-trash"></i> </button></td>
 			</tr>
 		`)
-		$('.select-2-project-material').val('').trigger('change')
+		this.calculate_price_apples()
 	},
-	calculate_price_lands(){
-		if (!isNaN(this.cant_lands) && this.cant_lands > 0 ) {
-			this.land_price = (this.final_price/this.cant_lands).toFixed(2)
-			document.getElementById('project_land_price').value = this.land_price
-			if (this.apple_has_corner) {
-				this.land_corner_price = (this.final_price/this.cant_lands).toFixed(2)
-				document.getElementById('project_land_corner_price').value = this.land_corner_price
-			}
+	remove_apple(apple_id){
+		document.getElementById(`apple-${apple_id}`).remove()
+	},
+	calculate_price_apples(){
+		if ( document.getElementById("project_final_price").value <= 0 ) {
+			noty_alert("info", "Debe ingresar el valor al proyecto")
+			return
 		}
+		const apples = document.getElementsByClassName("apples-adds")
+		if (apples.length == 0) {
+			return
+		}
+		let cant_lands = 0
+		for (let i = 0; i < apples.length; i++) {
+			apples[i]
+			cant_lands += parseInt(apples[i].dataset.lands)
+		}
+		const land_price = (this.final_price/cant_lands).toFixed(2)
+		document.getElementById('project_land_price').value = land_price
+		document.getElementById('project_land_corner_price').value = land_price
 	},
 	calculate_value_iva({provider_iva, provider_price_calculate}) {
 		return ( provider_iva * provider_price_calculate ) / 100
 	},
+	show_months_payments(){
+		let date = new Date(`${document.getElementById("project_date").value}T00:00:00`)
+		const number_of_payments = document.getElementById("project_number_of_payments").value
+		const month_of_payments = document.getElementById("month_of_payments")
+		const payment_value = roundToTwo((parseFloat(document.getElementById("project_land_price").value) / number_of_payments))
+		month_of_payments.innerHTML = ''
+		for (let i = 0; i < number_of_payments; i++) {
+			let month = date.getMonth()
+			month_of_payments.innerHTML += `
+				<div class="g-brd-blue-left u-shadow-v2 g-brd-around g-brd-gray-light-v4 g-line-height-2 g-pa-10 g-mb-30 col-8 col-sm-4 col-md-3 g-mr-5">
+          <p class="mb-0 name"><strong>Mes:</strong> ${meses[month]}-${date.getFullYear()}</p>
+          <p class="mb-0 relationship"><strong>Valor cuota:</strong> $${ numberFormat.format(payment_value) }</p>
+        </div>
+			`
+			date.setMonth( date.getMonth() + 1 )
+		}
+	}
 }
 
 $(document).ready(function(){
@@ -605,4 +625,8 @@ $(document).ready(function(){
 	$("#projects_table").DataTable({
 		'language': {'url': "/assets/plugins/datatables_lang_spa.json"}
 	})
+
+	if (document.getElementById("project_date") != null) {
+		setInputDate("#project_date")
+	}
 })

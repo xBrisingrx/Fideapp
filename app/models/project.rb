@@ -16,6 +16,7 @@
 #  project_type_id   :bigint
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null
+#  date              :date             default(Sun, 01 Jan 2023), not null
 #
 class Project < ApplicationRecord
 	has_many :project_providers
@@ -34,6 +35,7 @@ class Project < ApplicationRecord
     presence: true, 
     numericality: { greater_than: 0 }
   validates :number, presence: true, numericality: { only_integer: true }
+  validates :date, presence: true
   
   scope :actives, -> { where(active: true) }
   
