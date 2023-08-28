@@ -239,6 +239,7 @@ let project = {
 	submit(){
 		event.preventDefault()
 		event.stopPropagation()
+		this.form.append('project[date]', document.getElementById('project_date').value )
 		this.form.append('project[number]', document.getElementById('project_number').value )
 		this.form.append('project[name]', document.getElementById('project_name').value )
 		this.form.append('project[price]', project.project_price )
@@ -246,18 +247,16 @@ let project = {
 		this.form.append('project[subtotal]', parseFloat( this.subtotal ) )
 		this.form.append('project[description]', document.getElementById('project_description').value )
 		this.form.append('project[project_type_id]', parseInt(document.getElementById('project_project_type_id').value ) )
-		this.form.append('project[apple_projects_attributes][0][apple_id]', document.getElementById('apple_list').value )
+		this.form.append('project[number_of_payments]', parseInt(document.getElementById('project_number_of_payments').value ) )
 
 		this.form.append('project[land_price]', parseFloat( document.getElementById('project_land_price').value ) )
-		
-		if (this.apple_has_corner) {
-			this.form.append('project[land_corner_price]', parseFloat( document.getElementById('project_land_corner_price').value ) )
-		} else {
-			this.form.append('project[land_corner_price]', parseFloat( document.getElementById('project_land_price').value ) )
-		}
+		this.form.append('project[land_corner_price]', parseFloat( document.getElementById('project_land_price').value ) )
+		this.form.append('project[price_fee]', parseFloat( document.getElementById('project_price_fee').value ) )
+		this.form.append('project[price_fee_corner]', parseFloat( document.getElementById('project_price_fee_corner').value ) )
 
 		this.add_providers()
 		this.add_materials()
+		this.add_apples_to_form()
 		fetch('/projects/', {
       method: 'POST',
       headers: {           
@@ -528,6 +527,12 @@ let project = {
 			this.form.append( `project[project_materials_attributes][${i}][price]` , this.materials_list[i].price)
 		}
 	},
+	add_apples_to_form(){
+		const apples = document.getElementsByClassName("apples-adds")
+		for (let i = 0; i < apples.length; i++) {
+			this.form.append( `project[apple_projects_attributes][${i}][apple_id]` , apples[i].dataset.id)
+		}
+	},
 	calculate_subtotal(){
 		this.subtotal = this.project_price
 		for (let i = 0; i < this.providers_list.length; i++){
@@ -552,7 +557,7 @@ let project = {
 			this.update_providers_table()
 			this.update_other_providers_table()
 		}
-		this.calculate_price_apples()
+		this.calculate_price_land()
 		this.update_summary_table()
 	},
 	set_porcent_values(){
@@ -561,7 +566,7 @@ let project = {
 	add_apple(){
 		let apple_selected = this.apples.filter( apple => apple.id == document.getElementById('apple_list').value )[0]
 		$('#apple_adds').append(`
-			<tr id="apple-${apple_selected.id}" data-id="${apple_selected.id}" class="apples-adds" data-lands="${$( "#apple_list option:selected" ).data('cant')}">
+			<tr id="apple-${apple_selected.id}" class="apples-adds" data-id="${apple_selected.id}" data-lands="${$( "#apple_list option:selected" ).data('cant')}">
 				<td>${$( "#project_urbanization_id option:selected" ).text()}</td>
 				<td>${$( "#sector_list option:selected" ).data('name')}</td>
 				<td>${$("#apple_list option:selected").text()}</td>
@@ -570,12 +575,12 @@ let project = {
 					title="Quitar manzana"> <i class="fa fa-trash"></i> </button></td>
 			</tr>
 		`)
-		this.calculate_price_apples()
+		this.calculate_price_land()
 	},
 	remove_apple(apple_id){
 		document.getElementById(`apple-${apple_id}`).remove()
 	},
-	calculate_price_apples(){
+	calculate_price_land(){
 		if ( document.getElementById("project_final_price").value <= 0 ) {
 			noty_alert("info", "Debe ingresar el valor al proyecto")
 			return
@@ -586,7 +591,6 @@ let project = {
 		}
 		let cant_lands = 0
 		for (let i = 0; i < apples.length; i++) {
-			apples[i]
 			cant_lands += parseInt(apples[i].dataset.lands)
 		}
 		const land_price = (this.final_price/cant_lands).toFixed(2)
@@ -612,6 +616,14 @@ let project = {
 			`
 			date.setMonth( date.getMonth() + 1 )
 		}
+		this.set_fee_value()
+	},
+	set_fee_value(){
+		const land_price = parseFloat(document.getElementById("project_land_price").value)
+		const corner_price = parseFloat(document.getElementById("project_land_corner_price").value)
+		const number_of_payments = parseInt(document.getElementById("project_number_of_payments").value)
+		document.getElementById("project_price_fee").value = ( land_price/number_of_payments ).toFixed(2)
+		document.getElementById("project_price_fee_corner").value = ( corner_price/number_of_payments ).toFixed(2)
 	}
 }
 
