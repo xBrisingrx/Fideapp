@@ -9,7 +9,7 @@
   <%= render(partial: 'lands/card_pay', 
              locals: { color: 'lightred-v2', paid: @apple.get_all_owes, detail: 'Debe' })%>
   <%= render(partial: 'lands/card_pay', 
-             locals: { color: 'indigo', paid: @apple.total_price, detail: 'Valor' })%>
+             locals: { color: 'indigo', paid: @apple.total_price, detail: 'Saldo' })%>
   <%= render(partial: 'lands/card_pay', 
              locals: { color: 'blue', paid: @apple.owes_this_month, detail: "Debe #{I18n.t("date.month_names")[Date.today.month]}" }) %>
 </div>

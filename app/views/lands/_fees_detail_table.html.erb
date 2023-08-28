@@ -17,7 +17,7 @@
   <%= render(partial: 'card_pay_small', 
              locals: { color: 'lightred-v2', paid: sale.get_all_owes, detail: 'Debe' })%>
   <%= render(partial: 'card_pay_small', 
-             locals: { color: 'indigo', paid: sale.total_value, detail: 'Valor' })%>
+             locals: { color: 'indigo', paid: sale.total_value, detail: 'Saldo' })%>
   <%= render(partial: 'card_pay_small', 
              locals: { color: 'blue', paid: sale.owes_this_month, detail: "Debe #{I18n.t("date.month_names")[Date.today.month]}" })%>
 </div>   
