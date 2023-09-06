@@ -317,7 +317,7 @@ class Fee < ApplicationRecord
   def self.current_fee( sale_id, date = Time.new )
     month = date.month 
     fee = Fee.where('extract(month  from due_date) = ?', month).where(sale_id: sale_id)
-    if fee.empty?
+    if fee.empty? # escenario donde se paso la fecha de vencimiento de la ultima cuota
       current_fee = Sale.find(sale_id).fees.last 
     else 
       current_fee = fee.first

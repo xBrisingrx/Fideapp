@@ -18,4 +18,8 @@ module ApplicationHelper
 			owes
 		end
 	end
+
+	def class_current_month month
+		"g-bg-lightblue-v3" if month == Date.today.month
+	end
 end

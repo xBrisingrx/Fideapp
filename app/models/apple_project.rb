@@ -22,7 +22,6 @@ class AppleProject < ApplicationRecord
     project = Project.find(self.project.id)
     land_price = self.project.land_price
     land_corner_price = self.project.land_corner_price
-
     self.apple.lands.each do |land|
       land_project = LandProject.new(project: self.project, land: land, status: :process)
       land_project.price = (land.is_corner) ? land_corner_price : land_price

@@ -119,7 +119,8 @@ class Sale < ApplicationRecord
 		when 'Sale'
 			name = refinanced_name( product.product_id )
 		else
-			name = Project.find(product.product_id).project_type.name
+			project = Project.find(product.product_id)
+			name = "#{project.project_type.name} - #{project.name}"
 		end
 		# if product.product_type == 'Land'
 		# 	name = 'Tierra'
@@ -196,6 +197,10 @@ class Sale < ApplicationRecord
 		date = self.primer_cuota_impaga.due_date
 		"#{date.year}-#{date.month}-01"
 	end
+
+	# def fees_for_month 
+	# 	fees = self.fees.actives.select("fees.id, fees.due_date, extract(month from fees.due_date) as month, fees.value").group("month")
+	# end
 	
 	private
 

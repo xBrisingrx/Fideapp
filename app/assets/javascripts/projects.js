@@ -250,7 +250,7 @@ let project = {
 		this.form.append('project[number_of_payments]', parseInt(document.getElementById('project_number_of_payments').value ) )
 
 		this.form.append('project[land_price]', parseFloat( document.getElementById('project_land_price').value ) )
-		this.form.append('project[land_corner_price]', parseFloat( document.getElementById('project_land_price').value ) )
+		this.form.append('project[land_corner_price]', parseFloat( document.getElementById('project_land_corner_price').value ) )
 		this.form.append('project[price_fee]', parseFloat( document.getElementById('project_price_fee').value ) )
 		this.form.append('project[price_fee_corner]', parseFloat( document.getElementById('project_price_fee_corner').value ) )
 

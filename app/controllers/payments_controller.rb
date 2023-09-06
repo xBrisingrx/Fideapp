@@ -10,9 +10,9 @@ class PaymentsController < ApplicationController
   end
 
   def new
-    @fee = Fee.find(params[:fee_id]) #obtengo la cuota que corresponde pagar 
-    @title_modal = "Registrar pago cuota ##{@fee.number}"
+    @title_modal = "Registrar pago"
     @sale_id = params[:sale_id]
+    @fee = Fee.current_fee( @sale_id ) #obtengo la cuota que corresponde pagar
     current_month = Time.new.month
     @fee_total_value = @fee.total_value
     @adeuda = @fee.get_deuda
@@ -20,12 +20,10 @@ class PaymentsController < ApplicationController
     @payments_currencies = PaymentsCurrency.actives
     if @apply_arrear
       if @fee.sale.has_expires_fees?
-        puts "me vine por el true"
         @fecha_primer_cuota_impaga = @fee.sale.fecha_inicio_interes
         # Esto es el valor calculado del interes diario
         @interes_diario = @fee.interes_diario
       else
-        puts "me vine por el false"
         # el pago esta al dia
         @fecha_primer_cuota_impaga = Date.today
         @interes_diario = 0

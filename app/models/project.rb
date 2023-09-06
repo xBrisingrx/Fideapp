@@ -19,10 +19,10 @@
 #  date              :date             default(Sun, 01 Jan 2023), not null
 #
 class Project < ApplicationRecord
-	has_many :project_providers
-  has_many :project_materials
-  has_many :land_projects
-  has_many :apple_projects
+	has_many :project_providers, dependent: :destroy
+  has_many :project_materials, dependent: :destroy
+  has_many :land_projects, dependent: :destroy
+  has_many :apple_projects, dependent: :destroy
   belongs_to :project_type
 
   has_many :providers, through: :project_providers

@@ -1,0 +1,33 @@
+<table class="table table-hover g-mt-20">
+  <thead>
+    <tr>
+      <th></th>
+      <% fees.each do |fee| %>
+        <th class="<%= class_current_month( fee.due_date.month ) %>"><%= "#{I18n.t("date.month_names")[fee.due_date.month]}".capitalize %></th>
+      <% end %>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Cuota pactada</td>
+      <% fees.each do |fee| %>
+        <td class="<%= class_current_month( fee.due_date.month ) %>"><%= show_owes(fee.value) %></td>
+      <% end %>
+    </tr>
+    <tr>
+      <td>Debe</td>
+      <% fees.each do |fee| %>
+        <td class="<%= class_current_month( fee.due_date.month ) %>"><%= show_owes(fee.get_deuda) %></td>
+      <% end %>
+    </tr>
+    <tr>
+      <td>Haber</td>
+      <% fees.each do |fee| %>
+        <td class="<%= class_current_month( fee.due_date.month ) %>"><%= show_owes(fee.get_payments) %></td>
+      <% end %>
+    </tr>
+    <tr>
+      <td>Saldo</td>
+    </tr>
+  </tbody>
+</table>

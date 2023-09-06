@@ -2,7 +2,7 @@
   <div class="col-4">
     <h4 class="u-tags-v1 g-color-purple g-brd-around g-brd-purple g-bg-purple--hover g-color-white--hover g-rounded-50 g-py-4 g-px-15"
         onclick="show_information('sale_information_<%= sale.id %>')">
-        <%= sale.product_name  %> 
+        <%= sale.product_name  %>
         <i class="fa fa-eye"></i>
     </h4>
   </div>
@@ -56,9 +56,10 @@
                   data: {toggle: :modal},
                   class: 'btn u-btn-outline-indigo u-btn-hover-v1-2 g-font-weight-600 g-letter-spacing-0_5 g-brd-2 g-rounded-10 g-mr-10 g-mb-15' %>
     </div>
+  </div>
 
-
-    <%# link_to "<i class='icon-finance-152 u-line-icon-pro'></i> Ingresar pago".html_safe,
+  <div class="row justify-content-end">
+    <%= link_to "<i class='icon-finance-152 u-line-icon-pro'></i> Ingresar pago".html_safe,
                 new_payment_path(sale_id: sale.id),
                 remote: true,
                 class: 'btn u-btn-outline-teal u-btn-hover-v1-2 g-font-weight-600 g-letter-spacing-0_5 g-brd-2 g-rounded-10 g-mr-10 g-mb-15' %>
@@ -67,12 +68,12 @@
   <table id="sale_land_table" class="table hover dt-responsive w-100 mt-2">
     <thead>
       <tr>
-        <th>#</th>
-        <th>Valor</th>
+        <th>Mes</th>
+        <th>Valor cuota</th>
         <th>Ajuste</th>
         <th>Mora</th>
         <th>Total</th>
-        <th>Fecha vencimiento</th>
+        <th>Fecha pago</th>
         <th id="total_debe"> Debe <b>($<%= format_currency(sale.get_all_owes ) %>)</b></th>
         <th id="total_haber"> Haber <b>($<%= format_currency(sale.saldo_pagado ) %>)</b></th>
         <th>Estado</th>
@@ -82,7 +83,7 @@
     <tbody>
       <% sale.fees.no_cero.each do |fee| %>
         <tr>
-          <td><%= fee.number %></td>
+          <td><%= "#{I18n.t("date.month_names")[fee.due_date.month]}".capitalize %></td>
           <td><%= "$#{format_currency(fee.value)}" %></td>
           <td><%= "$#{format_currency(fee.get_adjusts)}" %></td>
           <td><%= "$#{format_currency(fee.get_interests)}" %></td>
@@ -121,4 +122,5 @@
       <% end %> 
     </tbody>
   </table>
+  <%= render(partial: "table_info_for_month", locals: { fees: sale.fees }) %>
 </div>
