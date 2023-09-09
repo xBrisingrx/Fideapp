@@ -95,7 +95,6 @@ class Sale < ApplicationRecord
 		# self.fees.where(payed: true).sum(:payment)
 		# self.payments.actives.sum(:payment)
 		puts '###### MODEL SALE -> TOTAL PAGADO'
-		byebug
 	end
 
 	def get_all_owes # el valor que falta pagar para cancelar la venta
