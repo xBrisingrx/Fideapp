@@ -1,4 +1,4 @@
-<h1 class="h1 g-font-weight-400"> <%= @land.sector.name %> / <%= @land.code %> / <%= @land.apple.code %> / <%= @land.apple.condominium.name %> </h1>
+<h1 class="h1 g-font-weight-400"> <%= @land.sector.name %> > <%= @land.code %> > <%= @land.apple.code %> > <%= @land.apple.condominium.name %> </h1>
 
 <%= link_to '<i class= "hs-admin-back-left"></i> Volver a manzanas'.html_safe, 
   apples_path, class: 'btn u-btn-blue mb-2 mr-2'%>
@@ -23,12 +23,14 @@
   <% end %>
 </div>
 
-<p>Proyectos próximos a comenzar: </p>
+<p class="font-weight-bold">Proyectos próximos a comenzar: </p>
 <div class="mt-2 mb-2">
   <% @land.land_projects.each do |project| %>
+  <ul>
     <% if project.project.date >= Date.today.end_of_month %>
-      <p>Proyecto: <%= project.project.name %> comienza el <%= date_format(project.project.date) %></p>
+      <li><%= project.project.name %> comienza el <%= date_format(project.project.date) %></li>
     <% end %>
+  </ul>
   <% end %>
 </div>
 
