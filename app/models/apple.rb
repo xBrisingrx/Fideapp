@@ -64,4 +64,12 @@ class Apple < ApplicationRecord
     end
     pay_this_month
   end
+
+  def get_all_increments
+    increments = 0 
+    self.lands.each do |land|
+      increments += land.get_all_increments
+    end
+    increments
+  end
 end

@@ -26,17 +26,18 @@
 <p class="font-weight-bold">Proyectos próximos a comenzar: </p>
 <div class="mt-2 mb-2">
   <% @land.land_projects.each do |project| %>
-  <ul>
+<ul>
     <% if project.project.date >= Date.today.end_of_month %>
       <li><%= project.project.name %> comienza el <%= date_format(project.project.date) %></li>
     <% end %>
-  </ul>
+</ul>
   <% end %>
 </div>
 
 <div class="row mb-2">
   <%= render(partial: 'card_pay', locals: { color: 'lightred-v2', paid: @land.get_all_pay, detail: 'Debe' })%>
   <%= render(partial: 'card_pay', locals: { color: 'teal-v2', paid: @land.total_price, detail: 'Haber' })%>
+  <%= render(partial: 'card_pay', locals: { color: 'pink', paid: @land.get_all_increments, detail: 'Ajuste/Mora' })%>
   <%= render(partial: 'card_pay', locals: { color: 'indigo', paid: @land.get_all_owes, detail: 'Saldo' })%>
   <%= render(partial: 'card_pay', locals: { color: 'blue', paid: @land.owes_this_month, detail: "Debe #{I18n.t("date.month_names")[Date.today.month]}" })%>
 </div>   
@@ -47,7 +48,7 @@
   <%= render(partial: 'fees_detail_table.html.erb', locals: { sale: sale }) %>
 <% end %>
 
-
+  
 <!-- Modal pagar cuota -->
 <div class="modal fade" id="modal-sale-product" role="dialog"
      aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
