@@ -11,14 +11,14 @@
   <%= render(partial: 'lands/card_pay', 
              locals: { color: 'indigo', paid: @apple.get_all_increments, detail: 'Ajuste/Mora' })%>
   <%= render(partial: 'lands/card_pay', 
-             locals: { color: 'indigo', paid: @apple.get_all_owes, detail: 'Saldo' })%>
+             locals: { color: 'purple', paid: @apple.get_all_owes, detail: 'Saldo' })%>
 </div>
 
 <div class="row mb-4">
   <%= render(partial: 'lands/card_pay', 
-             locals: { color: 'blue', paid: @apple.owes_this_month, detail: "Saldo #{I18n.t("date.month_names")[Date.today.month]}" }) %>
+             locals: { color: 'brown', paid: @apple.owes_this_month, detail: "Saldo #{I18n.t("date.month_names")[Date.today.month]}" }) %>
   <%= render(partial: 'lands/card_pay', 
-             locals: { color: 'blue', paid: @apple.paid_this_month, detail: "Haber #{I18n.t("date.month_names")[Date.today.month]}" }) %>
+             locals: { color: 'deeporange', paid: @apple.paid_this_month, detail: "Haber #{I18n.t("date.month_names")[Date.today.month]}" }) %>
 </div>
 
 <table id="lands_table" class="table hover dt-responsive w-100">

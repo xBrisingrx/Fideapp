@@ -17,13 +17,13 @@
   <%= render(partial: 'card_pay_small', 
              locals: { color: 'teal-v2', paid: sale.saldo_pagado, detail: 'Haber' })%>
   <%= render(partial: 'card_pay_small', 
-             locals: { color: 'pink', paid: sale.get_increments, detail: 'Ajuste/Mora' })%>
+             locals: { color: 'indigo', paid: sale.get_increments, detail: 'Ajuste/Mora' })%>
   <%= render(partial: 'card_pay_small', 
-             locals: { color: 'indigo', paid: sale.get_all_owes, detail: 'Saldo' })%>
+             locals: { color: 'purple', paid: sale.get_all_owes, detail: 'Saldo' })%>
   <%= render(partial: 'card_pay_small', 
-             locals: { color: 'blue', paid: sale.owes_this_month, detail: "Saldo #{I18n.t("date.month_names")[Date.today.month]}" })%>
+             locals: { color: 'brown', paid: sale.owes_this_month, detail: "Saldo #{I18n.t("date.month_names")[Date.today.month]}" })%>
   <%= render(partial: 'card_pay_small', 
-             locals: { color: 'blue', paid: sale.paid_this_month, detail: "Haber #{I18n.t("date.month_names")[Date.today.month]}" })%>
+             locals: { color: 'deeporange', paid: sale.paid_this_month, detail: "Haber #{I18n.t("date.month_names")[Date.today.month]}" })%>
 </div>   
 <div id="sale_information_<%= sale.id %>" data-show='show' >
   
