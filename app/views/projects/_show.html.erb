@@ -12,6 +12,14 @@
       </span>
       <hr class="d-flex g-brd-gray-light-v7 g-mx-20 g-mx-30--sm my-10">
       <em class="g-font-style-normal g-font-weight-500 g-font-size-16 g-color-gray-dark-v6">Estado financiacion</em>
+      <div class="row mb-4 mt-4">
+        <%= render(partial: 'lands/card_pay',  
+                  locals: { color: 'lightred-v2', paid: @project.final_price, detail: 'Debe' })%>
+        <%= render(partial: 'lands/card_pay', 
+                  locals: { color: 'teal-v2', paid: @project.get_all_pay, detail: 'Haber' })%>
+        <%= render(partial: 'lands/card_pay', 
+                  locals: { color: 'purple', paid: @project.get_all_owes, detail: 'Saldo' })%>
+      </div>
       <div class="card-block d-flex justify-content-between g-px-20 g-px-30--sm g-py-15 g-py-20--sm">
         <div>
           <h4 class="g-line-height-1_2 g-font-weight-300 g-font-size-28 g-color-black">

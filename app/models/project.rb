@@ -72,6 +72,24 @@ class Project < ApplicationRecord
 
     status_label
   end
+
+  def get_all_owes
+    owes = 0
+    sale_products = SaleProduct.where( product: self )
+    sale_products.each do |sale_product|
+      owes += sale_product.sale.get_all_owes
+    end
+    owes
+  end
+
+  def get_all_pay
+    paid = 0
+    sale_products = SaleProduct.where( product: self )
+    sale_products.each do |sale_product|
+      paid += sale_product.sale.saldo_pagado
+    end
+    paid
+  end
   
   private
   def check_is_finalized
