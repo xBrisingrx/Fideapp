@@ -200,6 +200,15 @@ class Sale < ApplicationRecord
 	# def fees_for_month 
 	# 	fees = self.fees.actives.select("fees.id, fees.due_date, extract(month from fees.due_date) as month, fees.value").group("month")
 	# end
+
+	def get_increments
+		increments = 0
+		self.fees.each do |fee|
+			increments += fee.get_adjusts
+			increments += fee.get_interests
+		end
+		increments
+	end
 	
 	private
 
