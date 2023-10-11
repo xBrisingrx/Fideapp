@@ -5,11 +5,11 @@
 
 <div class="row mb-4 mt-4">
   <%= render(partial: 'lands/card_pay', 
-             locals: { color: 'teal-v2', paid: @apple.get_all_pay, detail: 'Haber' })%>
+             locals: { color: 'lightred-v2', paid: @apple.get_all_pay, detail: 'Debe' })%>
   <%= render(partial: 'lands/card_pay', 
-             locals: { color: 'lightred-v2', paid: @apple.get_all_owes, detail: 'Debe' })%>
+             locals: { color: 'teal-v2', paid: @apple.total_price, detail: 'Haber' })%>
   <%= render(partial: 'lands/card_pay', 
-             locals: { color: 'indigo', paid: @apple.total_price, detail: 'Saldo' })%>
+             locals: { color: 'indigo', paid: @apple.get_all_owes, detail: 'Saldo' })%>
   <%= render(partial: 'lands/card_pay', 
              locals: { color: 'blue', paid: @apple.owes_this_month, detail: "Debe #{I18n.t("date.month_names")[Date.today.month]}" }) %>
 </div>

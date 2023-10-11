@@ -13,11 +13,11 @@
 
 <div class="row mb-2">
   <%= render(partial: 'card_pay_small', 
-             locals: { color: 'teal-v2', paid: sale.saldo_pagado, detail: 'Haber' })%>
+             locals: { color: 'lightred-v2', paid: sale.saldo_pagado, detail: 'Debe' })%>
   <%= render(partial: 'card_pay_small', 
-             locals: { color: 'lightred-v2', paid: sale.get_all_owes, detail: 'Debe' })%>
+             locals: { color: 'teal-v2', paid: sale.total_value, detail: 'Haber' })%>
   <%= render(partial: 'card_pay_small', 
-             locals: { color: 'indigo', paid: sale.total_value, detail: 'Saldo' })%>
+             locals: { color: 'indigo', paid: sale.get_all_owes, detail: 'Saldo' })%>
   <%= render(partial: 'card_pay_small', 
              locals: { color: 'blue', paid: sale.owes_this_month, detail: "Debe #{I18n.t("date.month_names")[Date.today.month]}" })%>
 </div>   

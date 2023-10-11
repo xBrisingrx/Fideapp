@@ -35,9 +35,9 @@
 </div>
 
 <div class="row mb-2">
-  <%= render(partial: 'card_pay', locals: { color: 'teal-v2', paid: @land.get_all_pay, detail: 'Haber' })%>
-  <%= render(partial: 'card_pay', locals: { color: 'lightred-v2', paid: @land.get_all_owes, detail: 'Debe' })%>
-  <%= render(partial: 'card_pay', locals: { color: 'indigo', paid: @land.total_price, detail: 'Saldo' })%>
+  <%= render(partial: 'card_pay', locals: { color: 'lightred-v2', paid: @land.get_all_pay, detail: 'Debe' })%>
+  <%= render(partial: 'card_pay', locals: { color: 'teal-v2', paid: @land.total_price, detail: 'Haber' })%>
+  <%= render(partial: 'card_pay', locals: { color: 'indigo', paid: @land.get_all_owes, detail: 'Saldo' })%>
   <%= render(partial: 'card_pay', locals: { color: 'blue', paid: @land.owes_this_month, detail: "Debe #{I18n.t("date.month_names")[Date.today.month]}" })%>
 </div>   
 
