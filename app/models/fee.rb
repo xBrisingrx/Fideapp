@@ -134,7 +134,6 @@ class Fee < ApplicationRecord
     total_value = self.value + adjust + interest
     # self.update(total_value: total_value)
     # UPDATE TOTAL VALUE
-    # byebug
     total_value
   end
 
@@ -179,7 +178,6 @@ class Fee < ApplicationRecord
 
   def aplicar_pago payment, pay_date, code
     ## APLICAR PAGO
-    # byebug
     # Obtengo todas las cuotas que no estan pagadas distintas a la que se esta pagando en este momento
     fees_to_pay = Fee.where(sale_id: self.sale_id)
                         .where('owes > 0')
@@ -253,7 +251,6 @@ class Fee < ApplicationRecord
     label = '0'
     if ( self.due_date < last_month_day )
       # show_owes_in_table
-      # byebug
       label = self.get_deuda + self.owes
     end
     label
@@ -303,7 +300,6 @@ class Fee < ApplicationRecord
 
   def update_payment_data
     # update_payment_data
-    # byebug
     payments = self.fee_payments.actives
     self.interest = 0
     self.total_value = self.value + self.get_adjusts

@@ -94,7 +94,6 @@ class Project < ApplicationRecord
         )
         sale.fees.first.update(pay_status: :pagado, payed: true, payment: pay, pay_date: self.date)
         sale.update(status: :payed)
-        byebug
       end
       self.update(status: :terminado)
     end
