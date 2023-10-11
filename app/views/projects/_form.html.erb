@@ -36,6 +36,16 @@
     <%= form.text_field :name,class: 'form-control rounded-0 col-4 col-md-2' %>
   </div>
 
+  <div class="form-group">
+    <label class="form-check-inline u-check g-pl-25">
+      <%= form.check_box :finalized, class: 'g-hidden-xs-up g-pos-abs g-top-0 g-left-0', checked: false %>
+      <div class="u-check-icon-checkbox-v6 g-absolute-centered--y g-left-0">
+        <i class="fa" data-check-icon="&#xf00c"></i>
+      </div>
+      Es virtual
+    </label>
+  </div>
+
   <div class="form-group row mb-4">
     <div class="col-2 col-md-1">
       <%= form.label :price, 'Precio:'%>

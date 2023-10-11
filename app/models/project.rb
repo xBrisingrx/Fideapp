@@ -19,6 +19,8 @@
 #  date              :date             default(Sun, 01 Jan 2023), not null
 #
 class Project < ApplicationRecord
+  attribute :finalized, :boolean
+
 	has_many :project_providers, dependent: :destroy
   has_many :project_materials, dependent: :destroy
   has_many :land_projects, dependent: :destroy
@@ -36,7 +38,7 @@ class Project < ApplicationRecord
     numericality: { greater_than: 0 }
   validates :number, presence: true, numericality: { only_integer: true }
   validates :date, presence: true
-  
+
   scope :actives, -> { where(active: true) }
   
   enum status: [:pendiente, :proceso, :terminado]
@@ -68,6 +70,4 @@ class Project < ApplicationRecord
 
     status_label
   end
-  
-
 end

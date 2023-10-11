@@ -248,6 +248,7 @@ let project = {
 		this.form.append('project[description]', document.getElementById('project_description').value )
 		this.form.append('project[project_type_id]', parseInt(document.getElementById('project_project_type_id').value ) )
 		this.form.append('project[number_of_payments]', parseInt(document.getElementById('project_number_of_payments').value ) )
+		this.form.append('project[finalized]', document.getElementById('project_finalized').checked )
 
 		this.form.append('project[land_price]', parseFloat( document.getElementById('project_land_price').value ) )
 		this.form.append('project[land_corner_price]', parseFloat( document.getElementById('project_land_corner_price').value ) )
