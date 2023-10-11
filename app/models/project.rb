@@ -38,6 +38,8 @@ class Project < ApplicationRecord
     numericality: { greater_than: 0 }
   validates :number, presence: true, numericality: { only_integer: true }
   validates :date, presence: true
+  
+  after_create :check_is_finalized
 
   scope :actives, -> { where(active: true) }
   
@@ -69,5 +71,32 @@ class Project < ApplicationRecord
     end
 
     status_label
+  end
+  
+  private
+  def check_is_finalized
+    # if this priject is created with finalized in true means that
+    # it's a old project and was paid. Then I must create the land_projects paid and with one quote
+    if self.finalized
+      self.land_projects.update_all( status: :payed )
+      sale_products = SaleProduct.where(product: self)
+      sale_products.each do |sale_product|
+        # get fee to pay
+        sale = sale_product.sale
+        pay = sale.fees.first.value
+        sale.payments.create(
+          date: self.date,
+          payments_currency_id: 1,
+          payment: pay,
+          taken_in: 1,
+          total: pay,
+          comment: "Pago completo del projecto."
+        )
+        sale.fees.first.update(pay_status: :pagado, payed: true, payment: pay, pay_date: self.date)
+        sale.update(status: :payed)
+        byebug
+      end
+      self.update(status: :terminado)
+    end
   end
 end
