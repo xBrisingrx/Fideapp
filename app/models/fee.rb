@@ -284,7 +284,7 @@ class Fee < ApplicationRecord
     payments = payments.where( 'date <= ?', to_date ) if !self.is_last_fee?   
     payments.sum(:total)
   end
-
+  
   def get_payments_list
     sale = Sale.find(self.sale_id)
     desired_month = self.due_date.month

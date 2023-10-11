@@ -89,6 +89,14 @@ class Land < ApplicationRecord
     pay_this_month
   end
 
+  def paid_this_month
+    paid = 0
+    self.sales.each do |sale|
+      paid += sale.paid_this_month
+    end
+    paid
+  end
+
   def get_all_increments
     increments = 0
     self.sales.each do |sale|

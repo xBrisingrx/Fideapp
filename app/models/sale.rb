@@ -181,6 +181,17 @@ class Sale < ApplicationRecord
 		pay_this_month
 	end
 
+	def paid_this_month
+		# obtenemos los pagos ingresados en este mes
+		# return 0 if self.refinanced
+
+		date = Time.new
+    from_date = "#{date.year}-#{date.month}-01"
+    to_date = "#{date.year}-#{date.month}-#{date.end_of_month.day}"
+    paid = self.payments.where('date >= ?', from_date).where('date <= ?', to_date).sum(:total)
+    paid
+	end
+
 	def has_expires_fees?
 		today = Date.today
 		date = "#{today.year}-#{today.month}-#{today.day}"
