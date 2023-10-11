@@ -12,6 +12,7 @@
   <thead>
     <tr>
       <th>#</th>
+      <th>Categoría</th>
       <th>Nombre</th>
       <th>Sector</th>
       <th>Manzana</th>
@@ -23,6 +24,7 @@
     <% @projects.each do |project| %>
       <tr>
         <td><%= project.number %></td>
+        <td><%= project.project_type.name %></td>
         <td><%= project.name %></td>
         <td>
           <%= project.lands&.first&.apple&.sector&.name %>
