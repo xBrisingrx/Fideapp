@@ -623,13 +623,14 @@ let project = {
 			noty_alert("info", "Debe ingresar el valor al proyecto")
 			return
 		}
-		const apples = document.getElementsByClassName("apples-adds")
-		if (apples.length == 0) {
+		const lands = document.getElementsByClassName("land")
+		if (lands.length == 0) {
 			return
 		}
 		let cant_lands = 0
-		for (let i = 0; i < apples.length; i++) {
-			cant_lands += parseInt(apples[i].dataset.lands)
+		for (let i = 0; i < lands.length; i++) {
+			if (lands[i].checked)
+			cant_lands ++
 		}
 		const land_price = (this.final_price/cant_lands).toFixed(2)
 		document.getElementById('project_land_price').value = land_price
@@ -684,15 +685,19 @@ $(document).ready(function(){
 
 
 async function async_add_apples(){ // adds apples and lands to form
-		let apple_selected = project.apples.filter( apple => apple.id == document.getElementById('apple_list').value )[0]
-		let land_list = ''
+	let apple_selected = project.apples.filter( apple => apple.id == document.getElementById('apple_list').value )[0]
+	if (document.getElementById(`apple-${apple_selected.id}`) != null) {
+		noty_alert("info", "Esta manzana ya esta agregada.")
+		return
+	}
+		let land_list = '<div class="row">'
 		let apple_detail = `${$( "#project_urbanization_id option:selected" ).text()} ${$( "#sector_list option:selected" ).data('name')} ${$("#apple_list option:selected").text()}`
 		const response = await fetch(`/apples/${apple_selected.id}/lands.json`)
 		const data = await response.json() 
 		data.data.forEach( land => {
-				land_list += `<div class="form-group">
+				land_list += `<div class="form-group col-3">
 			    <label class="form-check-inline u-check g-pl-25">
-			      <input class="land g-hidden-xs-up g-pos-abs g-top-0 g-left-0" type="checkbox" data-land-id="${land.id}" value="1" name="project[land_${land.id}]" id="project_land_${land.id}" />
+			      <input class="land g-hidden-xs-up g-pos-abs g-top-0 g-left-0" type="checkbox" data-land-id="${land.id}" value="1" checked name="project[land_${land.id}]" id="project_land_${land.id}" onclick="project.calculate_price_land()" />
 			      <div class="u-check-icon-checkbox-v6 g-absolute-centered--y g-left-0">
 			        <i class="fa" data-check-icon="&#xf00c"></i>
 			      </div>
@@ -701,11 +706,10 @@ async function async_add_apples(){ // adds apples and lands to form
 			  </div>`
 			} )
 
-		console.log(land_list)
+		land_list += "</div>"
 
 		$('#accordion-lands').append(`
-		  <!-- Card -->
-  <div class="card g-brd-none rounded-0 g-mb-15">
+  <div id="apple-${apple_selected.id}" class="card g-brd-none rounded-0 g-mb-15">
     <div id="accordion-lands-heading-${apple_selected.id}" class="u-accordion__header g-pa-0" role="tab">
       <h5 class="mb-0">
         <a class="d-flex g-color-main g-text-underline--none--hover g-brd-around g-brd-gray-light-v4 g-rounded-5 g-pa-10-15" 
@@ -722,12 +726,12 @@ async function async_add_apples(){ // adds apples and lands to form
       </h5>
     </div>
     <div id="accordion-lands-body-${apple_selected.id}" class="collapse show" role="tabpanel" aria-labelledby="accordion-lands-heading-${apple_selected.id}" data-parent="#accordion-lands">
+			<input class="apple-add" type="hidden" value="${apple_selected.id}" />
       <div class="u-accordion__body g-color-gray-dark-v5">
         ${land_list}
       </div>
     </div>
   </div>
-  <!-- End Card -->
-
 		`)
+		project.calculate_price_land()
 	}
