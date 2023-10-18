@@ -272,7 +272,7 @@ let project = {
 	  		window.location.replace("/projects");	
 	  	}
 	  } )
-	  .catch( error => noty_alert('error', 'Ocurrio un error, no se pudo registrar la venta') )
+	  .catch( error => noty_alert('error', 'Ocurrio un error, no se pudo registrar el proyecto') )
 	},
 	charge_sectors(){
 		const urbanization_id = document.getElementById("project_urbanization_id").value
@@ -564,17 +564,54 @@ let project = {
 	set_porcent_values(){
 
 	},
-	add_apple(){
+	add_apple(){ // adds apples and lands to form
 		let apple_selected = this.apples.filter( apple => apple.id == document.getElementById('apple_list').value )[0]
-		$('#apple_adds').append(`
-			<tr id="apple-${apple_selected.id}" class="apples-adds" data-id="${apple_selected.id}" data-lands="${$( "#apple_list option:selected" ).data('cant')}">
-				<td>${$( "#project_urbanization_id option:selected" ).text()}</td>
-				<td>${$( "#sector_list option:selected" ).data('name')}</td>
-				<td>${$("#apple_list option:selected").text()}</td>
-				<td><button type="button" class="btn u-btn-red"
-					onclick="project.remove_apple(${apple_selected.id})"
-					title="Quitar manzana"> <i class="fa fa-trash"></i> </button></td>
-			</tr>
+		let land_list = ''
+		let apple_detail = `${$( "#project_urbanization_id option:selected" ).text()} ${$( "#sector_list option:selected" ).data('name')} ${$("#apple_list option:selected").text()}`
+		fetch(`/apples/${apple_selected.id}/lands.json`)
+		.then( response => response.json() )
+		.then( response => {
+			response.data.forEach( land => {
+				land_list += `<div class="form-group">
+			    <label class="form-check-inline u-check g-pl-25">
+			      <input class="land g-hidden-xs-up g-pos-abs g-top-0 g-left-0" type="checkbox" data-land-id="${land.id}" value="1" name="project[land_${land.id}]" id="project_land_${land.id}" />
+			      <div class="u-check-icon-checkbox-v6 g-absolute-centered--y g-left-0">
+			        <i class="fa" data-check-icon="&#xf00c"></i>
+			      </div>
+			      ${land.code}
+			    </label>
+			  </div>`
+			} )
+		} )
+
+		console.log(land_list)
+
+		$('#accordion-lands').append(`
+		  <!-- Card -->
+  <div class="card g-brd-none rounded-0 g-mb-15">
+    <div id="accordion-lands-heading-${apple_selected.id}" class="u-accordion__header g-pa-0" role="tab">
+      <h5 class="mb-0">
+        <a class="d-flex g-color-main g-text-underline--none--hover g-brd-around g-brd-gray-light-v4 g-rounded-5 g-pa-10-15" 
+        href="#accordion-lands-body-${apple_selected.id}" aria-expanded="true" 
+        aria-controls="accordion-lands-body-${apple_selected.id}" 
+        data-toggle="collapse" 
+        data-parent="#accordion-lands">
+          <span class="u-accordion__control-icon g-mr-10">
+            <i class="fa fa-angle-down"></i>
+            <i class="fa fa-angle-up"></i>
+          </span>
+          ${apple_detail}
+        </a>
+      </h5>
+    </div>
+    <div id="accordion-lands-body-${apple_selected.id}" class="collapse show" role="tabpanel" aria-labelledby="accordion-lands-heading-${apple_selected.id}" data-parent="#accordion-lands">
+      <div class="u-accordion__body g-color-gray-dark-v5">
+        ${land_list}
+      </div>
+    </div>
+  </div>
+  <!-- End Card -->
+
 		`)
 		this.calculate_price_land()
 	},
@@ -643,3 +680,54 @@ $(document).ready(function(){
 		setInputDate("#project_date")
 	}
 })
+
+
+
+async function async_add_apples(){ // adds apples and lands to form
+		let apple_selected = project.apples.filter( apple => apple.id == document.getElementById('apple_list').value )[0]
+		let land_list = ''
+		let apple_detail = `${$( "#project_urbanization_id option:selected" ).text()} ${$( "#sector_list option:selected" ).data('name')} ${$("#apple_list option:selected").text()}`
+		const response = await fetch(`/apples/${apple_selected.id}/lands.json`)
+		const data = await response.json() 
+		data.data.forEach( land => {
+				land_list += `<div class="form-group">
+			    <label class="form-check-inline u-check g-pl-25">
+			      <input class="land g-hidden-xs-up g-pos-abs g-top-0 g-left-0" type="checkbox" data-land-id="${land.id}" value="1" name="project[land_${land.id}]" id="project_land_${land.id}" />
+			      <div class="u-check-icon-checkbox-v6 g-absolute-centered--y g-left-0">
+			        <i class="fa" data-check-icon="&#xf00c"></i>
+			      </div>
+			      ${land.code}
+			    </label>
+			  </div>`
+			} )
+
+		console.log(land_list)
+
+		$('#accordion-lands').append(`
+		  <!-- Card -->
+  <div class="card g-brd-none rounded-0 g-mb-15">
+    <div id="accordion-lands-heading-${apple_selected.id}" class="u-accordion__header g-pa-0" role="tab">
+      <h5 class="mb-0">
+        <a class="d-flex g-color-main g-text-underline--none--hover g-brd-around g-brd-gray-light-v4 g-rounded-5 g-pa-10-15" 
+        href="#accordion-lands-body-${apple_selected.id}" aria-expanded="true" 
+        aria-controls="accordion-lands-body-${apple_selected.id}" 
+        data-toggle="collapse" 
+        data-parent="#accordion-lands">
+          <span class="u-accordion__control-icon g-mr-10">
+            <i class="fa fa-angle-down"></i>
+            <i class="fa fa-angle-up"></i>
+          </span>
+          ${apple_detail}
+        </a>
+      </h5>
+    </div>
+    <div id="accordion-lands-body-${apple_selected.id}" class="collapse show" role="tabpanel" aria-labelledby="accordion-lands-heading-${apple_selected.id}" data-parent="#accordion-lands">
+      <div class="u-accordion__body g-color-gray-dark-v5">
+        ${land_list}
+      </div>
+    </div>
+  </div>
+  <!-- End Card -->
+
+		`)
+	}
