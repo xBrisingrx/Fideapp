@@ -31,7 +31,7 @@ class Project < ApplicationRecord
   has_many :materials, through: :project_materials
   has_many :lands, through: :land_projects
 
-  accepts_nested_attributes_for :project_providers, :project_materials,:apple_projects
+  accepts_nested_attributes_for :project_providers, :project_materials,:apple_projects, :land_projects
 
   validates :land_price, :land_corner_price, 
     presence: true, 
@@ -108,7 +108,7 @@ class Project < ApplicationRecord
           payment: pay,
           taken_in: 1,
           total: pay,
-          comment: "Pago completo del projecto."
+          comment: "Pago completo del proyecto."
         )
         sale.fees.first.update(pay_status: :pagado, payed: true, payment: pay, pay_date: self.date)
         sale.update(status: :payed)

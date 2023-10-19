@@ -112,6 +112,7 @@ class Sale < ApplicationRecord
 
 	def product_name
 		product = self.sale_products.first
+		byebug
 		case product.product_type
 		when 'Land'
 			name = 'Tierra'
