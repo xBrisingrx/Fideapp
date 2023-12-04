@@ -59,6 +59,7 @@ class LandsController < ApplicationController
     @sales = @land.sales
     @land_sale = @land.sale_products.where( product_type: :Land).first
     @status = { 'pendiente' => 'Pendiente', 'pagado' => 'Pagada', 'pago_parcial' => 'Pago parcial', 'refinancied' => 'Refinanciada'}
+    
   end
 
   private

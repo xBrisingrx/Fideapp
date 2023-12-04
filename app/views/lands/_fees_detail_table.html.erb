@@ -86,7 +86,7 @@
     </thead>
     <tbody>
       <% sale.fees.each do |fee| %>
-        <% if fee.number == 0 && sale.sale_products.first.first_pay_required& %>
+        <% if sale.is_projec_with_first_pay? && fee.number == 0 %>
           <tr>
             <td>Primer entrega</td>
             <td><%= "$#{format_currency(fee.value)}" %></td>

@@ -174,7 +174,7 @@ class Sale < ApplicationRecord
 		today = Date.today
 		date = "#{today.year}-#{today.month}-31"
 		pay_this_month = 0
-		fees = self.fees.where( 'due_date <= ?', date ).actives.order(:number)
+		fees = self.fees.where( 'due_date <= ?', date ).actives.order(:number).no_payed
 		if !fees.blank? # si este mes no habia nada para pagar 
 			pay_this_month = fees.last.get_deuda
 		end
@@ -219,6 +219,17 @@ class Sale < ApplicationRecord
 			increments += fee.get_interests
 		end
 		increments
+	end
+
+	def is_projec_with_first_pay?
+		is_project = self.sale_products.first.product_type == 'Project'
+		if is_project
+			first_pay_required = self.sale_products.first.product.first_pay_required
+
+			return first_pay_required
+		else
+			return is_project
+		end
 	end
 	
 	private
