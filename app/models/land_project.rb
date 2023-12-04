@@ -14,6 +14,8 @@
 #
 class LandProject < ApplicationRecord
   # Esta tierra que proyectos tiene
+  attribute :price_quotas
+  attribute :price_quotas_corner
   belongs_to :land
   belongs_to :project
 
@@ -40,15 +42,38 @@ class LandProject < ApplicationRecord
     # I add product to sale
     sale.sale_products.create( product: project )
     due_date = Time.new(project.date.year, project.date.month, 10)
-    fee_value = (land.is_corner) ? project.price_fee_corner : project.price_fee
-    # I create fees
-    for i in 1..number_of_payments
+
+    if project.first_pay_required
       sale.fees.create!(
-        due_date: due_date, 
-        value: fee_value, 
-        number: i
+        due_date: project.date, 
+        value: project.first_pay_price, 
+        number: 0
       )
-      due_date += 1.month
     end
+
+    if self.price_quotas
+      # cada cuota tiene un valor diferente
+      fee_value = (land.is_corner) ? self.price_quotas_corner[0].split(',') : self.price_quotas[0].split(',')
+      for i in 1..number_of_payments
+        sale.fees.create!(
+          due_date: due_date, 
+          value: fee_value[i - 1].to_f, 
+          number: i
+        )
+        due_date += 1.month
+      end
+    else
+      fee_value = (land.is_corner) ? project.price_fee_corner : project.price_fee
+      # I create fees
+      for i in 1..number_of_payments
+        sale.fees.create!(
+          due_date: due_date, 
+          value: fee_value, 
+          number: i
+        )
+        due_date += 1.month
+      end
+    end
+    
   end
 end

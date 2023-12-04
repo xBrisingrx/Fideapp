@@ -252,6 +252,21 @@
     <%= form.text_field :final_price, class: 'form-control rounded-0 col-4', disabled: true %>
     <div class="invalid-feedback field_price"></div>
   </div>
+  
+  <div class="form-group ml-2">
+    <%= form.label :first_pay_required, "", class: "d-flex align-items-center" do %>
+      <span class="mr-4">Se pacta primer entrega</span>
+      <div class="u-check">
+        <%= form.check_box :first_pay_required, class: "g-hidden-xs-up g-pos-abs g-top-0 g-right-0" %>
+        <div class="u-check-icon-radio-v8">
+          <i class="fa" data-check-icon="&#xf00c"></i>
+        </div>
+      </div>
+      <div class="col-4">
+        <%= form.number_field :first_pay_price, placeholder: 'Valor primer entrega', class: 'form-control', step:'0.01', onchange: "project.show_months_payments()" %>
+      </div>
+    <% end %>
+  </div>
 
   <div class="form-group row">
     <div class="col-4 col-md-2">
@@ -260,7 +275,19 @@
     <%= form.text_field :number_of_payments, class: 'form-control rounded-0 col-4', onchange: "project.show_months_payments()" %>
     <div class="invalid-feedback project_number_of_payments"></div>
   </div>
-
+  <div class="form-group">
+    <label class="d-flex align-items-center">
+      <span class="mr-4">Quiero poner el valor de cada cuota de forma manual</span>
+      <div class="u-check">
+        <input class="g-hidden-xs-up g-pos-abs g-top-0 g-right-0" id="project_enter_quotas_manually" type="checkbox" onclick="project.enter_quotas_manually()">
+        <div class="u-check-icon-radio-v8">
+          <i class="fa" data-check-icon="&#xf00c"></i>
+        </div>
+      </div>
+    </label>
+  </div>
+  <div id="enter_quotas_manually" class="form-group ml-2"></div>
+  
   <div id="month_of_payments" class="row g-ml-20"> </div>
 
   <div id="summary" class="mt-4 mb-4 col-12 col-sm-10 col-md-8">

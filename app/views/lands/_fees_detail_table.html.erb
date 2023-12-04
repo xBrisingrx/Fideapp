@@ -85,44 +85,59 @@
       </tr>
     </thead>
     <tbody>
-      <% sale.fees.no_cero.each do |fee| %>
-        <tr>
-          <td><%= "#{I18n.t("date.month_names")[fee.due_date.month]}".capitalize %></td>
-          <td><%= "$#{format_currency(fee.value)}" %></td>
-          <td><%= "$#{format_currency(fee.get_adjusts)}" %></td>
-          <td><%= "$#{format_currency(fee.get_interests)}" %></td>
-          <td><%= "$#{format_currency(fee.total_value)}" %></td>
-          <td><%= fee.due_date.strftime('%d-%m-%y') %></td>
-          <td><%= show_owes(fee.get_deuda) %></td>
-          <td><%= "$#{format_currency(fee.get_payments)}" %></td>
-          <% if fee.expired? && !fee.payed? && !fee.refinancied?%>
-            <td>
-              <span class='u-tags-v1 text-center g-width-100 g-brd-around g-brd-lightred-v2 g-bg-lightred-v2
-                        g-font-size-default g-color-white g-rounded-50 '>Cuota vencida
-              </span>
-            </td>
-          <% else
-            if fee.pagado?
-              color = 'green'
-            elsif fee.pago_parcial? 
-              color = 'deeporange'
-            else 
-              color = 'blue'
-            end %>
-            <td>
-              <%= " <span class='u-tags-v1 text-center g-width-100 g-brd-around g-brd-#{color} g-bg-#{color}
-                        g-font-size-default g-color-white g-rounded-50 '>#{@status[fee.pay_status]}</span>".html_safe %>
-            </td>
-          <% end %>
-          <td>
-            <% if !sale.refinanced?%>
-              <%= "#{btn_fee_pay_detail(fee)}".html_safe %>
+      <% sale.fees.each do |fee| %>
+        <% if fee.number == 0 && sale.sale_products.first.first_pay_required& %>
+          <tr>
+            <td>Primer entrega</td>
+            <td><%= "$#{format_currency(fee.value)}" %></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+        <% else %>
+          <tr>
+            <td><%= "#{I18n.t("date.month_names")[fee.due_date.month]}".capitalize %></td>
+            <td><%= "$#{format_currency(fee.value)}" %></td>
+            <td><%= "$#{format_currency(fee.get_adjusts)}" %></td>
+            <td><%= "$#{format_currency(fee.get_interests)}" %></td>
+            <td><%= "$#{format_currency(fee.total_value)}" %></td>
+            <td><%= fee.due_date.strftime('%d-%m-%y') %></td>
+            <td><%= show_owes(fee.get_deuda) %></td>
+            <td><%= "$#{format_currency(fee.get_payments)}" %></td>
+            <% if fee.expired? && !fee.payed? && !fee.refinancied?%>
+              <td>
+                <span class='u-tags-v1 text-center g-width-100 g-brd-around g-brd-lightred-v2 g-bg-lightred-v2
+                          g-font-size-default g-color-white g-rounded-50 '>Cuota vencida
+                </span>
+              </td>
+            <% else
+              if fee.pagado?
+                color = 'green'
+              elsif fee.pago_parcial? 
+                color = 'deeporange'
+              else 
+                color = 'blue'
+              end %>
+              <td>
+                <%= " <span class='u-tags-v1 text-center g-width-100 g-brd-around g-brd-#{color} g-bg-#{color}
+                          g-font-size-default g-color-white g-rounded-50 '>#{@status[fee.pay_status]}</span>".html_safe %>
+              </td>
             <% end %>
-            <% if !sale.refinanced && fee.pay_status != 'pagado' %>
-              <%# "#{btn_payment(sale.id, fee.id)}".html_safe %>
-            <% end %>
-          </td>
-        </tr>
+            <td>
+              <% if !sale.refinanced?%>
+                <%= "#{btn_fee_pay_detail(fee)}".html_safe %>
+              <% end %>
+              <% if !sale.refinanced && fee.pay_status != 'pagado' %>
+                <%# "#{btn_payment(sale.id, fee.id)}".html_safe %>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
       <% end %> 
     </tbody>
   </table>

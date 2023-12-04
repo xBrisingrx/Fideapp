@@ -25,7 +25,7 @@ class ProjectsController < ApplicationController
   def edit
   end
 
-  def create  
+  def create
     ActiveRecord::Base.transaction do 
       project = Project.new(project_params)
       if project.save
@@ -57,10 +57,10 @@ class ProjectsController < ApplicationController
 
     def project_params
       params.require(:project).permit(:number, :name, :active, :price, :total, :status,:final_price,:subtotal,:description,:project_type_id, 
-        :land_corner_price, :land_price, :price_fee, :price_fee_corner, :date, :number_of_payments, :finalized,
+        :land_corner_price, :land_price, :price_fee, :price_fee_corner, :date, :number_of_payments, :finalized, :first_pay_required, :first_pay_price,
         project_providers_attributes: [:id, :provider_id,:provider_role_id,:payment_method_id,:price,:iva,:value_iva,:price_calculate,:porcent,:type_total],
         project_materials_attributes: [:id, :material_id,:type_units,:units,:price],
         apple_projects_attributes: [:id, :apple_id],
-        land_projects_attributes: [:id, :land_id, :price])
+        land_projects_attributes: [:id, :land_id, :price,price_quotas: [], price_quotas_corner: [] ])
     end
 end

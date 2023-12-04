@@ -252,8 +252,16 @@ let project = {
 
 		this.form.append('project[land_price]', parseFloat( document.getElementById('project_land_price').value ) )
 		this.form.append('project[land_corner_price]', parseFloat( document.getElementById('project_land_corner_price').value ) )
-		this.form.append('project[price_fee]', parseFloat( document.getElementById('project_price_fee').value ) )
-		this.form.append('project[price_fee_corner]', parseFloat( document.getElementById('project_price_fee_corner').value ) )
+		this.form.append('project[first_pay_required]', document.getElementById('project_first_pay_required').checked )
+		this.form.append('project[first_pay_price]', parseFloat(document.getElementById('project_first_pay_price').value))
+		if ( document.getElementById('project_enter_quotas_manually').checked ) {
+			// le ponemos el valor de cada cuota cuando se agrega el lote
+			this.form.append('project[price_fee]', 0)
+			this.form.append('project[price_fee_corner]', 0 )
+		} else {
+			this.form.append('project[price_fee]', parseFloat( document.getElementById('project_price_fee').value ) )
+			this.form.append('project[price_fee_corner]', parseFloat( document.getElementById('project_price_fee_corner').value ) )
+		}
 
 		this.add_providers()
 		this.add_materials()
@@ -537,11 +545,17 @@ let project = {
 	},
 	add_lands_to_form(){
 		const lands = document.getElementsByClassName("land")
+		let price_quotas = [] 
+		price_quotas = this.get_price_quotas()
+		let price_quotas_corner = []
+		price_quotas_corner = this.get_price_quotas_corner()
 		for (let i = 0; i < lands.length; i++) {
 			if (lands[i].checked) {
 				const land_price = ( lands[i].dataset.corner ) ? this.form.get('project[land_corner_price]') : this.form.get('project[land_price]')
 				this.form.append( `project[land_projects_attributes][${i}][land_id]` , lands[i].dataset.landId)
 				this.form.append( `project[land_projects_attributes][${i}][price]` , land_price)
+				this.form.append( `project[land_projects_attributes][${i}][price_quotas][]` , price_quotas )
+				this.form.append( `project[land_projects_attributes][${i}][price_quotas_corner][]` , price_quotas_corner )
 			}
 		}
 	},
@@ -651,29 +665,122 @@ let project = {
 		return ( provider_iva * provider_price_calculate ) / 100
 	},
 	show_months_payments(){
+		const month_of_payments = document.getElementById("month_of_payments")
+
+		if ( document.getElementById("project_first_pay_required").checked && !valid_number(document.getElementById('project_first_pay_price').value) ) {
+			month_of_payments.innerHTML = ''
+			return
+		}
+		if( !valid_number(document.getElementById("project_number_of_payments").value)  ) {
+			month_of_payments.innerHTML = ''
+			return
+		}
+
 		let date = new Date(`${document.getElementById("project_date").value}T00:00:00`)
 		const number_of_payments = document.getElementById("project_number_of_payments").value
-		const month_of_payments = document.getElementById("month_of_payments")
-		const payment_value = roundToTwo((parseFloat(document.getElementById("project_land_price").value) / number_of_payments))
+		
+		let payment_value,first_pay_price,project_land_price
+		if (document.getElementById('project_enter_quotas_manually').checked) {
+			payment_value = this.get_price_quotas()
+		} else {
+			first_pay_price = ( document.getElementById("project_first_pay_required").checked ) ? parseFloat(document.getElementById('project_first_pay_price').value) : 0
+			project_land_price = parseFloat(document.getElementById("project_land_price").value) - first_pay_price
+			payment_value = roundToTwo(( project_land_price / number_of_payments))
+		}
 		month_of_payments.innerHTML = ''
 		for (let i = 0; i < number_of_payments; i++) {
 			let month = date.getMonth()
-			month_of_payments.innerHTML += `
-				<div class="g-brd-blue-left u-shadow-v2 g-brd-around g-brd-gray-light-v4 g-line-height-2 g-pa-10 g-mb-30 col-8 col-sm-4 col-md-3 g-mr-5">
-          <p class="mb-0 name"><strong>Mes:</strong> ${meses[month]}-${date.getFullYear()}</p>
-          <p class="mb-0 relationship"><strong>Valor cuota:</strong> $${ numberFormat.format(payment_value) }</p>
-        </div>
-			`
+			if ( document.getElementById('project_enter_quotas_manually').checked ) {
+				if (!valid_number(payment_value[i])) {
+					return
+				}
+				month_of_payments.innerHTML += `
+					<div class="g-brd-blue-left u-shadow-v2 g-brd-around g-brd-gray-light-v4 g-line-height-2 g-pa-10 g-mb-30 col-8 col-sm-4 col-md-3 g-mr-5">
+	          <p class="mb-0 name"><strong>Mes:</strong> ${meses[month]}-${date.getFullYear()}</p>
+	          <p class="mb-0 relationship"><strong>Valor cuota:</strong> $${ numberFormat.format(payment_value[i]) }</p>
+	        </div>
+				`
+			} else {
+				month_of_payments.innerHTML += `
+					<div class="g-brd-blue-left u-shadow-v2 g-brd-around g-brd-gray-light-v4 g-line-height-2 g-pa-10 g-mb-30 col-8 col-sm-4 col-md-3 g-mr-5">
+	          <p class="mb-0 name"><strong>Mes:</strong> ${meses[month]}-${date.getFullYear()}</p>
+	          <p class="mb-0 relationship"><strong>Valor cuota:</strong> $${ numberFormat.format(payment_value) }</p>
+	        </div>
+				`
+			}
 			date.setMonth( date.getMonth() + 1 )
 		}
 		this.set_fee_value()
 	},
 	set_fee_value(){
-		const land_price = parseFloat(document.getElementById("project_land_price").value)
-		const corner_price = parseFloat(document.getElementById("project_land_corner_price").value)
+		let first_pay
+		if (document.getElementById("project_first_pay_required").checked && !valid_number(document.getElementById('project_first_pay_price').value)) {
+			return
+		} else {
+			first_pay_price = ( document.getElementById("project_first_pay_required").checked ) ? parseFloat(document.getElementById('project_first_pay_price').value) : 0
+		}
+		const land_price = parseFloat(document.getElementById("project_land_price").value) - first_pay_price
+		const corner_price = parseFloat(document.getElementById("project_land_corner_price").value) - first_pay_price
 		const number_of_payments = parseInt(document.getElementById("project_number_of_payments").value)
+
 		document.getElementById("project_price_fee").value = ( land_price/number_of_payments ).toFixed(2)
 		document.getElementById("project_price_fee_corner").value = ( corner_price/number_of_payments ).toFixed(2)
+	},
+	enter_quotas_manually(){
+		this.show_months_payments()
+		const quotas = parseInt( document.getElementById("project_number_of_payments").value )
+		document.getElementById("enter_quotas_manually").innerHTML = ''
+		if (!valid_number( quotas )) {
+			event.target.checked = false
+			noty_alert('info', 'Debe ingresar cantidad de cuotas')
+			return
+		}
+
+		if (!valid_number( this.final_price )) {
+			event.target.checked = false
+			noty_alert('info', 'El proyecto no tiene precio')
+			return
+		}
+
+		if ( event.target.checked ) {
+			const enter_quotas_manually = document.getElementById("enter_quotas_manually")
+			for (let i = 1; i < quotas+1; i++) {
+				enter_quotas_manually.innerHTML += `
+					<div class="form-group row">
+				    <label> Cuota #${i} </label>
+				    <input placeholder="Valor cuota lote" class="form-control rounded-0 col-4 ml-2 quota_manually" type="text" name="project_quota_${i}" onchange="project.check_quota_value()">
+				    <input placeholder="Valor cuota esquina" class="form-control rounded-0 col-4 ml-2 quota_manually_corner" type="text" name="project_quota_${i}">
+				    <div class="invalid-feedback"></div>
+				  </div>
+				`
+			}
+		}
+	},
+	check_quota_value(){
+		if ( valid_number(event.target.value) ) {
+			event.target.parentElement.querySelector(".quota_manually_corner").value = event.target.value
+		} else {
+			event.target.classList.add('is-invalid')
+		}
+		this.show_months_payments()
+	},
+	get_price_quotas(){
+		// cuando seteamos los valores de forma manual, le pasamos a land_project el valor de cada cuota
+		let price = []
+		const price_quotas = document.getElementsByClassName("quota_manually")
+		for (let i = 0; i < price_quotas.length; i++) {
+			price.push( parseFloat(price_quotas[i].value) )
+		}
+		return price
+	},
+	get_price_quotas_corner(){
+		// cuando seteamos los valores de forma manual, le pasamos a land_project el valor de cada cuota
+		let price = []
+		const price_quotas = document.getElementsByClassName("quota_manually_corner")
+		for (let i = 0; i < price_quotas.length; i++) {
+			price.push( parseFloat(price_quotas[i].value) )
+		}
+		return price
 	}
 }
 
@@ -690,6 +797,20 @@ $(document).ready(function(){
 
 	if (document.getElementById("project_date") != null) {
 		setInputDate("#project_date")
+	}
+
+	if (document.getElementById('project_first_pay_required') != null) {
+		document.getElementById('project_first_pay_required').addEventListener('click', () => {
+			if (event.target.checked) {
+				project.show_months_payments()
+				document.getElementById('project_first_pay_price').classList.remove('d-none')
+				document.getElementById('project_first_pay_price').value = ''
+			} else {
+				project.show_months_payments()
+				document.getElementById('project_first_pay_price').classList.add('d-none')
+				document.getElementById('project_first_pay_price').value = 0
+			}
+		})
 	}
 })
 
@@ -746,3 +867,4 @@ async function async_add_apples(){ // adds apples and lands to form
 		`)
 		project.calculate_price_land()
 	}
+

@@ -4,7 +4,7 @@
 //= require unify/jquery.min
 //= require unify/jquery-migrate.min
 //= require unify/popper.min
-//= require unify/bootstrap.min
+//= require unify/bootstrap
 //= require unify/jquery.cookie 
 //= require unify/appear
 //= require unify/jquery.mCustomScrollbar.concat.min
