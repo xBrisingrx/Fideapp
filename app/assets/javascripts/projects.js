@@ -744,6 +744,7 @@ let project = {
 
 		if ( event.target.checked ) {
 			const enter_quotas_manually = document.getElementById("enter_quotas_manually")
+			document.getElementById("project_price_fee").parentElement.parentElement.classList.add("d-none")
 			for (let i = 1; i < quotas+1; i++) {
 				enter_quotas_manually.innerHTML += `
 					<div class="form-group row">
@@ -754,6 +755,8 @@ let project = {
 				  </div>
 				`
 			}
+		} else {
+			document.getElementById("project_price_fee").parentElement.parentElement.classList.remove("d-none")
 		}
 	},
 	check_quota_value(){

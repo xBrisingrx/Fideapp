@@ -50,8 +50,8 @@ class LandProject < ApplicationRecord
         number: 0
       )
     end
-
-    if self.price_quotas
+    
+    if self.price_quotas != [""]
       # cada cuota tiene un valor diferente
       fee_value = (land.is_corner) ? self.price_quotas_corner[0].split(',') : self.price_quotas[0].split(',')
       for i in 1..number_of_payments

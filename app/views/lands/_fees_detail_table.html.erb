@@ -96,7 +96,25 @@
             <td></td>
             <td></td>
             <td></td>
-            <td></td>
+            <% if fee.expired? && !fee.payed? && !fee.refinancied?%>
+              <td>
+                <span class='u-tags-v1 text-center g-width-100 g-brd-around g-brd-lightred-v2 g-bg-lightred-v2
+                          g-font-size-default g-color-white g-rounded-50 '>Cuota vencida
+                </span>
+              </td>
+            <% else
+              if fee.pagado?
+                color = 'green'
+              elsif fee.pago_parcial? 
+                color = 'deeporange'
+              else 
+                color = 'blue'
+              end %>
+              <td>
+                <%= " <span class='u-tags-v1 text-center g-width-100 g-brd-around g-brd-#{color} g-bg-#{color}
+                          g-font-size-default g-color-white g-rounded-50 '>#{@status[fee.pay_status]}</span>".html_safe %>
+              </td>
+            <% end %>
             <td></td>
           </tr>
         <% else %>
