@@ -72,8 +72,11 @@
         <option value=""> Elegir sector </option>
       </select>
     </div>
+
+    <button type="button" id="show_apple_list" class="btn u-btn-primary" data-toggle="modal" data-target="#modal_apple_list" disabled>Seleccionar manzanas</button>
+
     <div class="form-group col-2">
-      <select id="apple_list" class="form-control select-2-apple-list">
+      <select id="apple_list" class="form-control select-2-apple-list" multiple="multiple">
         <option value=""> Elegir manzana </option>
       </select>
     </div>
@@ -252,7 +255,36 @@
     <%= form.text_field :final_price, class: 'form-control rounded-0 col-4', disabled: true %>
     <div class="invalid-feedback field_price"></div>
   </div>
-  
+
+  <div id="summary" class="mt-4 mb-4 col-12 col-sm-10 col-md-8">
+    <h3>Resumen</h3>
+    <table class="table table-sm table-hover u-table--v3--borderless u-table--v3--row-border-bottom g-color-black">
+      <thead class="thead-light">
+        <tr>
+          <th>Interviniente</th>
+          <th>% que representa</th>
+          <th>Valor</th>
+        </tr>
+      </thead>
+      <tbody id="summary-body"></tbody>
+    </table>
+  </div>
+
+  <div class="form-group row">
+    <div class="col-4 col-md-2">
+      <%= form.label :land_price, 'Precio por lote' %>
+    </div>
+    <div class="col-4 col-md-2">
+       <%= form.number_field :land_price, class: 'form-control', step:'0.01', placeholder: 'Precio unitario por lote', onchange: "project.set_fee_value()" %>
+    </div>
+    <div class="col-4 col-md-2" id="label_corner">
+      <%= form.label :land_corner_price, 'Precio esquinas' %>
+    </div>
+    <div class="col-4 col-md-2" id="land_corner_input">
+       <%= form.number_field :land_corner_price, class: 'form-control', step:'0.01', placeholder: 'Precio esquinas', onchange: "project.set_fee_value()" %>
+    </div>
+  </div>
+
   <div class="form-group ml-2">
     <%= form.label :first_pay_required, "", class: "d-flex align-items-center" do %>
       <span class="mr-4">Se pacta primer entrega</span>
@@ -290,35 +322,6 @@
   
   <div id="month_of_payments" class="row g-ml-20"> </div>
 
-  <div id="summary" class="mt-4 mb-4 col-12 col-sm-10 col-md-8">
-    <h3>Resumen</h3>
-    <table class="table table-sm table-hover u-table--v3--borderless u-table--v3--row-border-bottom g-color-black">
-      <thead class="thead-light">
-        <tr>
-          <th>Interviniente</th>
-          <th>% que representa</th>
-          <th>Valor</th>
-        </tr>
-      </thead>
-      <tbody id="summary-body"></tbody>
-    </table>
-  </div>
-
-  <div class="form-group row">
-    <div class="col-4 col-md-2">
-      <%= form.label :land_price, 'Precio por lote' %>
-    </div>
-    <div class="col-4 col-md-2">
-       <%= form.number_field :land_price, class: 'form-control', step:'0.01', placeholder: 'Precio unitario por lote', onchange: "project.set_fee_value()" %>
-    </div>
-    <div class="col-4 col-md-2" id="label_corner">
-      <%= form.label :land_corner_price, 'Precio esquinas' %>
-    </div>
-    <div class="col-4 col-md-2" id="land_corner_input">
-       <%= form.number_field :land_corner_price, class: 'form-control', step:'0.01', placeholder: 'Precio esquinas', onchange: "project.set_fee_value()" %>
-    </div>
-  </div>
-
   <div class="form-group row">
     <div class="col-4 col-md-2">
       <%= form.label :price_fee, 'Precio cuota lote' %>
@@ -334,6 +337,7 @@
     </div>
   </div>
 
+
   <div class="form-group row">
     <div class="col-2 col-md-2">
       <%= form.label :description, 'Descripción del proyecto:'%>
@@ -347,6 +351,37 @@
     <%= link_to "Cancelar", projects_path, class:"btn u-btn-red"%>
   </div>
 <% end %>
+
+<div class="modal fade" id="modal_apple_list" role="dialog"
+      aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Seleccione las manzanas a agregar</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+         <!-- Checkboxes Option 3 -->
+          <label class="form-check-inline u-check g-pl-25">
+            <input id="select_all_apples" class="g-hidden-xs-up g-pos-abs g-top-0 g-left-0" type="checkbox" checked="">
+            <div class="u-check-icon-checkbox-v6 g-absolute-centered--y g-left-0">
+              <i class="fa" data-check-icon=""></i>
+            </div>
+            Seleccionar todos
+          </label>
+          <!-- End Checkboxes Option 3 -->
+          <h4 class="h6 g-font-weight-700 g-mb-20">Manzanas</h4>
+          <div id="list_of_apples" class="row g-mb-30">
+          </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn u-btn-primary" data-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script>
   document.getElementById('form-project').reset()

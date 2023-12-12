@@ -304,12 +304,37 @@ let project = {
 		fetch(`/apples/filter_for_sector/${sector_id}.json`).then( response => response.json() ).then( r => {
 			let apple_list = document.querySelector('#apple_list')
 			apple_list.innerHTML = '<option value=""> Elegir manzana </option>'
-			this.apples = r.data
-			for (let lote in this.apples){
-			  apple_list.innerHTML += `
-			  	<option value='${this.apples[lote].id}' data-cant='${this.apples[lote].lands}' data-cant_corners='${this.apples[lote].count_corners}' > ${this.apples[lote].code} </option>
-			  `
-			} 
+			// this.apples = r.data
+			// for (let lote in this.apples){
+			//   apple_list.innerHTML += `
+			//   	<option value='${this.apples[lote].id}' data-cant='${this.apples[lote].lands}' data-cant_corners='${this.apples[lote].count_corners}' > ${this.apples[lote].code} </option>
+			//   `
+			// }
+			document.getElementById("list_of_apples").innerHTML = ''
+			document.getElementById("select_all_apples").checked = true
+			if (r.data.length > 0) {
+				document.getElementById("show_apple_list").disabled = false;
+				for (let index = 0; index < r.data.length; index++) {
+					const element = r.data[index];
+					if ( element.lands === 0 ) { continue }
+
+					document.getElementById("list_of_apples").innerHTML += `
+					<div class="col-3">
+						<div class="form-group g-mb-10 g-mb-0--md">
+							<label class="u-check g-pl-25">
+								<input class="g-hidden-xs-up g-pos-abs g-top-0 g-left-0" type="checkbox" checked data-apple-id=${element.id}>
+								<div class="u-check-icon-checkbox-v4 g-absolute-centered--y g-left-0">
+									<i class="fa" data-check-icon=""></i>
+								</div>
+								${element.code}
+							</label>
+						</div>
+					</div>
+					`
+				}
+			} else {
+				document.getElementById("show_apple_list").disabled = true;
+			}
 		})
 	},
 	provider_validations({provider_id, provider_role,payment_method_id,provider_price, provider_iva}){
@@ -788,12 +813,12 @@ let project = {
 }
 
 $(document).ready(function(){
-	$('.select-2-project-provider').select2({ width: '100%',theme: "bootstrap4" })	
-	$('.select-2-provider-role').select2({ width: '100%',theme: "bootstrap4" })	
-	$('.select-2-payment-method').select2({ width: '100%',theme: "bootstrap4" })	
-	$('.select-2-project-material').select2({ width: '100%',theme: "bootstrap4" })	
-	$('.select-2-project-type').select2({ width: '30%',theme: "bootstrap4" })	
-	$('.select-2-apple-list').select2({ width: '100%',theme: "bootstrap4" })
+	$('.select-2-project-provider').select2({ width: '100%',theme: "bootstrap4", language: "es" })	
+	$('.select-2-provider-role').select2({ width: '100%',theme: "bootstrap4", language: "es" })	
+	$('.select-2-payment-method').select2({ width: '100%',theme: "bootstrap4", language: "es" })	
+	$('.select-2-project-material').select2({ width: '100%',theme: "bootstrap4", language: "es" })	
+	$('.select-2-project-type').select2({ width: '30%',theme: "bootstrap4", language: "es" })	
+	$('.select-2-apple-list').select2({ width: '100%',theme: "bootstrap4", placeholder: "Todas seleccionadas", language: "es" })
 	$("#projects_table").DataTable({
 		'language': {'url': "/assets/plugins/datatables_lang_spa.json"}
 	})
