@@ -5,8 +5,10 @@ let project = {
 	project_price: '',
 	subtotal: 0,
 	final_price: 0,
-	apples:[],
 	sectors:[],
+	apples:[],
+	lands: [],
+	lands_corner: [],
 	cant_lands:0,
 	cant_corners:0,
 	land_price:0,
@@ -299,30 +301,34 @@ let project = {
 				}
 		})
 	},
-	charge_apples(){
+	charge_apples(){ // charge apples to modal
+		const modal_body = document.getElementById("list_of_apples")
+		const btn_show_apple_list = document.getElementById("show_apple_list")
 		const sector_id = this.sectors.filter( sector => sector.id == document.getElementById('sector_list').value )[0].id
+
+		modal_body.innerHTML = ''
 		fetch(`/apples/filter_for_sector/${sector_id}.json`).then( response => response.json() ).then( r => {
-			let apple_list = document.querySelector('#apple_list')
-			apple_list.innerHTML = '<option value=""> Elegir manzana </option>'
+			// let apple_list = document.querySelector('#apple_list')
+			// apple_list.innerHTML = '<option value=""> Elegir manzana </option>'
 			// this.apples = r.data
 			// for (let lote in this.apples){
 			//   apple_list.innerHTML += `
 			//   	<option value='${this.apples[lote].id}' data-cant='${this.apples[lote].lands}' data-cant_corners='${this.apples[lote].count_corners}' > ${this.apples[lote].code} </option>
 			//   `
 			// }
-			document.getElementById("list_of_apples").innerHTML = ''
+			
 			document.getElementById("select_all_apples").checked = true
 			if (r.data.length > 0) {
-				document.getElementById("show_apple_list").disabled = false;
+				btn_show_apple_list.disabled = false;
 				for (let index = 0; index < r.data.length; index++) {
 					const element = r.data[index];
 					if ( element.lands === 0 ) { continue }
 
-					document.getElementById("list_of_apples").innerHTML += `
+					modal_body.innerHTML += `
 					<div class="col-3">
 						<div class="form-group g-mb-10 g-mb-0--md">
 							<label class="u-check g-pl-25">
-								<input class="g-hidden-xs-up g-pos-abs g-top-0 g-left-0" type="checkbox" checked data-apple-id=${element.id}>
+								<input class="g-hidden-xs-up g-pos-abs g-top-0 g-left-0 apple-added" type="checkbox" checked data-apple-id=${element.id} data-apple-code="${element.code}">
 								<div class="u-check-icon-checkbox-v4 g-absolute-centered--y g-left-0">
 									<i class="fa" data-check-icon=""></i>
 								</div>
@@ -333,9 +339,15 @@ let project = {
 					`
 				}
 			} else {
-				document.getElementById("show_apple_list").disabled = true;
+				btn_show_apple_list.disabled = true;
 			}
 		})
+	},
+	check_all() {		
+		let apples_added = document.getElementsByClassName("apple-added")
+		for (let checkbox in apples_added) {
+			apples_added[checkbox].checked = event.target.checked
+		}
 	},
 	provider_validations({provider_id, provider_role,payment_method_id,provider_price, provider_iva}){
 		if (isNaN(provider_id)) {
@@ -615,55 +627,65 @@ let project = {
 
 	},
 	add_apple(){ // adds apples and lands to form
-		let apple_selected = this.apples.filter( apple => apple.id == document.getElementById('apple_list').value )[0]
+		// let apple_selected = this.apples.filter( apple => apple.id == document.getElementById('apple_list').value )[0]
+		let apple_selected = []
+		const apples = document.getElementsByClassName("apple-added")
 		let land_list = ''
-		let apple_detail = `${$( "#project_urbanization_id option:selected" ).text()} ${$( "#sector_list option:selected" ).data('name')} ${$("#apple_list option:selected").text()}`
-		fetch(`/apples/${apple_selected.id}/lands.json`)
-		.then( response => response.json() )
-		.then( response => {
-			response.data.forEach( land => {
-				land_list += `<div class="form-group">
-			    <label class="form-check-inline u-check g-pl-25">
-			      <input class="land g-hidden-xs-up g-pos-abs g-top-0 g-left-0" type="checkbox" data-land-id="${land.id}" value="1" name="project[land_${land.id}]" id="project_land_${land.id}" />
-			      <div class="u-check-icon-checkbox-v6 g-absolute-centered--y g-left-0">
-			        <i class="fa" data-check-icon="&#xf00c"></i>
-			      </div>
-			      ${land.code}
-			    </label>
-			  </div>`
-			} )
-		} )
+		for (let apple in  apples ) {
+			if (apples[apple].checked) {
+				apple_selected.push( apples[apple].id )
+				fetch(`/apples/${apples[apple].id}/lands.json`)
+				.then( response => response.json() )
+				.then( response => {
+					response.data.forEach( land => {
+						land_list += `<div class="form-group">
+							<label class="form-check-inline u-check g-pl-25">
+								<input class="land g-hidden-xs-up g-pos-abs g-top-0 g-left-0" type="checkbox" data-land-id="${land.id}" value="1" name="project[land_${land.id}]" id="project_land_${land.id}" />
+								<div class="u-check-icon-checkbox-v6 g-absolute-centered--y g-left-0">
+									<i class="fa" data-check-icon="&#xf00c"></i>
+								</div>
+								${land.code}
+							</label>
+						</div>`
+					} )
+				} ) // fetch get lands
+				$('#accordion-lands').append(`
+					<!-- Card -->
+					<div class="card g-brd-none rounded-0 g-mb-15">
+						<div id="accordion-lands-heading-${apples[apple].id}" class="u-accordion__header g-pa-0" role="tab">
+							<h5 class="mb-0">
+								<a class="d-flex g-color-main g-text-underline--none--hover g-brd-around g-brd-gray-light-v4 g-rounded-5 g-pa-10-15" 
+								href="#accordion-lands-body-${apples[apple].id}" aria-expanded="true" 
+								aria-controls="accordion-lands-body-${apples[apple].id}" 
+								data-toggle="collapse" 
+								data-parent="#accordion-lands">
+									<span class="u-accordion__control-icon g-mr-10">
+										<i class="fa fa-angle-down"></i>
+										<i class="fa fa-angle-up"></i>
+									</span>
+									${apples[apple].code}
+								</a>
+							</h5>
+						</div>
+						<div id="accordion-lands-body-${apples[apple].id}" class="collapse show" role="tabpanel" aria-labelledby="accordion-lands-heading-${apples[apple].id}" data-parent="#accordion-lands">
+							<div class="u-accordion__body g-color-gray-dark-v5">
+								${land_list}
+							</div>
+						</div>
+					</div>
+					<!-- End Card -->
+				`)
+			} // if apple.checked
+			land_list == ''
+		}
+		
+		// let apple_detail = `${$( "#project_urbanization_id option:selected" ).text()} ${$( "#sector_list option:selected" ).data('name')} ${$("#apple_list option:selected").text()}`
+		
 
-		console.log(land_list)
+		//  console.log(land_list)
 
-		$('#accordion-lands').append(`
-		  <!-- Card -->
-  <div class="card g-brd-none rounded-0 g-mb-15">
-    <div id="accordion-lands-heading-${apple_selected.id}" class="u-accordion__header g-pa-0" role="tab">
-      <h5 class="mb-0">
-        <a class="d-flex g-color-main g-text-underline--none--hover g-brd-around g-brd-gray-light-v4 g-rounded-5 g-pa-10-15" 
-        href="#accordion-lands-body-${apple_selected.id}" aria-expanded="true" 
-        aria-controls="accordion-lands-body-${apple_selected.id}" 
-        data-toggle="collapse" 
-        data-parent="#accordion-lands">
-          <span class="u-accordion__control-icon g-mr-10">
-            <i class="fa fa-angle-down"></i>
-            <i class="fa fa-angle-up"></i>
-          </span>
-          ${apple_detail}
-        </a>
-      </h5>
-    </div>
-    <div id="accordion-lands-body-${apple_selected.id}" class="collapse show" role="tabpanel" aria-labelledby="accordion-lands-heading-${apple_selected.id}" data-parent="#accordion-lands">
-      <div class="u-accordion__body g-color-gray-dark-v5">
-        ${land_list}
-      </div>
-    </div>
-  </div>
-  <!-- End Card -->
-
-		`)
-		this.calculate_price_land()
+		
+		// this.calculate_price_land()
 	},
 	remove_apple(apple_id){
 		document.getElementById(`apple-${apple_id}`).remove()
@@ -700,45 +722,57 @@ let project = {
 			month_of_payments.innerHTML = ''
 			return
 		}
-
-		let date = new Date(`${document.getElementById("project_date").value}T00:00:00`)
+		this.set_fee_value()
+		let project_date = new Date(`${document.getElementById("project_date").value}T00:00:00`)
 		const number_of_payments = document.getElementById("project_number_of_payments").value
 		
-		let payment_value,first_pay_price,project_land_price
+		let price_quota,price_quota_corner
 		if (document.getElementById('project_enter_quotas_manually').checked) {
-			payment_value = this.get_price_quotas()
+			price_quota = this.get_price_quotas()
+			price_quota_corner = this.get_price_quotas_corner()
 		} else {
-			first_pay_price = ( document.getElementById("project_first_pay_required").checked ) ? parseFloat(document.getElementById('project_first_pay_price').value) : 0
-			project_land_price = parseFloat(document.getElementById("project_land_price").value) - first_pay_price
-			payment_value = roundToTwo(( project_land_price / number_of_payments))
+			price_quota = ( valid_number( document.getElementById("project_price_fee").value ) ) ? document.getElementById("project_price_fee").value : "No ingresado"
+			price_quota_corner = ( valid_number( document.getElementById("project_price_fee_corner").value ) ) ? document.getElementById("project_price_fee_corner").value : "No ingresado"
 		}
 		month_of_payments.innerHTML = ''
+		if ( document.getElementById('project_first_pay_required').checked ) {
+			project_date.setMonth( project_date.getMonth() + 1 )
+		}
 		for (let i = 0; i < number_of_payments; i++) {
-			let month = date.getMonth()
+			let month = project_date.getMonth()
 			if ( document.getElementById('project_enter_quotas_manually').checked ) {
-				if (!valid_number(payment_value[i])) {
+				if (!valid_number(price_quota[i])) {
 					return
 				}
 				month_of_payments.innerHTML += `
-					<div class="g-brd-blue-left u-shadow-v2 g-brd-around g-brd-gray-light-v4 g-line-height-2 g-pa-10 g-mb-30 col-8 col-sm-4 col-md-3 g-mr-5">
-	          <p class="mb-0 name"><strong>Mes:</strong> ${meses[month]}-${date.getFullYear()}</p>
-	          <p class="mb-0 relationship"><strong>Valor cuota:</strong> $${ numberFormat.format(payment_value[i]) }</p>
+					<div class="card-${i} g-brd-blue-left u-shadow-v2 g-brd-around g-brd-gray-light-v4 g-line-height-2 g-pa-10 g-mb-30 col-6 col-sm-3 g-mr-5">
+	          <p class="mb-0 name"><strong>Mes:</strong> ${meses[month]}-${project_date.getFullYear()}</p>
+	          <p class="mb-0 relationship"><strong>Valor cuota:</strong> $${ numberFormat.format(price_quota[i]) }</p>
 	        </div>
 				`
+				if (this.lands_corner.length > 0 && valid_number(price_quota_corner[i])) {
+					month_of_payments.querySelector(`.card-${i}`).innerHTML += `
+						<p class="mb-0 relationship"><strong>Valor cuota:</strong> $${ numberFormat.format(price_quota_corner[i]) }</p>
+					`
+				}
 			} else {
 				month_of_payments.innerHTML += `
-					<div class="g-brd-blue-left u-shadow-v2 g-brd-around g-brd-gray-light-v4 g-line-height-2 g-pa-10 g-mb-30 col-8 col-sm-4 col-md-3 g-mr-5">
-	          <p class="mb-0 name"><strong>Mes:</strong> ${meses[month]}-${date.getFullYear()}</p>
-	          <p class="mb-0 relationship"><strong>Valor cuota:</strong> $${ numberFormat.format(payment_value) }</p>
+					<div class="card-${i} g-brd-blue-left u-shadow-v2 g-brd-around g-brd-gray-light-v4 g-line-height-2 g-pa-10 g-mb-30 col-6 col-sm-3 g-mr-5">
+	          <p class="mb-0 name"><strong>Mes:</strong> ${meses[month]}-${project_date.getFullYear()}</p>
+	          <p class="mb-0 relationship"><strong>Valor cuota:</strong> $${ price_quota }</p>
+						
 	        </div>
 				`
+				if (this.lands_corner.length > 0 ) {
+					month_of_payments.querySelector(`.card-${i}`).innerHTML += `
+						<p class="mb-0 relationship"><strong>Valor cuota:</strong> $${ price_quota_corner }</p>
+					`
+				}
 			}
-			date.setMonth( date.getMonth() + 1 )
+			project_date.setMonth( project_date.getMonth() + 1 )
 		}
-		this.set_fee_value()
 	},
 	set_fee_value(){
-		let first_pay
 		if (document.getElementById("project_first_pay_required").checked && !valid_number(document.getElementById('project_first_pay_price').value)) {
 			return
 		} else {
@@ -748,8 +782,8 @@ let project = {
 		const corner_price = parseFloat(document.getElementById("project_land_corner_price").value) - first_pay_price
 		const number_of_payments = parseInt(document.getElementById("project_number_of_payments").value)
 
-		document.getElementById("project_price_fee").value = ( land_price/number_of_payments ).toFixed(2)
-		document.getElementById("project_price_fee_corner").value = ( corner_price/number_of_payments ).toFixed(2)
+		document.getElementById("project_price_fee").value = numberFormat.format( ( land_price/number_of_payments ).toFixed(2) )
+		document.getElementById("project_price_fee_corner").value = numberFormat.format( ( corner_price/number_of_payments ).toFixed(2) )
 	},
 	enter_quotas_manually(){
 		this.show_months_payments()
@@ -767,30 +801,56 @@ let project = {
 			return
 		}
 
-		if ( event.target.checked ) {
+		document.getElementById("project_price_fee").parentElement.parentElement.classList.toggle("d-none", event.target.checked)
+		if (event.target.checked) {
 			const enter_quotas_manually = document.getElementById("enter_quotas_manually")
-			document.getElementById("project_price_fee").parentElement.parentElement.classList.add("d-none")
 			for (let i = 1; i < quotas+1; i++) {
 				enter_quotas_manually.innerHTML += `
 					<div class="form-group row">
-				    <label> Cuota #${i} </label>
-				    <input placeholder="Valor cuota lote" class="form-control rounded-0 col-4 ml-2 quota_manually" type="text" name="project_quota_${i}" onchange="project.check_quota_value()">
-				    <input placeholder="Valor cuota esquina" class="form-control rounded-0 col-4 ml-2 quota_manually_corner" type="text" name="project_quota_${i}">
-				    <div class="invalid-feedback"></div>
-				  </div>
+						<label> Cuota #${i} </label>
+						<input placeholder="Valor cuota lote" class="form-control rounded-0 col-4 ml-2 quota_manually" type="text" 
+								name="project_quota_${i}" 
+								onchange="project.check_quota_value()">
+						<input placeholder="Valor cuota esquina" class="form-control rounded-0 col-4 ml-2 quota_manually_corner" 
+							type="text" name="project_quota_${i}"
+							onchange="project.check_quota_corner()">
+						<div class="invalid-feedback"></div>
+					</div>
 				`
 			}
-		} else {
-			document.getElementById("project_price_fee").parentElement.parentElement.classList.remove("d-none")
 		}
 	},
 	check_quota_value(){
 		if ( valid_number(event.target.value) ) {
 			event.target.parentElement.querySelector(".quota_manually_corner").value = event.target.value
+			this.calculate_custom_land_value()
 		} else {
 			event.target.classList.add('is-invalid')
 		}
 		this.show_months_payments()
+	},
+	check_quota_corner(){
+		if ( valid_number(event.target.value) ) {
+			this.calculate_custom_land_value()
+		} else {
+			event.target.classList.add('is-invalid')
+		}
+		this.show_months_payments()
+	},
+	calculate_custom_land_value(){
+		const custom_land_fees = document.getElementsByClassName('quota_manually')
+		const custom_land_corner_fees = document.getElementsByClassName('quota_manually_corner')
+		let land_custom_price = parseFloat( document.getElementById('project_first_pay_price').value )
+		let land_corner_custom_price = parseFloat( document.getElementById('project_first_pay_price').value )
+		for (let index = 0; index < custom_land_fees.length; index++) {
+			land_custom_price += parseFloat(custom_land_fees[index].value)
+		}
+
+		for (let index = 0; index < custom_land_corner_fees.length; index++) {
+			land_corner_custom_price += parseFloat(custom_land_corner_fees[index].value)
+		}
+		document.getElementById('project_land_price').value = numberFormat.format( land_custom_price )
+		document.getElementById('project_land_corner_price').value = numberFormat.format( land_corner_custom_price )
 	},
 	get_price_quotas(){
 		// cuando seteamos los valores de forma manual, le pasamos a land_project el valor de cada cuota
@@ -809,6 +869,44 @@ let project = {
 			price.push( parseFloat(price_quotas[i].value) )
 		}
 		return price
+	},
+	select_all_lands(){
+		const checkbox = event.target
+		const checkbox_lands = checkbox.parentElement.parentElement.parentElement.querySelectorAll('.land')
+		for (let index = 0; index < checkbox_lands.length; index++) {
+			checkbox_lands[index].checked = checkbox.checked;
+		}
+	},
+	show_hide_corner_inputs(){
+		document.getElementById("land_corner_input").classList.toggle("d-none", project.lands_corner.length == 0)
+		document.getElementById("label_corner").classList.toggle("d-none", project.lands_corner.length == 0)
+		document.getElementById("land_corner_fee_input").classList.toggle("d-none", project.lands_corner.length == 0)
+		document.getElementById("label_corner_fee").classList.toggle("d-none", project.lands_corner.length == 0)
+	},
+	update_price_lands(){ // when I change fee values
+		const number_of_payments = parseInt(document.getElementById("project_number_of_payments").value)
+		const first_pay = ( document.getElementById("project_first_pay_required").checked ) ? parseInt( document.getElementById("project_first_pay_price").value ) : 0 
+		let price_fee = parseFloat( document.getElementById('project_price_fee').value.replace('.', '') )
+		let price_fee_corner = parseFloat( document.getElementById('project_price_fee_corner').value.replace('.', '') )
+
+		document.getElementById('project_price_fee').classList.toggle('is-invalid', !valid_number(price_fee))
+		document.getElementById('project_price_fee_corner').classList.toggle('is-invalid', !valid_number(price_fee_corner))
+
+		if (valid_number(price_fee)) {
+			price_fee = first_pay + ( price_fee * number_of_payments )
+			document.getElementById('project_land_price').value = numberFormat.format(price_fee) 
+		} else {
+			noty_alert('info', 'Ingreso un valor invalido')
+			return
+		}
+
+		if (valid_number(price_fee_corner)) {
+			price_fee_corner = first_pay + ( price_fee_corner * number_of_payments )
+			document.getElementById('project_land_corner_price').value = numberFormat.format(price_fee_corner) 
+		} else {
+			noty_alert('info', 'Ingreso un valor invalido')
+			return
+		}
 	}
 }
 
@@ -842,57 +940,93 @@ $(document).ready(function(){
 	}
 })
 
-
-
 async function async_add_apples(){ // adds apples and lands to form
-	let apple_selected = project.apples.filter( apple => apple.id == document.getElementById('apple_list').value )[0]
-	if (document.getElementById(`apple-${apple_selected.id}`) != null) {
-		noty_alert("info", "Esta manzana ya esta agregada")
+	// let apple_selected = project.apples.filter( apple => apple.id == document.getElementById('apple_list').value )[0]
+	
+	// if (document.getElementById(`apple-${apple_selected.id}`) != null) {
+	// 	noty_alert("info", "Esta manzana ya esta agregada")
+	// 	return
+	// }
+
+	document.getElementById('accordion-lands').innerHTML = ''
+	const apples = document.getElementsByClassName("apple-added")
+
+	if( !valid_number( parseFloat( document.getElementById("project_price").value ) ) ){
+		noty_alert("info", "Debe cargar el precio del proyecto")
 		return
 	}
-		let land_list = '<div class="row">'
-		let apple_detail = `${$( "#project_urbanization_id option:selected" ).text()} ${$( "#sector_list option:selected" ).data('name')} ${$("#apple_list option:selected").text()}`
-		const response = await fetch(`/apples/${apple_selected.id}/lands.json`)
-		const data = await response.json() 
-		data.data.forEach( land => {
+
+	if ( document.querySelectorAll("#modal_apple_list input[type='checkbox']:checked").length == 0) {
+		noty_alert("info", "No hay manzanas para agregar")
+		return
+	}
+	project.apples = []
+	project.lands = []
+	project.lands_corner = []
+	let land_list = '<div class="row">'
+	for (let apple in  apples ) {
+		if (apples[apple].checked) {
+			const apple_id = apples[apple].dataset.appleId
+			project.apples.push(apple_id)
+			const response = await fetch(`/apples/${apple_id}/lands.json`)
+			const data = await response.json()
+			land_list += `
+			<div class="form-group col-12">
+				<label class="form-check-inline u-check g-pl-25">
+					<input class="g-hidden-xs-up g-pos-abs g-top-0 g-left-0" type="checkbox" value="1" checked onclick="project.select_all_lands()" />
+					<div class="u-check-icon-checkbox-v6 g-absolute-centered--y g-left-0">
+						<i class="fa" data-check-icon="&#xf00c"></i>
+					</div>
+					Seleccionar todos
+				</label>
+			</div>
+			`
+			data.data.forEach( land => {
+				(land.is_corner === 'Si') ? project.lands_corner.push( land.id ) : project.lands.push( land.id )
+
 				land_list += `<div class="form-group col-3">
 			    <label class="form-check-inline u-check g-pl-25">
-			      <input class="land g-hidden-xs-up g-pos-abs g-top-0 g-left-0" type="checkbox" data-land-id="${land.id}" data-corner=${land.is_corner} value="1" checked name="project[land_${land.id}]" id="project_land_${land.id}" onclick="project.calculate_price_land()" />
+			      <input class="land g-hidden-xs-up g-pos-abs g-top-0 g-left-0" type="checkbox" data-land-id="${land.id}" data-corner=${land.is_corner} value="1" 
+							checked name="project[land_${land.id}]" id="project_land_${land.id}" onclick="project.calculate_price_land()" />
 			      <div class="u-check-icon-checkbox-v6 g-absolute-centered--y g-left-0">
 			        <i class="fa" data-check-icon="&#xf00c"></i>
 			      </div>
-			      ${land.code}
+			      ${ (land.is_corner === 'Si') ? land.code + ' (Esquina)' : land.code }
 			    </label>
 			  </div>`
 			} )
+			land_list += "</div>"
+			$('#accordion-lands').append(`
+				<div class="card g-brd-none rounded-0 g-mb-15">
+					<div id="accordion-lands-heading-${apple_id}" class="u-accordion__header g-pa-0" role="tab">
+						<h5 class="mb-0">
+							<a class="d-flex g-color-main g-text-underline--none--hover g-brd-around g-brd-gray-light-v4 g-rounded-5 g-pa-10-15" 
+							href="#accordion-lands-body-${apple_id}" aria-expanded='false'
+							aria-controls="accordion-lands-body-${apple_id}" 
+							data-toggle="collapse" 
+							data-parent="#accordion-lands">
+								<span class="u-accordion__control-icon g-mr-10">
+									<i class="fa fa-angle-down"></i>
+									<i class="fa fa-angle-up"></i>
+								</span>
+								${apples[apple].dataset.appleCode}
+							</a>
+						</h5>
+					</div>
+					<div id="accordion-lands-body-${apple_id}" class="collapse" role="tabpanel" aria-labelledby="accordion-lands-heading-${apple_id}" 
+							data-parent="#accordion-lands">
+						<input class="apples-adds" type="hidden" value="${apple_id}" />
+						<div class="u-accordion__body g-color-gray-dark-v5">
+							${land_list}
+						</div>
+					</div>
+				</div>
+					`)
+				land_list = '<div class="row">'
+		 }
 
-		land_list += "</div>"
-
-		$('#accordion-lands').append(`
-  <div id="apple-${apple_selected.id}" class="card g-brd-none rounded-0 g-mb-15">
-    <div id="accordion-lands-heading-${apple_selected.id}" class="u-accordion__header g-pa-0" role="tab">
-      <h5 class="mb-0">
-        <a class="d-flex g-color-main g-text-underline--none--hover g-brd-around g-brd-gray-light-v4 g-rounded-5 g-pa-10-15" 
-        href="#accordion-lands-body-${apple_selected.id}" aria-expanded="true" 
-        aria-controls="accordion-lands-body-${apple_selected.id}" 
-        data-toggle="collapse" 
-        data-parent="#accordion-lands">
-          <span class="u-accordion__control-icon g-mr-10">
-            <i class="fa fa-angle-down"></i>
-            <i class="fa fa-angle-up"></i>
-          </span>
-          ${apple_detail}
-        </a>
-      </h5>
-    </div>
-    <div id="accordion-lands-body-${apple_selected.id}" class="collapse show" role="tabpanel" aria-labelledby="accordion-lands-heading-${apple_selected.id}" data-parent="#accordion-lands">
-			<input class="apples-adds" type="hidden" value="${apple_selected.id}" />
-      <div class="u-accordion__body g-color-gray-dark-v5">
-        ${land_list}
-      </div>
-    </div>
-  </div>
-		`)
-		project.calculate_price_land()
-	}
+		 project.show_hide_corner_inputs()
+		 project.calculate_price_land()
+	} // for apple in apples
+}
 

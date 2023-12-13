@@ -74,12 +74,6 @@
     </div>
 
     <button type="button" id="show_apple_list" class="btn u-btn-primary" data-toggle="modal" data-target="#modal_apple_list" disabled>Seleccionar manzanas</button>
-
-    <div class="form-group col-2">
-      <select id="apple_list" class="form-control select-2-apple-list" multiple="multiple">
-        <option value=""> Elegir manzana </option>
-      </select>
-    </div>
     <div class="col-1">
       <button type="button" class="btn u-btn-teal" onclick="async_add_apples()" ><i class="fa fa-plus"></i></button>
     </div>
@@ -270,21 +264,6 @@
     </table>
   </div>
 
-  <div class="form-group row">
-    <div class="col-4 col-md-2">
-      <%= form.label :land_price, 'Precio por lote' %>
-    </div>
-    <div class="col-4 col-md-2">
-       <%= form.number_field :land_price, class: 'form-control', step:'0.01', placeholder: 'Precio unitario por lote', onchange: "project.set_fee_value()" %>
-    </div>
-    <div class="col-4 col-md-2" id="label_corner">
-      <%= form.label :land_corner_price, 'Precio esquinas' %>
-    </div>
-    <div class="col-4 col-md-2" id="land_corner_input">
-       <%= form.number_field :land_corner_price, class: 'form-control', step:'0.01', placeholder: 'Precio esquinas', onchange: "project.set_fee_value()" %>
-    </div>
-  </div>
-
   <div class="form-group ml-2">
     <%= form.label :first_pay_required, "", class: "d-flex align-items-center" do %>
       <span class="mr-4">Se pacta primer entrega</span>
@@ -324,16 +303,31 @@
 
   <div class="form-group row">
     <div class="col-4 col-md-2">
+      <%= form.label :land_price, 'Precio por lote' %>
+    </div>
+    <div class="col-4 col-md-2">
+       <%= form.text_field :land_price, class: 'form-control', step:'0.01', placeholder: 'Precio unitario por lote', onchange: "project.set_fee_value()" %>
+    </div>
+    <div class="col-4 col-md-2" id="label_corner">
+      <%= form.label :land_corner_price, 'Precio esquinas' %>
+    </div>
+    <div class="col-4 col-md-2" id="land_corner_input">
+       <%= form.text_field :land_corner_price, class: 'form-control', step:'0.01', placeholder: 'Precio esquinas', onchange: "project.set_fee_value()" %>
+    </div>
+  </div>
+
+  <div class="form-group row">
+    <div class="col-4 col-md-2">
       <%= form.label :price_fee, 'Precio cuota lote' %>
     </div>
     <div class="col-4 col-md-2">
-       <%= form.number_field :price_fee, class: 'form-control', step:'0.01', placeholder: 'Valor cuota' %>
+       <%= form.number_field :price_fee, class: 'form-control', step:'0.01', placeholder: 'Valor cuota', onchange: "project.update_price_lands()" %>
     </div>
-    <div class="col-4 col-md-2" id="label_corner">
+    <div class="col-4 col-md-2" id="label_corner_fee">
       <%= form.label :price_fee_corner, 'Precio cuota esquinas' %>
     </div>
-    <div class="col-4 col-md-2" id="land_corner_input">
-       <%= form.number_field :price_fee_corner, class: 'form-control', step:'0.01', placeholder: 'Valor cuota' %>
+    <div class="col-4 col-md-2" id="land_corner_fee_input">
+       <%= form.number_field :price_fee_corner, class: 'form-control', step:'0.01', placeholder: 'Valor cuota', onchange: "project.update_price_lands()" %>
     </div>
   </div>
 
@@ -365,7 +359,7 @@
       <div class="modal-body">
          <!-- Checkboxes Option 3 -->
           <label class="form-check-inline u-check g-pl-25">
-            <input id="select_all_apples" class="g-hidden-xs-up g-pos-abs g-top-0 g-left-0" type="checkbox" checked="">
+            <input id="select_all_apples" class="g-hidden-xs-up g-pos-abs g-top-0 g-left-0" type="checkbox" checked="" onclick="project.check_all()">
             <div class="u-check-icon-checkbox-v6 g-absolute-centered--y g-left-0">
               <i class="fa" data-check-icon=""></i>
             </div>
