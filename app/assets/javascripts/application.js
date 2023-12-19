@@ -46,7 +46,6 @@
 
 // require_tree .
 
-
 $(document).on('ready', function () {
   // initialization of hamburger
   $.HSCore.helpers.HSHamburgers.init('.hamburger');

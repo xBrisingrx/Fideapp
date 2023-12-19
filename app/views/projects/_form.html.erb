@@ -9,17 +9,17 @@
   </div>
 
   <div class="form-group row">
-    <div class="col-2 col-md-1">
+    <div class="col-2 col-md-2">
       <%= form.label :number, "Número:" %>
     </div>
     <%= form.number_field :number,class: 'form-control rounded-0 col-4 col-md-2' %>
   </div>
 
   <div class="form-group row">
-    <div class="col-2 col-md-1">
+    <div class="col-2 col-md-2">
       <%= form.label :project_type_id, 'Proyecto' %>
     </div>
-    <div class="form-group col-6 dropdown">
+    <div class="form-group col-4 col-md-2 dropdown">
       <%= form.select(:project_type_id, @project_type.collect {|p| [p.name, p.id]}, 
                       {:include_blank => "Seleccione tipo"},
                       class: 'select-2-project-type', 
@@ -38,7 +38,7 @@
 
   <div class="form-group">
     <label class="form-check-inline u-check g-pl-25">
-      <%= form.check_box :finalized, class: 'g-hidden-xs-up g-pos-abs g-top-0 g-left-0', checked: false %>
+      <%= form.check_box :finalized, class: 'g-hidden-xs-up g-pos-abs g-top-0 g-left-0', checked: false, onchange: "project.set_finalized()" %>
       <div class="u-check-icon-checkbox-v6 g-absolute-centered--y g-left-0">
         <i class="fa" data-check-icon="&#xf00c"></i>
       </div>
@@ -46,7 +46,7 @@
     </label>
   </div>
 
-  <div class="form-group row mb-4">
+  <div class="form-group row mb-4 d-none">
     <div class="col-2 col-md-1">
       <%= form.label :price, 'Precio:'%>
     </div>
@@ -96,7 +96,7 @@
                       class: 'select-2-provider-role') %>
       <div class="invalid-feedback provider_role"></div>
     </div>
-    <div class="form-group col-2">
+    <div class="form-group col-2 d-none">
       <%= form.select(:payment_method, @payment_methods.collect {|p| [p.name, p.id]}, 
                       {:include_blank => "Seleccione metodo de cobro"},
                       class: 'select-2-payment-method') %>
@@ -113,7 +113,7 @@
       </select>
     </div>
     <div class="col-2">
-       <%= form.number_field :provider_price, class: 'form-control', step:'0.01', placeholder: 'Monto - %' %>
+       <%= form.number_field :provider_price, class: 'form-control', step:'0.01', placeholder: 'Monto' %>
     </div>
     <div class="col-1">
       <button id="add-provider" class="btn u-btn-teal" onclick="project.add_provider('price')"><i class="fa fa-plus"></i></button>
@@ -190,10 +190,10 @@
       <%= form.label :subtotal, '<b>Subtotal:</b>'.html_safe, class: 'g-font-size-16'%>
     </div>
     <%= form.text_field :subtotal, class: 'form-control rounded-0 col-4 col-md-2', disabled: true %>
-    <div class="invalid-feedback field_price"></div>
+    <div class="invalid-feedback project_subtotal"></div>
   </div>
 
-  <%= form.label :other_provider_id, 'Otros invervinientes:' %>
+  <%= form.label :other_provider_id, 'Otros intervinientes:' %>
   <div class="form-group row">
     <div class="form-group col-3">
       <%= form.select(:other_provider_id, @providers.collect {|p| [p.name, p.id]}, 
@@ -321,13 +321,13 @@
       <%= form.label :price_fee, 'Precio cuota lote' %>
     </div>
     <div class="col-4 col-md-2">
-       <%= form.number_field :price_fee, class: 'form-control', step:'0.01', placeholder: 'Valor cuota', onchange: "project.update_price_lands()" %>
+       <%= form.text_field :price_fee, class: 'form-control', step:'0.01', placeholder: 'Valor cuota', onchange: "project.update_price_lands()" %>
     </div>
     <div class="col-4 col-md-2" id="label_corner_fee">
       <%= form.label :price_fee_corner, 'Precio cuota esquinas' %>
     </div>
     <div class="col-4 col-md-2" id="land_corner_fee_input">
-       <%= form.number_field :price_fee_corner, class: 'form-control', step:'0.01', placeholder: 'Valor cuota', onchange: "project.update_price_lands()" %>
+       <%= form.text_field :price_fee_corner, class: 'form-control', step:'0.01', placeholder: 'Valor cuota', onchange: "project.update_price_lands()" %>
     </div>
   </div>
 

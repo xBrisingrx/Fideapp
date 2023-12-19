@@ -42,8 +42,9 @@ class LandProject < ApplicationRecord
     # I add product to sale
     sale.sale_products.create( product: project )
     due_date = Time.new(project.date.year, project.date.month, 10)
-
+    
     if project.first_pay_required
+      due_date += 1.month
       sale.fees.create!(
         due_date: project.date, 
         value: project.first_pay_price, 

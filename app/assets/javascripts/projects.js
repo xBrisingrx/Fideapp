@@ -20,7 +20,7 @@ let project = {
 		let provider = {
 			provider_id: parseInt( document.getElementById('project_provider_id').value ),
 			provider_role: parseInt( document.getElementById('project_provider_role').value ),
-			payment_method_id: parseInt( document.getElementById('project_payment_method').value ),
+			payment_method_id: 1,
 			provider_price: parseFloat(document.getElementById('project_provider_price').value),
 			provider_iva: parseFloat( document.getElementById('provider_iva').value ),
 			type_total: type_total
@@ -29,7 +29,7 @@ let project = {
 		if ( this.provider_validations(provider) ) {
 			provider.name = $('#project_provider_id option:selected').text()
 			provider.role_name =  $('#project_provider_role option:selected').text()
-			provider.payment_method_name =  $('#project_payment_method option:selected').text()
+			provider.payment_method_name = 'Valor fijo'  // $('#project_payment_method option:selected').text()
 			provider.provider_price_text = ( provider.payment_method_id == 1 ) ? `$${numberFormat.format(provider.provider_price)}` : `${provider.provider_price}%`
 			provider.provider_price_calculate = this.calcular_precio_proveedor( provider )
 			provider.value_iva = this.calculate_value_iva(provider)
@@ -39,9 +39,10 @@ let project = {
 
 			this.providers_list.push( provider )
 
-			this.disabled_and_reset_select('project_provider_id' , 'select-2-project-provider')
-			$(`.select-2-provider-role`).val('').trigger('change')
-			$(`.select-2-payment-method`).val('').trigger('change')
+			// this.disabled_and_reset_select('project_provider_id' , 'select-2-project-provider')
+			$('.select-2-project-provider').val('').trigger('change')
+			$('.select-2-provider-role').val('').trigger('change')
+			$('.select-2-payment-method').val('').trigger('change')
 			document.getElementById('project_provider_price').value = ''
 
 			this.calculate_subtotal()
@@ -252,8 +253,8 @@ let project = {
 		this.form.append('project[number_of_payments]', parseInt(document.getElementById('project_number_of_payments').value ) )
 		this.form.append('project[finalized]', document.getElementById('project_finalized').checked )
 
-		this.form.append('project[land_price]', parseFloat( document.getElementById('project_land_price').value ) )
-		this.form.append('project[land_corner_price]', parseFloat( document.getElementById('project_land_corner_price').value ) )
+		this.form.append('project[land_price]', parseFloat( document.getElementById('project_land_price').value.replace('.', '').replace(',', '.') ) )
+		this.form.append('project[land_corner_price]', parseFloat( document.getElementById('project_land_corner_price').value.replace('.', '').replace(',', '.') ) )
 		this.form.append('project[first_pay_required]', document.getElementById('project_first_pay_required').checked )
 		this.form.append('project[first_pay_price]', parseFloat(document.getElementById('project_first_pay_price').value))
 		if ( document.getElementById('project_enter_quotas_manually').checked ) {
@@ -261,8 +262,8 @@ let project = {
 			this.form.append('project[price_fee]', 0)
 			this.form.append('project[price_fee_corner]', 0 )
 		} else {
-			this.form.append('project[price_fee]', parseFloat( document.getElementById('project_price_fee').value ) )
-			this.form.append('project[price_fee_corner]', parseFloat( document.getElementById('project_price_fee_corner').value ) )
+			this.form.append('project[price_fee]', parseFloat( document.getElementById('project_price_fee').value.replace('.', '').replace(',', '.') ) )
+			this.form.append('project[price_fee_corner]', parseFloat( document.getElementById('project_price_fee_corner').value.replace('.', '').replace(',', '.') ) )
 		}
 
 		this.add_providers()
@@ -308,15 +309,6 @@ let project = {
 
 		modal_body.innerHTML = ''
 		fetch(`/apples/filter_for_sector/${sector_id}.json`).then( response => response.json() ).then( r => {
-			// let apple_list = document.querySelector('#apple_list')
-			// apple_list.innerHTML = '<option value=""> Elegir manzana </option>'
-			// this.apples = r.data
-			// for (let lote in this.apples){
-			//   apple_list.innerHTML += `
-			//   	<option value='${this.apples[lote].id}' data-cant='${this.apples[lote].lands}' data-cant_corners='${this.apples[lote].count_corners}' > ${this.apples[lote].code} </option>
-			//   `
-			// }
-			
 			document.getElementById("select_all_apples").checked = true
 			if (r.data.length > 0) {
 				btn_show_apple_list.disabled = false;
@@ -351,31 +343,30 @@ let project = {
 	},
 	provider_validations({provider_id, provider_role,payment_method_id,provider_price, provider_iva}){
 		if (isNaN(provider_id)) {
-			noty_alert('error', 'Debe seleccionar un proveedor')
-			// provider_id.classList.add('g-brd-pink-v2--error')
+			noty_alert('warning', 'Debe seleccionar un proveedor')
 			return false
 		}
 		if ( isNaN(provider_role) ) {
-			noty_alert('error', 'Debe seleccionar funcion')
+			noty_alert('warning', 'Debe seleccionar funcion')
 			return false
 		}
 		if ( isNaN(payment_method_id) ) {
-			noty_alert('error', 'Debe seleccionar metodo de pago')
+			noty_alert('warning', 'Debe seleccionar metodo de pago')
 			return false
 		}
 		if ( isNaN( provider_price ) ) {
-			noty_alert('error', 'Debe ingresar monto valido')
+			noty_alert('warning', 'Debe ingresar monto valido')
 			return false
 		}
 		if ( isNaN( provider_iva ) ) {
-			noty_alert('error', 'Debe seleccionar el IVA')
+			noty_alert('warning', 'Debe seleccionar el IVA')
 			return false
 		}
 
-		if ( !( this.project_price > 0 ) ) {
-			noty_alert('warning', 'El projecto no tiene precio')
-			return false
-		}
+		// if ( !( this.project_price > 0 ) ) {
+		// 	noty_alert('warning', 'El proyecto no tiene precio')
+		// 	return false
+		// }
 
 		return true
 	},
@@ -428,12 +419,13 @@ let project = {
 	update_providers_table(){
 		// actualizamos el valor en la tabla
 		let table_body = document.querySelector('#provider-list')
+		table_body.innerHTML = ''
 		for (let i = 0; i < this.providers_list.length; i++){
 			let provider = this.providers_list[i]
 			if (provider.type_total == 'price') {
-				if ( table_body.querySelector(`#row-${provider.provider_id}`) != null ) {// si ya esta en la tabla solo actualizamos el %
-				table_body.querySelector(`#row-${provider.provider_id} #porcentaje_representa_${provider.provider_id}`).innerHTML = `${provider.provider_porcent}%`
-				} else {
+				// if ( table_body.querySelector(`#row-${provider.provider_id}`) != null ) {// si ya esta en la tabla solo actualizamos el %
+				// table_body.querySelector(`#row-${provider.provider_id} #porcentaje_representa_${provider.provider_id}`).innerHTML = `${provider.provider_porcent}%`
+				// } else {
 					table_body.innerHTML += `
 						<tr id="row-${provider.provider_id}">
 							<td>${provider.name}</td>
@@ -449,7 +441,7 @@ let project = {
 							title="Quitar interviniente"> <i class="fa fa-trash"></i> </button></td>
 						</tr>
 					`
-				}
+				// }
 			}
 		}
 	},
@@ -597,7 +589,7 @@ let project = {
 		}
 	},
 	calculate_subtotal(){
-		this.subtotal = this.project_price
+		this.subtotal = 0
 		for (let i = 0; i < this.providers_list.length; i++){
 			if ( this.providers_list[i].type_total == 'price' ) {
 				this.subtotal += this.providers_list[i].total
@@ -691,10 +683,12 @@ let project = {
 		document.getElementById(`apple-${apple_id}`).remove()
 	},
 	calculate_price_land(){
-		if ( document.getElementById("project_final_price").value <= 0 ) {
-			noty_alert("info", "Debe ingresar el valor al proyecto")
-			return
-		}
+		// if ( document.getElementById("project_final_price").value <= 0 ) {
+		// 	noty_alert("info", "Debe ingresar el valor al proyecto")
+		// 	return
+		// }
+		this.update_lands_to_arrays() // actualizo mis arrays de lotes
+
 		const lands = document.getElementsByClassName("land")
 		if (lands.length == 0) {
 			return
@@ -707,6 +701,10 @@ let project = {
 		const land_price = (this.final_price/cant_lands).toFixed(2)
 		document.getElementById('project_land_price').value = land_price
 		document.getElementById('project_land_corner_price').value = land_price
+		if (document.getElementById('project_finalized').checked) {
+			document.getElementById("project_price_fee").value = numberFormat.format( land_price )
+			document.getElementById("project_price_fee_corner").value = numberFormat.format( land_price )
+		}
 	},
 	calculate_value_iva({provider_iva, provider_price_calculate}) {
 		return ( provider_iva * provider_price_calculate ) / 100
@@ -731,8 +729,10 @@ let project = {
 			price_quota = this.get_price_quotas()
 			price_quota_corner = this.get_price_quotas_corner()
 		} else {
-			price_quota = ( valid_number( document.getElementById("project_price_fee").value ) ) ? document.getElementById("project_price_fee").value : "No ingresado"
-			price_quota_corner = ( valid_number( document.getElementById("project_price_fee_corner").value ) ) ? document.getElementById("project_price_fee_corner").value : "No ingresado"
+			const project_price_fee = document.getElementById("project_price_fee").value.replace('.', '').replace(',', '.')
+			const project_price_fee_corner = document.getElementById("project_price_fee_corner").value.replace('.', '').replace(',', '.')
+			price_quota = ( valid_number( project_price_fee ) ) ? numberFormat.format( project_price_fee ) : "No ingresado"
+			price_quota_corner = ( valid_number( project_price_fee_corner ) ) ? numberFormat.format( project_price_fee_corner ) : "No ingresado"
 		}
 		month_of_payments.innerHTML = ''
 		if ( document.getElementById('project_first_pay_required').checked ) {
@@ -773,6 +773,7 @@ let project = {
 		}
 	},
 	set_fee_value(){
+		let first_pay_price
 		if (document.getElementById("project_first_pay_required").checked && !valid_number(document.getElementById('project_first_pay_price').value)) {
 			return
 		} else {
@@ -802,6 +803,8 @@ let project = {
 		}
 
 		document.getElementById("project_price_fee").parentElement.parentElement.classList.toggle("d-none", event.target.checked)
+		document.getElementById('project_land_price').disabled = event.target.checked
+		document.getElementById('project_land_corner_price').disabled = event.target.checked
 		if (event.target.checked) {
 			const enter_quotas_manually = document.getElementById("enter_quotas_manually")
 			for (let i = 1; i < quotas+1; i++) {
@@ -811,12 +814,16 @@ let project = {
 						<input placeholder="Valor cuota lote" class="form-control rounded-0 col-4 ml-2 quota_manually" type="text" 
 								name="project_quota_${i}" 
 								onchange="project.check_quota_value()">
+					</div>
+				`
+				if (this.lands_corner.length > 0) {
+					enter_quotas_manually.querySelector('.row').innerHTML += `
 						<input placeholder="Valor cuota esquina" class="form-control rounded-0 col-4 ml-2 quota_manually_corner" 
 							type="text" name="project_quota_${i}"
 							onchange="project.check_quota_corner()">
 						<div class="invalid-feedback"></div>
-					</div>
-				`
+					`
+				}
 			}
 		}
 	},
@@ -843,11 +850,11 @@ let project = {
 		let land_custom_price = parseFloat( document.getElementById('project_first_pay_price').value )
 		let land_corner_custom_price = parseFloat( document.getElementById('project_first_pay_price').value )
 		for (let index = 0; index < custom_land_fees.length; index++) {
-			land_custom_price += parseFloat(custom_land_fees[index].value)
+			land_custom_price += ( valid_number(parseFloat(custom_land_fees[index].value)) ) ? parseFloat(custom_land_fees[index].value): 0
 		}
 
 		for (let index = 0; index < custom_land_corner_fees.length; index++) {
-			land_corner_custom_price += parseFloat(custom_land_corner_fees[index].value)
+			land_corner_custom_price += ( valid_number(parseFloat(custom_land_corner_fees[index].value)) ) ? parseFloat(custom_land_corner_fees[index].value): 0
 		}
 		document.getElementById('project_land_price').value = numberFormat.format( land_custom_price )
 		document.getElementById('project_land_corner_price').value = numberFormat.format( land_corner_custom_price )
@@ -876,6 +883,15 @@ let project = {
 		for (let index = 0; index < checkbox_lands.length; index++) {
 			checkbox_lands[index].checked = checkbox.checked;
 		}
+		this.calculate_price_land()
+	},
+	update_lands_to_arrays(){ // actualizo los lotes tildados a mis arrays de lotes
+		const lands_list = document.getElementsByClassName('land')
+		for (let index = 0; index < lands_list.length; index++) {
+			if ( lands_list[index].checked ) {
+				( lands_list[index].dataset.corner === 'Si' ) ? project.lands_corner.push( lands_list[index].dataset.landId ) : project.lands.push( lands_list[index].dataset.landId )
+			}
+		}
 	},
 	show_hide_corner_inputs(){
 		document.getElementById("land_corner_input").classList.toggle("d-none", project.lands_corner.length == 0)
@@ -883,7 +899,7 @@ let project = {
 		document.getElementById("land_corner_fee_input").classList.toggle("d-none", project.lands_corner.length == 0)
 		document.getElementById("label_corner_fee").classList.toggle("d-none", project.lands_corner.length == 0)
 	},
-	update_price_lands(){ // when I change fee values
+	update_price_lands(){ // actualizo cuando cambio el valor de cuota general
 		const number_of_payments = parseInt(document.getElementById("project_number_of_payments").value)
 		const first_pay = ( document.getElementById("project_first_pay_required").checked ) ? parseInt( document.getElementById("project_first_pay_price").value ) : 0 
 		let price_fee = parseFloat( document.getElementById('project_price_fee').value.replace('.', '') )
@@ -907,6 +923,13 @@ let project = {
 			noty_alert('info', 'Ingreso un valor invalido')
 			return
 		}
+	},
+	set_finalized(){
+		document.getElementById('project_first_pay_required').parentElement.parentElement.parentElement.classList.toggle("d-none", event.target.checked)
+		document.getElementById('project_number_of_payments').disabled = event.target.checked
+		if (event.target.checked) {
+			document.getElementById('project_number_of_payments').value = 1	
+		}
 	}
 }
 
@@ -915,7 +938,7 @@ $(document).ready(function(){
 	$('.select-2-provider-role').select2({ width: '100%',theme: "bootstrap4", language: "es" })	
 	$('.select-2-payment-method').select2({ width: '100%',theme: "bootstrap4", language: "es" })	
 	$('.select-2-project-material').select2({ width: '100%',theme: "bootstrap4", language: "es" })	
-	$('.select-2-project-type').select2({ width: '30%',theme: "bootstrap4", language: "es" })	
+	$('.select-2-project-type').select2({ width: '100%',theme: "bootstrap4", language: "es" })	
 	$('.select-2-apple-list').select2({ width: '100%',theme: "bootstrap4", placeholder: "Todas seleccionadas", language: "es" })
 	$("#projects_table").DataTable({
 		'language': {'url': "/assets/plugins/datatables_lang_spa.json"}
@@ -951,10 +974,10 @@ async function async_add_apples(){ // adds apples and lands to form
 	document.getElementById('accordion-lands').innerHTML = ''
 	const apples = document.getElementsByClassName("apple-added")
 
-	if( !valid_number( parseFloat( document.getElementById("project_price").value ) ) ){
-		noty_alert("info", "Debe cargar el precio del proyecto")
-		return
-	}
+	// if( !valid_number( parseFloat( document.getElementById("project_price").value ) ) ){
+	// 	noty_alert("info", "Debe cargar el precio del proyecto")
+	// 	return
+	// }
 
 	if ( document.querySelectorAll("#modal_apple_list input[type='checkbox']:checked").length == 0) {
 		noty_alert("info", "No hay manzanas para agregar")
