@@ -26,6 +26,13 @@ class ProjectsController < ApplicationController
   end
 
   def create
+    params[:project][:land_corner_price] = 0
+    params[:project][:land_corner_price] = 0
+    params[:project][:price_fee_corner] = 0
+    params[:project][:price_fee] = 0
+    params[:project][:price] = params[:project][:subtotal]
+    params[:project][:number_of_payments] = 0
+
     ActiveRecord::Base.transaction do 
       project = Project.new(project_params)
       if project.save
@@ -35,6 +42,7 @@ class ProjectsController < ApplicationController
     rescue => e
       @response = e.message.split(':')
       puts @response
+       byebug
       render json: {status: 'error', msg: 'No se pudo registrar el proyecto'}, status: 402
   end
 
@@ -60,6 +68,7 @@ class ProjectsController < ApplicationController
         :land_corner_price, :land_price, :price_fee, :price_fee_corner, :date, :number_of_payments, :finalized, :first_pay_required, :first_pay_price,
         project_providers_attributes: [:id, :provider_id,:provider_role_id,:payment_method_id,:price,:iva,:value_iva,:price_calculate,:porcent,:type_total],
         project_materials_attributes: [:id, :material_id,:type_units,:units,:price],
+        payment_plants_attributes: [ :id, :number, :category, :price, :date ],
         apple_projects_attributes: [:id, :apple_id],
         land_projects_attributes: [:id, :land_id, :price,price_quotas: [], price_quotas_corner: [] ])
     end

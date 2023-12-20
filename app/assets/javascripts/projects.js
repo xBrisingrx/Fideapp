@@ -250,21 +250,21 @@ let project = {
 		this.form.append('project[subtotal]', parseFloat( this.subtotal ) )
 		this.form.append('project[description]', document.getElementById('project_description').value )
 		this.form.append('project[project_type_id]', parseInt(document.getElementById('project_project_type_id').value ) )
-		this.form.append('project[number_of_payments]', parseInt(document.getElementById('project_number_of_payments').value ) )
+		this.form.append('project[number_of_payments]', 0 )
 		this.form.append('project[finalized]', document.getElementById('project_finalized').checked )
 
-		this.form.append('project[land_price]', parseFloat( document.getElementById('project_land_price').value.replace('.', '').replace(',', '.') ) )
-		this.form.append('project[land_corner_price]', parseFloat( document.getElementById('project_land_corner_price').value.replace('.', '').replace(',', '.') ) )
-		this.form.append('project[first_pay_required]', document.getElementById('project_first_pay_required').checked )
-		this.form.append('project[first_pay_price]', parseFloat(document.getElementById('project_first_pay_price').value))
-		if ( document.getElementById('project_enter_quotas_manually').checked ) {
-			// le ponemos el valor de cada cuota cuando se agrega el lote
-			this.form.append('project[price_fee]', 0)
-			this.form.append('project[price_fee_corner]', 0 )
-		} else {
-			this.form.append('project[price_fee]', parseFloat( document.getElementById('project_price_fee').value.replace('.', '').replace(',', '.') ) )
-			this.form.append('project[price_fee_corner]', parseFloat( document.getElementById('project_price_fee_corner').value.replace('.', '').replace(',', '.') ) )
-		}
+		// this.form.append('project[land_price]', parseFloat( document.getElementById('project_land_price').value.replace('.', '').replace(',', '.') ) )
+		// this.form.append('project[land_corner_price]', parseFloat( document.getElementById('project_land_corner_price').value.replace('.', '').replace(',', '.') ) )
+		// this.form.append('project[first_pay_required]', document.getElementById('project_first_pay_required').checked )
+		// this.form.append('project[first_pay_price]', parseFloat(document.getElementById('project_first_pay_price').value))
+		// if ( document.getElementById('project_enter_quotas_manually').checked ) {
+		// 	// le ponemos el valor de cada cuota cuando se agrega el lote
+		// 	this.form.append('project[price_fee]', 0)
+		// 	this.form.append('project[price_fee_corner]', 0 )
+		// } else {
+		// 	this.form.append('project[price_fee]', parseFloat( document.getElementById('project_price_fee').value.replace('.', '').replace(',', '.') ) )
+		// 	this.form.append('project[price_fee_corner]', parseFloat( document.getElementById('project_price_fee_corner').value.replace('.', '').replace(',', '.') ) )
+		// }
 
 		this.add_providers()
 		this.add_materials()
@@ -582,9 +582,43 @@ let project = {
 			if (lands[i].checked) {
 				const land_price = ( lands[i].dataset.corner ) ? this.form.get('project[land_corner_price]') : this.form.get('project[land_price]')
 				this.form.append( `project[land_projects_attributes][${i}][land_id]` , lands[i].dataset.landId)
-				this.form.append( `project[land_projects_attributes][${i}][price]` , land_price)
+				this.form.append( `project[land_projects_attributes][${i}][price]` , 0)
 				this.form.append( `project[land_projects_attributes][${i}][price_quotas][]` , price_quotas )
 				this.form.append( `project[land_projects_attributes][${i}][price_quotas_corner][]` , price_quotas_corner )
+			}
+		}
+	},
+	add_payment_plans(){
+		const tables = document.getElementsByClassName("payment-plan")
+
+		let price_quotas = [] 
+		price_quotas = this.get_price_quotas()
+		let price_quotas_corner = []
+		price_quotas_corner = this.get_price_quotas_corner()
+		// payment_plants_attributes: [ :id, :number, :cateogry, :price, :date ],
+		for (let table_index = 0; table_index < tables.length; table_index++) {
+			const table = tables[table_index]
+			const payment_plan_first_pay = table.querySelectorAll('.payment-plan-first-pay-value')
+			const payment_plan_quotes = table.querySelectorAll('.payment-plan-quote-value')
+			if ( payment_plan_first_pay.length > 0 ) {
+				for (let i = 0; i < payment_plan_first_pay.length; i++) {
+					const element = payment_plan_first_pay[i];
+					this.form.append( `project[payment_plants_attributes][${i}][number]` , element.dataset.number)	
+					this.form.append( `project[payment_plants_attributes][${i}][category]`,1)	
+					this.form.append( `project[payment_plants_attributes][${i}][date]` , element.dataset.date)
+					this.form.append( `project[payment_plants_attributes][${i}][price]` , parseFloat(element.value))
+					this.form.append( `project[payment_plants_attributes][${i}][option]` , element.dataset.option)
+				}
+			}
+			if ( payment_plan_quotes.length > 0 ) {
+				for (let i = 0; i < payment_plan_quotes.length; i++) {
+					const element = payment_plan_quotes[i];
+					this.form.append( `project[payment_plants_attributes][${i}][number]` , element.dataset.number)	
+					this.form.append( `project[payment_plants_attributes][${i}][category]`,2)	
+					this.form.append( `project[payment_plants_attributes][${i}][date]` , element.dataset.date)
+					this.form.append( `project[payment_plants_attributes][${i}][price]` , parseFloat(element.value))
+					this.form.append( `project[payment_plants_attributes][${i}][option]` , element.dataset.option)
+				}
 			}
 		}
 	},
@@ -930,6 +964,122 @@ let project = {
 		if (event.target.checked) {
 			document.getElementById('project_number_of_payments').value = 1	
 		}
+	},
+	set_payment_plan_date(){
+		// $("#modal_payment_plan").modal('show')
+		document.getElementById('payment_plan_date').value = document.getElementById('project_date').value
+		// document.getElementById('payment_plan_quantity_first_pay').value = ''
+		// document.getElementById('payment_plan_quantity_quotes').value = ''
+		// document.getElementById("payment_plan_date").disabled = false
+	},
+	add_payment_plan(){
+		const payment_plan_quantity_first_pay = parseInt(document.getElementById('payment_plan_quantity_first_pay').value)
+		const payment_plan_quantity_quotes = parseInt(document.getElementById('payment_plan_quantity_quotes').value)
+		let payment_plan_date = new Date(`${document.getElementById("payment_plan_date").value}T00:00:00`)
+		const date = document.getElementById("payment_plan_date").value
+
+		if( !valid_number(payment_plan_quantity_first_pay) && !valid_number(payment_plan_quantity_quotes) ) {
+			noty_alert('info', 'Debe ingresar la cantidad de pagos')
+			return
+		}
+		const quantity_payment_plan = document.getElementsByClassName('payment-plan').length + 1
+		let html_to_insert = `<table class="table payment-plan">
+		<thead>
+			<th></th> <th></th>`
+		if (payment_plan_quantity_first_pay > 0) {
+			for (let index = 1; index <= payment_plan_quantity_first_pay; index++) {
+				html_to_insert += `<th>${meses[payment_plan_date.getMonth()]}-${payment_plan_date.getFullYear()}</th>`
+				payment_plan_date.setMonth( payment_plan_date.getMonth() + 1 )
+			}
+			html_to_insert += `<th></th>`
+		}
+
+		if (payment_plan_quantity_quotes > 0) {
+			for (let index = 1; index <= payment_plan_quantity_quotes; index++) {
+				html_to_insert += `<th>${meses[payment_plan_date.getMonth()]}-${payment_plan_date.getFullYear()}</th>`
+				payment_plan_date.setMonth( payment_plan_date.getMonth() + 1 )
+			}
+		}
+		html_to_insert += `</thead>
+			<tbody>
+				<tr>
+					<td></td>
+					<td>TOTAL $</td>
+		`
+		if (payment_plan_quantity_first_pay > 0) {
+			for (let index = 1; index <= payment_plan_quantity_first_pay; index++) {
+				html_to_insert += `<td>
+					Entrega ${index}
+				</td>`
+			}
+			html_to_insert += `<td>SALDO</td>`
+		}
+		if (payment_plan_quantity_quotes > 0) {
+			for (let index = 1; index <= payment_plan_quantity_quotes; index++) {
+				html_to_insert += `<td>
+					Cuota ${index}
+				</td>`
+			}
+		}
+		html_to_insert += `
+			<tr>
+				<td>Opcion ${quantity_payment_plan}</td>
+				<td><input type='text' id='total-option' disabled/></td>
+		`
+		// lo reseteo para tomar la fecha en los inputs
+		payment_plan_date = new Date(`${document.getElementById("payment_plan_date").value}T00:00:00`)
+		if (payment_plan_quantity_first_pay > 0) {
+			for (let index = 1; index <= payment_plan_quantity_first_pay; index++) {
+				html_to_insert += `<td><input type='number' step="0.01" class='payment-plan-first-pay-value' 
+					data-date='${payment_plan_date.getFullYear}-${payment_plan_date.getMonth()}-10' 
+					data-option=${quantity_payment_plan}
+					data-number=${index}
+					onchange='project.sum_payment_plan()'/></td>`
+			}
+			html_to_insert += `<td><input type='text' id='first-pay-saldo' disabled/></td>`
+		}
+		if (payment_plan_quantity_quotes > 0) {
+			for (let index = 1; index <= payment_plan_quantity_quotes; index++) {
+				html_to_insert += `<td><input type='number' step="0.01" class='payment-plan-quote-value' 
+					data-date='${payment_plan_date.getFullYear}-${payment_plan_date.getMonth()}-10' 
+					data-option=${quantity_payment_plan} 
+					data-number=${index} 
+					onchange='project.sum_payment_plan()'/></td>`
+			}
+		}
+		document.getElementsByClassName('payment_plan_data')[0].innerHTML += html_to_insert
+		document.getElementById('payment_plan_quantity_first_pay').value = ''
+		document.getElementById('payment_plan_quantity_quotes').value = ''
+	},
+	sum_payment_plan(){
+		let payment_plan_total = 0
+		let payment_plan_first_pay = 0
+		const table = event.target.parentElement.parentElement.parentElement.parentElement
+		if ( table.querySelectorAll('.payment-plan-first-pay-value').length > 0 ) {
+			const payment_plan_first_pay_inputs = table.querySelectorAll('.payment-plan-first-pay-value')
+			for (let index = 0; index < payment_plan_first_pay_inputs.length; index++) {
+				const element = parseFloat( payment_plan_first_pay_inputs[index].value)
+				if( valid_number( element )){
+					payment_plan_first_pay +=  element
+					payment_plan_total +=  element
+				}
+			}
+		}
+
+		if ( table.querySelectorAll('.payment-plan-quote-value').length > 0 ) {
+			const payment_plan_quote_pay_inputs = table.querySelectorAll('.payment-plan-quote-value')
+			for (let index = 0; index < payment_plan_quote_pay_inputs.length; index++) {
+				const element = parseFloat( payment_plan_quote_pay_inputs[index].value)
+				if( valid_number( element ) ){
+					payment_plan_total += element
+				}
+			}
+		}
+
+		if (payment_plan_first_pay > 0) {
+			table.querySelector('#first-pay-saldo').value = numberFormat.format(payment_plan_total - payment_plan_first_pay) 
+		}
+		table.querySelector('#total-option').value = numberFormat.format(payment_plan_total)
 	}
 }
 
@@ -946,6 +1096,10 @@ $(document).ready(function(){
 
 	if (document.getElementById("project_date") != null) {
 		setInputDate("#project_date")
+	}
+
+	if (document.getElementById("project_date") != null) {
+		setInputDate("#payment_plan_date")
 	}
 
 	if (document.getElementById('project_first_pay_required') != null) {

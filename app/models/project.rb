@@ -2,21 +2,26 @@
 #
 # Table name: projects
 #
-#  id                :bigint           not null, primary key
-#  number            :integer          not null
-#  name              :string(255)
-#  active            :boolean          default(TRUE)
-#  price             :decimal(15, 2)   default(0.0), not null
-#  subtotal          :decimal(15, 2)   default(0.0), not null
-#  final_price       :decimal(15, 2)   default(0.0), not null
-#  status            :integer          default("pendiente")
-#  description       :text(65535)
-#  land_price        :decimal(15, 2)   default(0.0), not null
-#  land_corner_price :decimal(15, 2)   default(0.0), not null
-#  project_type_id   :bigint
-#  created_at        :datetime         not null
-#  updated_at        :datetime         not null
-#  date              :date             default(Sun, 01 Jan 2023), not null
+#  id                 :bigint           not null, primary key
+#  number             :integer          not null
+#  name               :string(255)
+#  active             :boolean          default(TRUE)
+#  price              :decimal(15, 2)   default(0.0), not null
+#  subtotal           :decimal(15, 2)   default(0.0), not null
+#  final_price        :decimal(15, 2)   default(0.0), not null
+#  status             :integer          default("pendiente")
+#  description        :text(65535)
+#  land_price         :decimal(15, 2)   default(0.0), not null
+#  land_corner_price  :decimal(15, 2)   default(0.0), not null
+#  project_type_id    :bigint
+#  created_at         :datetime         not null
+#  updated_at         :datetime         not null
+#  date               :date             not null
+#  price_fee          :decimal(15, 2)   not null
+#  price_fee_corner   :decimal(15, 2)   not null
+#  number_of_payments :integer          not null
+#  first_pay_required :boolean          default(TRUE)
+#  first_pay_price    :decimal(15, 2)
 #
 class Project < ApplicationRecord
   attribute :finalized, :boolean
@@ -30,12 +35,13 @@ class Project < ApplicationRecord
   has_many :providers, through: :project_providers
   has_many :materials, through: :project_materials
   has_many :lands, through: :land_projects
+  has_many :payment_plans, dependent: :destroy
 
-  accepts_nested_attributes_for :project_providers, :project_materials,:apple_projects, :land_projects
+  accepts_nested_attributes_for :project_providers, :project_materials,:apple_projects, :land_projects, :payment_plans
 
   validates :land_price, :land_corner_price, 
-    presence: true, 
-    numericality: { greater_than: 0 }
+    presence: true
+    # numericality: { greater_than: 0 }
   validates :number, presence: true, numericality: { only_integer: true }
   validates :date, presence: true
   

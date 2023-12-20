@@ -16,6 +16,7 @@
 #  active     :boolean          default(TRUE)
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
+#  type_fee   :integer          default(NULL)
 #
 class Fee < ApplicationRecord
   # La cuota es un acuerdo de pagos
@@ -33,7 +34,8 @@ class Fee < ApplicationRecord
   scope :no_refinancied, -> { where.not(pay_status: :refinancied) }
 
   enum pay_status: [:pendiente, :pagado, :pago_parcial, :refinancied]
-
+  enum type_fee: [:first_pay, :quote]
+  
   def calcular_primer_pago
     primer_pago = self.fee_payments.sum(:total)
     self.update( payment: primer_pago , value: primer_pago )

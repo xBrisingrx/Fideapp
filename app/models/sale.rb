@@ -3,7 +3,7 @@
 # Table name: sales
 #
 #  id                 :bigint           not null, primary key
-#  status             :boolean          default(NULL)
+#  status             :integer          default("not_approved")
 #  apply_arrear       :boolean          default(TRUE), not null
 #  arrear             :decimal(15, 2)   default(0.5), not null
 #  comment            :text(65535)
@@ -32,6 +32,8 @@ class Sale < ApplicationRecord
 	accepts_nested_attributes_for :sale_clients, :sale_products, :fees
 
 	enum status: [:not_approved, :approved, :payed]
+
+	# not_approved mean that still the client don't select payment plan to pay the project
 
 	def calculate_total_value!
 		# Se calcula el valor final de la venta, al momento de vender el lote
@@ -230,6 +232,23 @@ class Sale < ApplicationRecord
 		else
 			return is_project
 		end
+	end
+
+	def generate_fees
+		# genero las cuotas teniendo en cuenta los planes de pagos
+		payment_plans = self.payment_plans
+		payment_plans.each do |plan|
+			self.fees.create!(
+				due_date: plan.date, 
+				value: plan.price, 
+				number: plan.number,
+				type_fee: plan.category
+			)
+		end
+		self.update(number_of_payments: self.fees.count)
+		total = sale.payment_plans.sum(:price)
+		land_project = LandProject.where( sale:self ).first
+    land_project.update(price: total)
 	end
 	
 	private
