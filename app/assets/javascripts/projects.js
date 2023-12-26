@@ -270,6 +270,7 @@ let project = {
 		this.add_materials()
 		this.add_apples_to_form()
 		this.add_lands_to_form()
+		this.add_payment_plans()
 		fetch('/projects/', {
       method: 'POST',
       headers: {           
@@ -595,7 +596,7 @@ let project = {
 		price_quotas = this.get_price_quotas()
 		let price_quotas_corner = []
 		price_quotas_corner = this.get_price_quotas_corner()
-		// payment_plants_attributes: [ :id, :number, :cateogry, :price, :date ],
+		let payment_plans_index = 1
 		for (let table_index = 0; table_index < tables.length; table_index++) {
 			const table = tables[table_index]
 			const payment_plan_first_pay = table.querySelectorAll('.payment-plan-first-pay-value')
@@ -603,21 +604,23 @@ let project = {
 			if ( payment_plan_first_pay.length > 0 ) {
 				for (let i = 0; i < payment_plan_first_pay.length; i++) {
 					const element = payment_plan_first_pay[i];
-					this.form.append( `project[payment_plants_attributes][${i}][number]` , element.dataset.number)	
-					this.form.append( `project[payment_plants_attributes][${i}][category]`,1)	
-					this.form.append( `project[payment_plants_attributes][${i}][date]` , element.dataset.date)
-					this.form.append( `project[payment_plants_attributes][${i}][price]` , parseFloat(element.value))
-					this.form.append( `project[payment_plants_attributes][${i}][option]` , element.dataset.option)
+					this.form.append( `project[payment_plans_attributes][${payment_plans_index}][number]` , element.dataset.number)	
+					this.form.append( `project[payment_plans_attributes][${payment_plans_index}][category]`,1)	
+					this.form.append( `project[payment_plans_attributes][${payment_plans_index}][date]` , element.dataset.date)
+					this.form.append( `project[payment_plans_attributes][${payment_plans_index}][price]` , parseFloat(element.value))
+					this.form.append( `project[payment_plans_attributes][${payment_plans_index}][option]` , element.dataset.option)
+					payment_plans_index++
 				}
 			}
 			if ( payment_plan_quotes.length > 0 ) {
 				for (let i = 0; i < payment_plan_quotes.length; i++) {
 					const element = payment_plan_quotes[i];
-					this.form.append( `project[payment_plants_attributes][${i}][number]` , element.dataset.number)	
-					this.form.append( `project[payment_plants_attributes][${i}][category]`,2)	
-					this.form.append( `project[payment_plants_attributes][${i}][date]` , element.dataset.date)
-					this.form.append( `project[payment_plants_attributes][${i}][price]` , parseFloat(element.value))
-					this.form.append( `project[payment_plants_attributes][${i}][option]` , element.dataset.option)
+					this.form.append( `project[payment_plants_attributes][${payment_plans_index}][number]` , element.dataset.number)	
+					this.form.append( `project[payment_plants_attributes][${payment_plans_index}][category]`,2)	
+					this.form.append( `project[payment_plants_attributes][${payment_plans_index}][date]` , element.dataset.date)
+					this.form.append( `project[payment_plants_attributes][${payment_plans_index}][price]` , parseFloat(element.value))
+					this.form.append( `project[payment_plants_attributes][${payment_plans_index}][option]` , element.dataset.option)
+					payment_plans_index++
 				}
 			}
 		}
@@ -1031,20 +1034,22 @@ let project = {
 		if (payment_plan_quantity_first_pay > 0) {
 			for (let index = 1; index <= payment_plan_quantity_first_pay; index++) {
 				html_to_insert += `<td><input type='number' step="0.01" class='payment-plan-first-pay-value' 
-					data-date='${payment_plan_date.getFullYear}-${payment_plan_date.getMonth()}-10' 
+					data-date='${payment_plan_date.getFullYear()}-${payment_plan_date.getMonth()}-10' 
 					data-option=${quantity_payment_plan}
 					data-number=${index}
 					onchange='project.sum_payment_plan()'/></td>`
+				payment_plan_date.setMonth( payment_plan_date.getMonth() + 1)
 			}
 			html_to_insert += `<td><input type='text' id='first-pay-saldo' disabled/></td>`
 		}
 		if (payment_plan_quantity_quotes > 0) {
 			for (let index = 1; index <= payment_plan_quantity_quotes; index++) {
 				html_to_insert += `<td><input type='number' step="0.01" class='payment-plan-quote-value' 
-					data-date='${payment_plan_date.getFullYear}-${payment_plan_date.getMonth()}-10' 
+					data-date='${payment_plan_date.getFullYear()}-${payment_plan_date.getMonth()}-10' 
 					data-option=${quantity_payment_plan} 
 					data-number=${index} 
 					onchange='project.sum_payment_plan()'/></td>`
+				payment_plan_date.setMonth( payment_plan_date.getMonth() + 1)
 			}
 		}
 		document.getElementsByClassName('payment_plan_data')[0].innerHTML += html_to_insert

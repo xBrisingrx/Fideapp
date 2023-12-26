@@ -35,6 +35,7 @@ class ProjectsController < ApplicationController
 
     ActiveRecord::Base.transaction do 
       project = Project.new(project_params)
+      byebug
       if project.save
         render json: {status: 'success', msg: 'Proyecto registrado con exito'}, status: :ok
       end
@@ -42,7 +43,7 @@ class ProjectsController < ApplicationController
     rescue => e
       @response = e.message.split(':')
       puts @response
-       byebug
+      byebug
       render json: {status: 'error', msg: 'No se pudo registrar el proyecto'}, status: 402
   end
 
@@ -68,7 +69,7 @@ class ProjectsController < ApplicationController
         :land_corner_price, :land_price, :price_fee, :price_fee_corner, :date, :number_of_payments, :finalized, :first_pay_required, :first_pay_price,
         project_providers_attributes: [:id, :provider_id,:provider_role_id,:payment_method_id,:price,:iva,:value_iva,:price_calculate,:porcent,:type_total],
         project_materials_attributes: [:id, :material_id,:type_units,:units,:price],
-        payment_plants_attributes: [ :id, :number, :category, :price, :date ],
+        payment_plans_attributes: [ :id, :number, :category, :price, :date, :option ],
         apple_projects_attributes: [:id, :apple_id],
         land_projects_attributes: [:id, :land_id, :price,price_quotas: [], price_quotas_corner: [] ])
     end
