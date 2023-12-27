@@ -36,6 +36,7 @@ class ProjectsController < ApplicationController
     ActiveRecord::Base.transaction do 
       project = Project.new(project_params)
       byebug
+      raise 'asdf'
       if project.save
         render json: {status: 'success', msg: 'Proyecto registrado con exito'}, status: :ok
       end

@@ -601,6 +601,7 @@ let project = {
 			const table = tables[table_index]
 			const payment_plan_first_pay = table.querySelectorAll('.payment-plan-first-pay-value')
 			const payment_plan_quotes = table.querySelectorAll('.payment-plan-quote-value')
+			debugger
 			if ( payment_plan_first_pay.length > 0 ) {
 				for (let i = 0; i < payment_plan_first_pay.length; i++) {
 					const element = payment_plan_first_pay[i];
@@ -979,7 +980,6 @@ let project = {
 		const payment_plan_quantity_first_pay = parseInt(document.getElementById('payment_plan_quantity_first_pay').value)
 		const payment_plan_quantity_quotes = parseInt(document.getElementById('payment_plan_quantity_quotes').value)
 		let payment_plan_date = new Date(`${document.getElementById("payment_plan_date").value}T00:00:00`)
-		const date = document.getElementById("payment_plan_date").value
 
 		if( !valid_number(payment_plan_quantity_first_pay) && !valid_number(payment_plan_quantity_quotes) ) {
 			noty_alert('info', 'Debe ingresar la cantidad de pagos')
@@ -1031,10 +1031,11 @@ let project = {
 		`
 		// lo reseteo para tomar la fecha en los inputs
 		payment_plan_date = new Date(`${document.getElementById("payment_plan_date").value}T00:00:00`)
+		payment_plan_date.setDate(10)
 		if (payment_plan_quantity_first_pay > 0) {
 			for (let index = 1; index <= payment_plan_quantity_first_pay; index++) {
 				html_to_insert += `<td><input type='number' step="0.01" class='payment-plan-first-pay-value' 
-					data-date='${payment_plan_date.getFullYear()}-${payment_plan_date.getMonth()}-10' 
+					data-date='${payment_plan_date.toLocaleDateString()}' 
 					data-option=${quantity_payment_plan}
 					data-number=${index}
 					onchange='project.sum_payment_plan()'/></td>`
@@ -1045,7 +1046,7 @@ let project = {
 		if (payment_plan_quantity_quotes > 0) {
 			for (let index = 1; index <= payment_plan_quantity_quotes; index++) {
 				html_to_insert += `<td><input type='number' step="0.01" class='payment-plan-quote-value' 
-					data-date='${payment_plan_date.getFullYear()}-${payment_plan_date.getMonth()}-10' 
+					data-date='${payment_plan_date.toLocaleDateString()}' 
 					data-option=${quantity_payment_plan} 
 					data-number=${index} 
 					onchange='project.sum_payment_plan()'/></td>`
