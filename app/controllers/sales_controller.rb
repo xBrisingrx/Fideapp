@@ -48,9 +48,10 @@ class SalesController < ApplicationController
         due_day: params[:due_day],
         number_of_payments: params[:number_of_payments],
         land_id: params[:land_id],
-        price: 0 )
-      if sale.save! 
-        # cuando se vende tierra va son clientes, si es proyecto no
+        price: 0,
+        status: :approved)
+      if sale.save!
+        # cuando se vende tierra va con clientes, si es proyecto no
         if params[:product_type] == 'land'
           if params[:clients].blank?
             return render json: {status: 'error', msg: 'No se han seleccionado clientes'}, status: 422
@@ -108,6 +109,20 @@ class SalesController < ApplicationController
       render json: {status: 'error', msg: 'No se pudo registrar la venta'}, status: 402
   end #create
 
+  def edit
+    project = Project.find @sale.sale_products.first.product.id
+    @quantity_plans = project.payment_plans.group(:option).count.count
+    @first_pays = project.payment_plans.where( category: 1 )
+    @quotes = project.payment_plans.where( category: 2 )
+  end
+
+  def update
+    if @sale.approved_sale( params[:payment_plan][:option] )
+      render json: {status: 'success', msg: 'Proyecto financiado.'}, status: :ok
+    else
+      render json: {status: 'errors', msg: 'No se pudo financiar el proyecto'}, status: :unprocessable_entity
+    end
+  end
 
   def sale_project
     sale = Sale.new(

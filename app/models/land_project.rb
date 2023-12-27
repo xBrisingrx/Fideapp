@@ -37,14 +37,16 @@ class LandProject < ApplicationRecord
     sale = Sale.create(
       date: project.date,
       land_id: land.id,
-      status: ( project.payment_plans.group(:number).count.count == 1 ) ? :approved : :not_approved,
+      status: ( project.payment_plans.group(:option).count.count == 1 ) ? :approved : :not_approved,
       number_of_payments: 0
     )
+    byebug
     # I add product to sale
     sale.sale_products.create( product: project )
     if sale.approved?
-      sale.generate_fees
+      sale.generate_fees( self.project_id ,1 )
     end
+    byebug
     # if sale.approved?
       
     # end

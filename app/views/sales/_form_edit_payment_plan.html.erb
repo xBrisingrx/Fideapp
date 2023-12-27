@@ -1,0 +1,76 @@
+<%= form_with( model: @sale, id: 'form-sale', 
+  remote:true,  
+  class: 'needs-validation g-brd-around g-brd-gray-light-v4 g-pa-10 g-mb-10' ) do |form| %>
+  <div class="form-group row">
+    <div class="col-4">
+      <label for="">Opcion de pago:</label>
+    </div>
+    <div class="col-6">
+      <select name="payment_plan[option]" id="payment_plan_option" class="form-control" required>
+        <option value="">Seleccione plan de pago</option>
+         <% for i in 1..@quantity_plans do %>
+          <option value="<%= i %>"><%= i %></option>
+         <% end %>
+      </select>
+    </div>
+  </div>
+  <% for i in 1..@quantity_plans do %>
+    <div class="col-12 mb-2">
+      <table class="table table-responsive table-striped">
+        <thead>
+          <th></th>
+          <th></th>
+          <% if @first_pays.where( option: i ).count > 0 %>
+            <% @first_pays.where( option: i ).each do |pay| %>
+              <th> <%= I18n.t("date.month_names")[pay.date.month] %>-<%= pay.date.year %> </th>
+            <% end %>
+            <th></th>
+          <% end %>
+          <% if @quotes.where( option: i ).count > 0 %>
+            <% @quotes.where( option: i ).each do |pay| %>
+              <th> <%= I18n.t("date.month_names")[pay.date.month] %>-<%= pay.date.year %> </th>
+            <% end %>
+          <% end %>
+        </thead>
+        <tbody>
+          <tr>
+            <td></td>
+            <td><b>Total</b></td>
+            <% if @first_pays.where( option: i ).count > 0 %>
+            <% @first_pays.where( option: i ).each do |pay| %>
+              <td> Entrega <%= pay.number %> </td>
+            <% end %>
+            <td><b>Saldo</b></td>
+          <% end %>
+          <% if @quotes.where( option: i ).count > 0 %>
+            <% @quotes.where( option: i ).each do |pay| %>
+              <td> Cuota <%= pay.number %> </td>
+            <% end %>
+          <% end %>
+          </tr>
+          <tr>
+            <td>Opcion <%= i %></td>
+            <td><b>$<%= format_currency(@first_pays.where( option: i ).sum(:price) + @quotes.where( option: i ).sum(:price)) %></b></td>
+            <% if @first_pays.where( option: i ).count > 0 %>
+              <% @first_pays.where( option: i ).each do |pay| %>
+                <td> $<%= format_currency(pay.price) %> </td>
+              <% end %>
+              <td><b>$<%= format_currency( @quotes.where( option: i ).sum(:price) ) %></b></td>
+            <% end %>
+            <% if @quotes.where( option: i ).count > 0 %>
+              <% @quotes.where( option: i ).each do |pay| %>
+                <td> $<%= format_currency(pay.price) %> </td>
+              <% end %>
+            <% end %>
+          </tr>
+        </tbody>
+      </table>
+      <hr class="w-50 g-my-20">
+    </div>
+  <% end %>
+
+  <div class="actions">
+    <%= form.submit 'Financiar', class: "btn u-btn-blue" %>
+    <button type="button" class="btn u-btn-red" data-dismiss="modal" aria-label="Close"> Cancelar </button>
+  </div>
+<% end %>

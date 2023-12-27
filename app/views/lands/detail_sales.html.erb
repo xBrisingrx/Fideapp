@@ -23,7 +23,19 @@
   <% end %>
 </div>
 
-<p class="font-weight-bold">Proyectos próximos a comenzar: </p>
+<%# <p class="font-weight-bold">Proyectos próximos a comenzar: </p> %>
+<% if @land.sales.where(status: :not_approved).count > 0 %>
+  <p class="font-weight-bold">Proyectos a financiar: </p>
+  <div class="row">
+    <% @land.sales.where(status: :not_approved).each do |sale| %>
+      <%= link_to "#{sale.sale_products.first.product.name}", 
+        edit_sale_path(sale),
+        remote: true,
+        class: 'u-tags-v1 g-color-red g-brd-around g-brd-red g-bg-red-opacity-0_1 g-bg-red--hover g-color-white--hover g-rounded-50 g-py-4 g-px-15 g-mr-10' %>
+    <% end %>
+  </div>
+<% end %>
+
 <div class="mt-2 mb-2">
   <% @land.land_projects.each do |project| %>
 <ul>
@@ -47,7 +59,7 @@
 
 <hr>
 
-<% @land.sales.each do |sale| %>
+<% @land.sales.where.not(status: :not_approved).each do |sale| %>
   <%= render(partial: 'fees_detail_table.html.erb', locals: { sale: sale }) %>
 <% end %>
 

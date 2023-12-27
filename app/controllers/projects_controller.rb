@@ -35,16 +35,14 @@ class ProjectsController < ApplicationController
 
     ActiveRecord::Base.transaction do 
       project = Project.new(project_params)
-      byebug
-      raise 'asdf'
       if project.save
+        project.check_payment_plan
         render json: {status: 'success', msg: 'Proyecto registrado con exito'}, status: :ok
       end
     end
     rescue => e
       @response = e.message.split(':')
       puts @response
-      byebug
       render json: {status: 'error', msg: 'No se pudo registrar el proyecto'}, status: 402
   end
 

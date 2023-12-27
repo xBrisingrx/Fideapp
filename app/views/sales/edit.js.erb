@@ -1,0 +1,8 @@
+$("#modal").html("<%= j (render partial: 'modal_edit' ) %>")
+$("#modal").modal('show')
+
+$("#form-sale").on("ajax:success", function(event) {
+  location.reload();
+}).on("ajax:error", function(event) {
+  console.warn('algo salio mal')
+})

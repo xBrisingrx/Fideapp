@@ -234,9 +234,9 @@ class Sale < ApplicationRecord
 		end
 	end
 
-	def generate_fees
+	def generate_fees ( project_id, option )
 		# genero las cuotas teniendo en cuenta los planes de pagos
-		payment_plans = self.payment_plans
+		payment_plans = PaymentPlan.where( project_id: project_id, option: option )
 		payment_plans.each do |plan|
 			self.fees.create!(
 				due_date: plan.date, 
@@ -246,9 +246,18 @@ class Sale < ApplicationRecord
 			)
 		end
 		self.update(number_of_payments: self.fees.count)
-		total = sale.payment_plans.sum(:price)
-		land_project = LandProject.where( sale:self ).first
+		total = payment_plans.sum(:price)
+		land_project = LandProject.where( land_id: self.land.id, project_id: project_id ).first
     land_project.update(price: total)
+	end
+
+	def approved_sale option
+		ActiveRecord::Base.transaction do
+			self.update( status: :approved )
+			project = Project.find self.sale_products.first.product.id
+			land_project = LandProject.find_by( project: project, land_id: self.land.id )
+			self.generate_fees( project.id ,option )
+		end
 	end
 	
 	private

@@ -265,12 +265,11 @@ let project = {
 		// 	this.form.append('project[price_fee]', parseFloat( document.getElementById('project_price_fee').value.replace('.', '').replace(',', '.') ) )
 		// 	this.form.append('project[price_fee_corner]', parseFloat( document.getElementById('project_price_fee_corner').value.replace('.', '').replace(',', '.') ) )
 		// }
-
+		this.add_payment_plans()
 		this.add_providers()
 		this.add_materials()
 		this.add_apples_to_form()
 		this.add_lands_to_form()
-		this.add_payment_plans()
 		fetch('/projects/', {
       method: 'POST',
       headers: {           
@@ -591,17 +590,11 @@ let project = {
 	},
 	add_payment_plans(){
 		const tables = document.getElementsByClassName("payment-plan")
-
-		let price_quotas = [] 
-		price_quotas = this.get_price_quotas()
-		let price_quotas_corner = []
-		price_quotas_corner = this.get_price_quotas_corner()
-		let payment_plans_index = 1
+		let payment_plans_index = 0
 		for (let table_index = 0; table_index < tables.length; table_index++) {
 			const table = tables[table_index]
 			const payment_plan_first_pay = table.querySelectorAll('.payment-plan-first-pay-value')
 			const payment_plan_quotes = table.querySelectorAll('.payment-plan-quote-value')
-			debugger
 			if ( payment_plan_first_pay.length > 0 ) {
 				for (let i = 0; i < payment_plan_first_pay.length; i++) {
 					const element = payment_plan_first_pay[i];
@@ -616,11 +609,11 @@ let project = {
 			if ( payment_plan_quotes.length > 0 ) {
 				for (let i = 0; i < payment_plan_quotes.length; i++) {
 					const element = payment_plan_quotes[i];
-					this.form.append( `project[payment_plants_attributes][${payment_plans_index}][number]` , element.dataset.number)	
-					this.form.append( `project[payment_plants_attributes][${payment_plans_index}][category]`,2)	
-					this.form.append( `project[payment_plants_attributes][${payment_plans_index}][date]` , element.dataset.date)
-					this.form.append( `project[payment_plants_attributes][${payment_plans_index}][price]` , parseFloat(element.value))
-					this.form.append( `project[payment_plants_attributes][${payment_plans_index}][option]` , element.dataset.option)
+					this.form.append( `project[payment_plans_attributes][${payment_plans_index}][number]` , element.dataset.number)	
+					this.form.append( `project[payment_plans_attributes][${payment_plans_index}][category]`,2)	
+					this.form.append( `project[payment_plans_attributes][${payment_plans_index}][date]` , element.dataset.date)
+					this.form.append( `project[payment_plans_attributes][${payment_plans_index}][price]` , parseFloat(element.value))
+					this.form.append( `project[payment_plans_attributes][${payment_plans_index}][option]` , element.dataset.option)
 					payment_plans_index++
 				}
 			}
