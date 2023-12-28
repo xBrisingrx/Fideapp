@@ -99,11 +99,6 @@ class Project < ApplicationRecord
 
   def check_payment_plan
     if self.payment_plans.group(:option).count.count == 1
-      land_projects = LandProject.where( project: self )
-      land_projects.each do | lp |
-        sale_product = 
-      end
-
       sale_products = SaleProduct.where( product: self )
       sale_products.each do |sp|
         sp.sale.generate_fees( sp.product.id,1 )
