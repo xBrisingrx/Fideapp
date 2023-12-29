@@ -270,7 +270,7 @@ let project = {
 		this.add_materials()
 		this.add_apples_to_form()
 		this.add_lands_to_form()
-		fetch('/projects/', {
+				fetch('/projects/', {
       method: 'POST',
       headers: {           
         'X-CSRF-Token': document.getElementsByName('csrf-token')[0].content,
@@ -590,12 +590,12 @@ let project = {
 	},
 	add_payment_plans(){
 		const tables = document.getElementsByClassName("payment-plan")
-		let payment_plans_index = 0
+let payment_plans_index = 0
 		for (let table_index = 0; table_index < tables.length; table_index++) {
 			const table = tables[table_index]
 			const payment_plan_first_pay = table.querySelectorAll('.payment-plan-first-pay-value')
 			const payment_plan_quotes = table.querySelectorAll('.payment-plan-quote-value')
-			if ( payment_plan_first_pay.length > 0 ) {
+						if ( payment_plan_first_pay.length > 0 ) {
 				for (let i = 0; i < payment_plan_first_pay.length; i++) {
 					const element = payment_plan_first_pay[i];
 					this.form.append( `project[payment_plans_attributes][${payment_plans_index}][number]` , element.dataset.number)	

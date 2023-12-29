@@ -238,6 +238,7 @@ class Sale < ApplicationRecord
 		# genero las cuotas teniendo en cuenta los planes de pagos
 		payment_plans = PaymentPlan.where( project_id: project_id, option: option )
 		payment_plans.each do |plan|
+			self.update( status: :approved )
 			self.fees.create!(
 				due_date: plan.date, 
 				value: plan.price, 
@@ -253,7 +254,6 @@ class Sale < ApplicationRecord
 
 	def approved_sale option
 		ActiveRecord::Base.transaction do
-			self.update( status: :approved )
 			project = Project.find self.sale_products.first.product.id
 			land_project = LandProject.find_by( project: project, land_id: self.land.id )
 			self.generate_fees( project.id ,option )
