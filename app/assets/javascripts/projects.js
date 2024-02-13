@@ -253,18 +253,6 @@ let project = {
 		this.form.append('project[number_of_payments]', 0 )
 		this.form.append('project[finalized]', document.getElementById('project_finalized').checked )
 
-		// this.form.append('project[land_price]', parseFloat( document.getElementById('project_land_price').value.replace('.', '').replace(',', '.') ) )
-		// this.form.append('project[land_corner_price]', parseFloat( document.getElementById('project_land_corner_price').value.replace('.', '').replace(',', '.') ) )
-		// this.form.append('project[first_pay_required]', document.getElementById('project_first_pay_required').checked )
-		// this.form.append('project[first_pay_price]', parseFloat(document.getElementById('project_first_pay_price').value))
-		// if ( document.getElementById('project_enter_quotas_manually').checked ) {
-		// 	// le ponemos el valor de cada cuota cuando se agrega el lote
-		// 	this.form.append('project[price_fee]', 0)
-		// 	this.form.append('project[price_fee_corner]', 0 )
-		// } else {
-		// 	this.form.append('project[price_fee]', parseFloat( document.getElementById('project_price_fee').value.replace('.', '').replace(',', '.') ) )
-		// 	this.form.append('project[price_fee_corner]', parseFloat( document.getElementById('project_price_fee_corner').value.replace('.', '').replace(',', '.') ) )
-		// }
 		this.add_payment_plans()
 		this.add_providers()
 		this.add_materials()
