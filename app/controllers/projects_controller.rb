@@ -11,7 +11,6 @@ class ProjectsController < ApplicationController
   end
 
   def new
-    @title_modal = "Nuevo proyecto"
     @project = Project.new
     @project_type = ProjectType.actives.order(:name)
     @materials = Material.actives.order(:name)
