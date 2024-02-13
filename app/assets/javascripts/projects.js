@@ -58,7 +58,7 @@ let project = {
 			type_total: type_total,
 			payment_method_id: 2
 		}
-		if ( this.provider_validations(provider) ) {
+		if ( this.provider_validations(provider) && this.provider_not_exist( provider ) ) {
 			provider.name =  $('#project_other_provider_id option:selected').text()
 			provider.role_name =  $('#project_other_provider_role option:selected').text()
 			provider.provider_price_calculate = this.calcular_precio_proveedor( provider )
@@ -74,6 +74,8 @@ let project = {
 			$(`.select-2-provider-other-role`).val('').trigger('change')
 			document.getElementById('project_provider_price').value = ''
 			document.getElementById('table_other_provider').classList.remove('d-none')
+		} else if( !this.provider_not_exist( provider ) ){
+			noty_alert('info', 'Este interviniente ya se encuentra agregado con la misma función.')
 		}
 	},
 	remove_provider( id ) {
@@ -357,6 +359,14 @@ let project = {
 		// }
 
 		return true
+	},
+	provider_not_exist({provider_id, provider_role,type_total}){
+		// we check that this provider doesn't exit in provider_list with same rol and type
+		// one provider can be in array more the one time with different rol
+		let provider_find = this.providers_list.find( element => {
+			return element.provider_id == provider_id && element.provider_role == provider_role && element.type_total == type_total
+		} )
+		return provider_find === undefined
 	},
 	disabled_and_reset_select(select_id, select_class){
 		$(`#${select_id} option:selected`).attr('disabled', 'disabled')
