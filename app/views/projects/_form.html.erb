@@ -151,7 +151,7 @@
       <div class="invalid-feedback material_id"></div>
     </div>
     <div class="col-2">
-      <select name="" id="type_unit" class="form-control">
+      <select name="" id="type_unit" class="select-2-project-material-unit">
         <option value="Ninguna">Tipo unidades</option>
         <option value="Unidad">Unidad</option>
         <option value="Liquido">Liquido</option>
@@ -198,14 +198,14 @@
     <div class="form-group col-3">
       <%= form.select(:other_provider_id, @providers.collect {|p| [p.name, p.id]}, 
                       {:include_blank => "Seleccione interviniente"},
-                      class: 'select-2-project-other-provider form-control') %>
+                      class: 'select-2-project-provider') %>
       <div class="invalid-feedback other_provider_id"></div>
     </div>
 
     <div class="form-group col-2">
       <%= form.select(:other_provider_role, @provider_roles.collect {|p| [p.name, p.id]}, 
                       {:include_blank => "Seleccione función"},
-                      class: 'select-2-provider-other-role form-control') %>
+                      class: 'select-2-provider-role') %>
       <div class="invalid-feedback other_provider_role"></div>
     </div>
     <div class="form-group col-2">
