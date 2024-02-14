@@ -37,7 +37,7 @@ let project = {
 			provider.provider_price_calculate = this.calcular_precio_proveedor( provider )
 			provider.value_iva = this.calculate_value_iva(provider)
 			provider.provider_porcent = 0
-			provider.total = provider.value_iva + provider.provider_price_calculate
+			provider.total = roundToTwo(provider.value_iva + provider.provider_price_calculate)
 			provider.list_id = `${provider.provider_id}_${provider.provider_role}_${type_total}`
 
 			this.providers_list.push( provider )
@@ -205,11 +205,11 @@ let project = {
 		this.calculate_subtotal()
 	},
 	sum_material_price(){
-		return this.materials_list.reduce( (acc, element) => acc + (element.price * element.units), 0 )
+		return roundToTwo( this.materials_list.reduce( (acc, element) => acc + (element.price * element.units), 0 ) )
 	},
 	material_porcent(){
 		const price_materials = this.sum_material_price()
-		return (( price_materials * 100 ) / this.final_price ).toFixed(2)
+		return roundToTwo(( price_materials * 100 ) / this.final_price )
 	},
 	add_number_input(nodo,delete_btn, disabled, className, input_id, placeholder = ''){
 		let newNode = document.createElement("input");
@@ -374,9 +374,9 @@ let project = {
 		if (payment_method_id == 2) { // porcentaje
 			const porcent = provider_price/100
 			const price = ( type_total == 'price' ) ? this.project_price : this.subtotal
-			return (price * porcent)
+			return roundToTwo(price * porcent)
 		} else { // valor fijo
-			return provider_price
+			return roundToTwo(provider_price)
 		}
 	},
 	validate_price(){
@@ -399,21 +399,21 @@ let project = {
 		if ( this.final_price > 0 ) {
 			for (let i = 0; i < this.providers_list.length; i++){
 				if (this.providers_list[i].type_total == 'price') {
-					this.providers_list[i].provider_porcent = ( ( this.providers_list[i].total * 100 ) / this.subtotal ).toFixed(2)
+					this.providers_list[i].provider_porcent = roundToTwo( ( this.providers_list[i].total * 100 ) / this.subtotal )
 				} else {
-					this.providers_list[i].provider_porcent = ( ( this.providers_list[i].total * 100 ) / this.final_price ).toFixed(2)
+					this.providers_list[i].provider_porcent = roundToTwo( ( this.providers_list[i].total * 100 ) / this.final_price )
 				}
 			}
 		} else {
-			noty_alert('warning', 'El valor del proyecto debe ser mayor a 0')
-			return `Valor de proyecto invalido`
+			console.info('El proyecto no tiene valor. Fn calcular_porcentaje_representa')
+			return 'Valor de proyecto invalido'
 		}
 	},
 	represent_final_porcent({provider_id}){
 		// return total value to a providers and his porcent
 		const provider = this.providers_list.filter( element => element.provider_id == provider_id)
-		const total_value = ( provider.reduce( (accumulator, currentValue) => accumulator + currentValue.total, 0 ) ).toFixed(2)
-		const porcent = ( ( total_value * 100 ) / this.final_price ).toFixed(2)
+		const total_value = roundToTwo( provider.reduce( (accumulator, currentValue) => accumulator + currentValue.total, 0 ) )
+		const porcent = roundToTwo( ( total_value * 100 ) / this.final_price )
 		return { total: total_value, porcent: porcent }
 	},
 	update_providers_table(){
@@ -582,7 +582,7 @@ let project = {
 	},
 	add_payment_plans(){
 		const tables = document.getElementsByClassName("payment-plan")
-let payment_plans_index = 0
+		let payment_plans_index = 0
 		for (let table_index = 0; table_index < tables.length; table_index++) {
 			const table = tables[table_index]
 			const payment_plan_first_pay = table.querySelectorAll('.payment-plan-first-pay-value')
@@ -618,7 +618,7 @@ let payment_plans_index = 0
 				this.subtotal += this.providers_list[i].total
 			}
 		}
-		this.subtotal += parseFloat( this.sum_material_price() )
+		this.subtotal += this.sum_material_price()
 		document.getElementById('project_subtotal').value = `$${numberFormat.format(this.subtotal)}`
 		this.calculate_final_price()
 	},
@@ -723,7 +723,7 @@ let payment_plans_index = 0
 			if (lands[i].checked)
 			cant_lands ++
 		}
-		const land_price = (this.final_price/cant_lands).toFixed(2)
+		const land_price = roundToTwo(this.final_price/cant_lands)
 		document.getElementById('project_land_price').value = land_price
 		document.getElementById('project_land_corner_price').value = land_price
 		if (document.getElementById('project_finalized').checked) {
@@ -732,7 +732,7 @@ let payment_plans_index = 0
 		}
 	},
 	calculate_value_iva({provider_iva, provider_price_calculate}) {
-		return (( provider_iva * provider_price_calculate ) / 100)
+		return roundToTwo(( provider_iva * provider_price_calculate ) / 100)
 	},
 	show_months_payments(){
 		const month_of_payments = document.getElementById("month_of_payments")
@@ -808,8 +808,8 @@ let payment_plans_index = 0
 		const corner_price = parseFloat(document.getElementById("project_land_corner_price").value) - first_pay_price
 		const number_of_payments = parseInt(document.getElementById("project_number_of_payments").value)
 
-		document.getElementById("project_price_fee").value = numberFormat.format( ( land_price/number_of_payments ).toFixed(2) )
-		document.getElementById("project_price_fee_corner").value = numberFormat.format( ( corner_price/number_of_payments ).toFixed(2) )
+		document.getElementById("project_price_fee").value = numberFormat.format( roundToTwo( land_price/number_of_payments ) )
+		document.getElementById("project_price_fee_corner").value = numberFormat.format( roundToTwo( corner_price/number_of_payments ) )
 	},
 	enter_quotas_manually(){
 		this.show_months_payments()
