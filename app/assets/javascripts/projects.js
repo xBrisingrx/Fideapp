@@ -17,46 +17,51 @@ let project = {
 	form: new FormData(),
 	add_provider( type_total ){
 		event.preventDefault()
+		// provider is the first table and other_provider is the second provider table
+		// other providers calculate her porcent with subtotal project
+
+		let provider_type = ( type_total == 'price') ? 'provider' : 'other_provider'
 		let provider = {
-			provider_id: parseInt( document.getElementById('project_provider_id').value ),
-			provider_role: parseInt( document.getElementById('project_provider_role').value ),
-			payment_method_id: 1,
-			provider_price: parseFloat(document.getElementById('project_provider_price').value),
-			provider_iva: parseFloat( document.getElementById('provider_iva').value ),
+			provider_id: parseInt( document.getElementById(`project_${provider_type}_id`).value ),
+			provider_role: parseInt( document.getElementById(`project_${provider_type}_role`).value ),
+			payment_method_id: ( type_total == 'price') ? 1 : 2,
+			provider_price: parseFloat(document.getElementById(`project_${provider_type}_price`).value),
+			provider_iva: parseFloat( document.getElementById(`${provider_type}_iva`).value ),
 			type_total: type_total
 		}
 
-		if ( this.provider_validations(provider) ) {
-			provider.name = $('#project_provider_id option:selected').text()
-			provider.role_name =  $('#project_provider_role option:selected').text()
-			provider.payment_method_name = 'Valor fijo'  // $('#project_payment_method option:selected').text()
+		if ( this.provider_validations(provider) && this.provider_not_exist(provider) ) {
+			provider.name = $(`#project_${provider_type}_id option:selected`).text()
+			provider.role_name =  $(`#project_${provider_type}_role option:selected`).text()
 			provider.provider_price_text = ( provider.payment_method_id == 1 ) ? `$${numberFormat.format(provider.provider_price)}` : `${provider.provider_price}%`
 			provider.provider_price_calculate = this.calcular_precio_proveedor( provider )
 			provider.value_iva = this.calculate_value_iva(provider)
 			provider.provider_porcent = 0
 			provider.total = provider.value_iva + provider.provider_price_calculate
-			provider.list_id = `${provider.provider_id}_${type_total}`
+			provider.list_id = `${provider.provider_id}_${provider.provider_role}_${type_total}`
 
 			this.providers_list.push( provider )
 
-			// this.disabled_and_reset_select('project_provider_id' , 'select-2-project-provider')
 			$('.select-2-project-provider').val('').trigger('change')
 			$('.select-2-provider-role').val('').trigger('change')
 			$('.select-2-payment-method').val('').trigger('change')
 			document.getElementById('project_provider_price').value = ''
 
 			this.calculate_subtotal()
+		} else if( !this.provider_not_exist( provider ) ){
+			noty_alert('info', 'Este interviniente ya se encuentra agregado con la misma función.')
 		}
 	},
 	add_other_provider( type_total ) {
 		event.preventDefault()
+		let provider_type = ( type_total == 'price') ? 'provider' : 'other_provider'
 		let provider = {
-			provider_id: parseInt( document.getElementById('project_other_provider_id').value ),
-			provider_role: parseInt( document.getElementById('project_other_provider_role').value ),
-			provider_price: parseFloat(document.getElementById('project_other_provider_price').value),
-			provider_iva: parseFloat( document.getElementById('other_provider_iva').value ),
-			type_total: type_total,
-			payment_method_id: 2
+			provider_id: parseInt( document.getElementById(`project_${provider_type}_id`).value ),
+			provider_role: parseInt( document.getElementById(`project_${provider_type}_role`).value ),
+			payment_method_id: ( type_total == 'price') ? 1 : 2,
+			provider_price: parseFloat(document.getElementById(`project_${provider_type}_price`).value),
+			provider_iva: parseFloat( document.getElementById(`${provider_type}_iva`).value ),
+			type_total: type_total
 		}
 		if ( this.provider_validations(provider) && this.provider_not_exist( provider ) ) {
 			provider.name =  $('#project_other_provider_id option:selected').text()
@@ -65,12 +70,10 @@ let project = {
 			provider.value_iva = this.calculate_value_iva(provider)
 			provider.provider_porcent = 0
 			provider.total = provider.value_iva + provider.provider_price_calculate
-			provider.list_id = `${provider.provider_id}_${type_total}`
-
+			provider.list_id = `${provider.provider_id}_${provider.provider_role}_${type_total}`
+			debugger
 			this.providers_list.push( provider )
 			this.calculate_final_price()
-			this.update_other_providers_table()
-			// this.disabled_and_reset_select('project_provider_id' , 'select-2-project-provider')
 			$(`.select-2-provider-other-role`).val('').trigger('change')
 			document.getElementById('project_provider_price').value = ''
 			document.getElementById('table_other_provider').classList.remove('d-none')
@@ -78,12 +81,11 @@ let project = {
 			noty_alert('info', 'Este interviniente ya se encuentra agregado con la misma función.')
 		}
 	},
-	remove_provider( id ) {
+	remove_provider( id, role ) {
 		event.preventDefault()
-		this.providers_list = this.providers_list.filter( p => p.list_id != `${id}_price` )
-		let element = document.querySelector(`#provider-list #row-${id}`)
+		this.providers_list = this.providers_list.filter( p => p.list_id != `${id}_${role}_price` )
+		let element = document.querySelector(`#provider-list #row-${id}-${role}`)
 		element.remove()
-		$(`#project_provider_id option[value='${id}']`).attr('disabled', false)
 		this.calculate_subtotal()
 		this.remove_provider_summary_table(id)
 		this.update_summary_table()
@@ -91,8 +93,7 @@ let project = {
 	remove_other_provider( id ) {
 		event.preventDefault()
 		this.providers_list = this.providers_list.filter( p => p.list_id != `${id}_subtotal` )
-		this.calculate_subtotal()
-		let element = document.querySelector(`#other-provider-list #row-${id}`)
+		let element = document.querySelector(`#other-provider-list #row-${id}-${role}`)
 		element.remove()
 		let other_providers = this.providers_list.filter( p => p.type_total == 'subtotal' )
 		if (other_providers.length == 0) {
@@ -190,6 +191,7 @@ let project = {
 		this.materials_list.push( material )
 		$('#project_material_id option:selected').attr('disabled', 'disabled')
 		$('.select-2-project-material').val('').trigger('change')
+		$('.select-2-project-material-unit').val('').trigger('change')
 		document.getElementById('material_units').value = 0
 		document.getElementById('material_price').value = 0
 		this.calculate_subtotal()
@@ -203,11 +205,7 @@ let project = {
 		this.calculate_subtotal()
 	},
 	sum_material_price(){
-		let material_price = 0
-		for (let i = 0; i < this.materials_list.length; i++){
-			material_price += (this.materials_list[i].units * this.materials_list[i].price)
-		}
-		return material_price
+		return this.materials_list.reduce( (acc, element) => acc + (element.price * element.units), 0 )
 	},
 	material_porcent(){
 		const price_materials = this.sum_material_price()
@@ -411,64 +409,56 @@ let project = {
 			return `Valor de proyecto invalido`
 		}
 	},
-	represent_final_porcent({total}){
-		return ( ( total * 100 ) / this.final_price ).toFixed(2)
+	represent_final_porcent({provider_id}){
+		// return total value to a providers and his porcent
+		const provider = this.providers_list.filter( element => element.provider_id == provider_id)
+		const total_value = ( provider.reduce( (accumulator, currentValue) => accumulator + currentValue.total, 0 ) ).toFixed(2)
+		const porcent = ( ( total_value * 100 ) / this.final_price ).toFixed(2)
+		return { total: total_value, porcent: porcent }
 	},
 	update_providers_table(){
 		// actualizamos el valor en la tabla
 		let table_body = document.querySelector('#provider-list')
 		table_body.innerHTML = ''
-		for (let i = 0; i < this.providers_list.length; i++){
-			let provider = this.providers_list[i]
-			if (provider.type_total == 'price') {
-				// if ( table_body.querySelector(`#row-${provider.provider_id}`) != null ) {// si ya esta en la tabla solo actualizamos el %
-				// table_body.querySelector(`#row-${provider.provider_id} #porcentaje_representa_${provider.provider_id}`).innerHTML = `${provider.provider_porcent}%`
-				// } else {
-					table_body.innerHTML += `
-						<tr id="row-${provider.provider_id}">
-							<td>${provider.name}</td>
-							<td>${provider.role_name}</td>
-							<td>${provider.payment_method_name}</td>
-							<td>${provider.provider_price_text}</td>
-							<td> $${numberFormat.format(provider.provider_price_calculate)} </td>
-							<td>${provider.provider_iva}%</td>
-							<td>$${ numberFormat.format(provider.value_iva) }</td>
-							<td> <b>$${ numberFormat.format(provider.total ) }</b> </td>
-							<td id="porcentaje_representa_${provider.provider_id}"> ${provider.provider_porcent}% </td>
-							<td><button type="button" class="btn u-btn-red remove-provider" onclick="project.remove_provider(${provider.provider_id})" 
-							title="Quitar interviniente"> <i class="fa fa-trash"></i> </button></td>
-						</tr>
-					`
-				// }
-			}
+		let providers = this.providers_list.filter( element => element.type_total == 'price' )
+		for (let i = 0; i < providers.length; i++){
+			let provider = providers[i]
+				table_body.innerHTML += `
+					<tr id="row-${provider.provider_id}-${provider.provider_role}">
+						<td>${provider.name}</td>
+						<td>${provider.role_name}</td>
+						<td> $${numberFormat.format(provider.provider_price_calculate)} </td>
+						<td>${provider.provider_iva}%</td>
+						<td>$${ numberFormat.format(provider.value_iva) }</td>
+						<td> <b>$${ numberFormat.format(provider.total ) }</b> </td>
+						<td id="porcentaje_representa_${provider.provider_id}"> ${provider.provider_porcent}% </td>
+						<td><button type="button" class="btn u-btn-red remove-provider" onclick="project.remove_provider(${provider.provider_id}, ${provider.provider_role})" 
+						title="Quitar interviniente"> <i class="fa fa-trash"></i> </button></td>
+					</tr>
+				`
 		}
 	},
 	update_other_providers_table(){
 		// actualizamos la tabla de otro proveedores
 		let table_body = document.querySelector('#other-provider-list')
-		for (let i = 0; i < this.providers_list.length; i++){
-			let provider = this.providers_list[i]
-			if (provider.type_total == 'subtotal') {
-				let tr_content = `
-					<td>${provider.name}</td>
-					<td>${provider.role_name}</td>
-					<td>${provider.provider_price}%</td>
-					<td> $${numberFormat.format(provider.provider_price_calculate)} </td>
-					<td>${provider.provider_iva}%</td>
-					<td>$${ numberFormat.format(provider.value_iva) }</td>
-					<th> $${ numberFormat.format( provider.total) } </td>
-					<td id="porcentaje_representa_${provider.provider_id}"> ${provider.provider_porcent}% </td>
-					<td><button type="button" class="btn u-btn-red remove-provider" onclick="project.remove_other_provider(${provider.provider_id})" 
-					title="Quitar interviniente"> <i class="fa fa-trash"></i> </button></td>
+		table_body.innerHTML = ''
+		let other_providers = this.providers_list.filter( element => element.type_total == 'subtotal' )
+		for (let i = 0; i < other_providers.length; i++){
+			let provider = other_providers[i]
+				table_body.innerHTML += `
+					<tr id="row-${provider.provider_id}-${provider.provider_role}">
+						<td>${provider.name}</td>
+						<td>${provider.role_name}</td>
+						<td>${provider.provider_price}%</td>
+						<td> $${numberFormat.format(provider.provider_price_calculate)} </td>
+						<td>${provider.provider_iva}%</td>
+						<td>$${ numberFormat.format(provider.value_iva) }</td>
+						<th> $${ numberFormat.format( provider.total) } </td>
+						<td id="porcentaje_representa_${provider.provider_id}"> ${provider.provider_porcent}% </td>
+						<td><button type="button" class="btn u-btn-red remove-provider" onclick="project.remove_other_provider(${provider.provider_id})" 
+						title="Quitar interviniente"> <i class="fa fa-trash"></i> </button></td>
+					</tr>
 				`
-				if ( table_body.querySelector(`#row-${provider.provider_id}`) != null ) {
-					table_body.querySelector(`#row-${provider.provider_id}`).innerHTML = tr_content
-				} else {
-					table_body.innerHTML += `
-						<tr id="row-${provider.provider_id}">${tr_content}</tr>
-					`
-				}
-			}
 		}
 	},
 	update_summary_table(){ // actualizamos la tabla RESUMEN
@@ -483,41 +473,45 @@ let project = {
 		}
 		// agregamos o en caso de ya haber sido agregada actualizamos el precio y % que representa el valor del proyecto
 		let sumary_body = document.getElementById('summary-body')
-		const project_porcent = `${ ((this.project_price * 100) / this.final_price).toFixed(2) }%`
-		const project_price = `$${numberFormat.format(this.project_price)}`
-		if ( sumary_body.querySelector(`#project_price_row`) != null ) {
-			sumary_body.querySelector(`#project_price_row`).textContent = project_price
-			sumary_body.querySelector(`#project_porcent_row`).textContent = project_porcent
-		} else {
-			document.getElementById('summary-body').innerHTML += `
-				<tr>
-					<td id='project_name'>${ $('#project_project_type_id option:selected').text() }</td>
-					<td id='project_porcent_row'>${project_porcent}</td>
-					<td id='project_price_row'>${project_price}</td>
-				</tr>
-			`
-		}
+		// const project_porcent = `${ ((this.project_price * 100) / this.final_price).toFixed(2) }%`
+		// const project_price = `$${numberFormat.format(this.project_price)}`
+		// if ( sumary_body.querySelector(`#project_price_row`) != null ) {
+		// 	sumary_body.querySelector(`#project_price_row`).textContent = project_price
+		// 	sumary_body.querySelector(`#project_porcent_row`).textContent = project_porcent
+		// } else {
+		// 	document.getElementById('summary-body').innerHTML += `
+		// 		<tr>
+		// 			<td id='project_name'>${ $('#project_project_type_id option:selected').text() }</td>
+		// 			<td id='project_porcent_row'>${project_porcent}</td>
+		// 			<td id='project_price_row'>${project_price}</td>
+		// 		</tr>
+		// 	`
+		// }
 		// agregamos o en caso de ya haber sido agregada actualizamos el precio y % que representa c/interviniente
 		for (let i = 0; i < this.providers_list.length; i++){
 			let provider = this.providers_list[i]
 			if ( sumary_body.querySelector(`#summary_provider_id_${provider.provider_id}`) != null ) {
-				sumary_body.querySelector(`#summary_provider_porcent_${provider.provider_id}`).textContent = `${this.represent_final_porcent(provider)}%`
-				sumary_body.querySelector(`#summary_provider_price_${provider.provider_id}`).textContent = `$${numberFormat.format(provider.total)}`
+				const final_porcent = this.represent_final_porcent(provider)
+				sumary_body.querySelector(`#summary_provider_porcent_${provider.provider_id}`).textContent = `${final_porcent.porcent}%`
+				sumary_body.querySelector(`#summary_provider_price_${provider.provider_id}`).textContent = `$${numberFormat.format(final_porcent.total)}`
 			} else {
 				this.add_provider_summary_table(provider)
 			}
 		}
-		if (sumary_body.querySelector(`#summary_material_price`) != null) {
-			sumary_body.querySelector(`#summary_material_price`).remove()
-		}
+		
+		if( this.materials_list.length > 0 ){
+			if (sumary_body.querySelector(`#summary_material_price`) != null) {
+				sumary_body.querySelector(`#summary_material_price`).remove()
+			}
 
-		sumary_body.innerHTML += `
-			<tr id="summary_material_price" class="">
-        <td>Materiales:</td>
-        <td>${this.material_porcent()}%</td>
-        <td>$${ numberFormat.format(this.sum_material_price()) }</td>
-      </tr>
-		`
+			sumary_body.innerHTML += `
+				<tr id="summary_material_price" class="">
+	        <td>Materiales:</td>
+	        <td>${this.material_porcent()}%</td>
+	        <td>$${ numberFormat.format(this.sum_material_price()) }</td>
+	      </tr>
+			`
+		}
 
 		if ( sumary_body.querySelector(`#summary_total_price`) != null ) {
 			sumary_body.querySelector(`#summary_total_price`).remove()
@@ -624,17 +618,19 @@ let payment_plans_index = 0
 				this.subtotal += this.providers_list[i].total
 			}
 		}
-		this.subtotal += this.sum_material_price()
+		this.subtotal += parseFloat( this.sum_material_price() )
 		document.getElementById('project_subtotal').value = `$${numberFormat.format(this.subtotal)}`
 		this.calculate_final_price()
 	},
 	calculate_final_price(){
-		this.final_price = this.subtotal 
-		for (let i = 0; i < this.providers_list.length; i++){
-			if ( this.providers_list[i].type_total == 'subtotal' ) {
-				this.final_price += this.providers_list[i].total
-			}
-		}
+		// this.final_price = this.subtotal
+		const providers = this.providers_list.filter( element => element.type_total == 'subtotal' )
+		this.final_price = providers.reduce( ( acc, element ) => acc + element.total, this.subtotal )
+		// for (let i = 0; i < this.providers_list.length; i++){
+		// 	if ( this.providers_list[i].type_total == 'subtotal' ) {
+		// 		this.final_price += this.providers_list[i].total
+		// 	}
+		// }
 		document.getElementById('project_final_price').value = `$${numberFormat.format( this.final_price )}`
 		if ( this.providers_list.length > 0 ) {
 			this.calcular_porcentaje_representa()
@@ -736,7 +732,7 @@ let payment_plans_index = 0
 		}
 	},
 	calculate_value_iva({provider_iva, provider_price_calculate}) {
-		return ( provider_iva * provider_price_calculate ) / 100
+		return (( provider_iva * provider_price_calculate ) / 100)
 	},
 	show_months_payments(){
 		const month_of_payments = document.getElementById("month_of_payments")
@@ -1084,7 +1080,8 @@ $(document).ready(function(){
 	$('.select-2-project-provider').select2({ width: '100%',theme: "bootstrap4", language: "es" })	
 	$('.select-2-provider-role').select2({ width: '100%',theme: "bootstrap4", language: "es" })	
 	$('.select-2-payment-method').select2({ width: '100%',theme: "bootstrap4", language: "es" })	
-	$('.select-2-project-material').select2({ width: '100%',theme: "bootstrap4", language: "es" })	
+	$('.select-2-project-material').select2({ width: '100%',theme: "bootstrap4", language: "es" })
+	$('.select-2-project-material-unit').select2({ width: '100%',theme: "bootstrap4", language: "es" })
 	$('.select-2-project-type').select2({ width: '100%',theme: "bootstrap4", language: "es" })	
 	$('.select-2-apple-list').select2({ width: '100%',theme: "bootstrap4", placeholder: "Todas seleccionadas", language: "es" })
 	$("#projects_table").DataTable({
