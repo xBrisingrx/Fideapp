@@ -418,9 +418,9 @@ let project = {
 	},
 	update_providers_table(){
 		// actualizamos el valor en la tabla
-		let table_body = document.querySelector('#provider-list')
+		const table_body = document.querySelector('#provider-list')
 		table_body.innerHTML = ''
-		let providers = this.providers_list.filter( element => element.type_total == 'price' )
+		const providers = this.providers_list.filter( element => element.type_total == 'price' )
 		for (let i = 0; i < providers.length; i++){
 			let provider = providers[i]
 				table_body.innerHTML += `
@@ -436,6 +436,20 @@ let project = {
 						title="Quitar interviniente"> <i class="fa fa-trash"></i> </button></td>
 					</tr>
 				`
+		}
+		if(providers.length > 0){
+			table_body.innerHTML += `
+				<tr class="g-bg-cyan-opacity-0_1">
+					<td><strong>Totales:</strong></td>
+					<td></td>
+					<td> $${ numberFormat.format( roundToTwo(providers.reduce( (acc, provider) => acc + provider.provider_price_calculate, 0 )) ) } </td>
+					<td></td>
+					<td>$${ numberFormat.format( roundToTwo(providers.reduce( (acc, provider) => acc + provider.value_iva, 0 )) ) }</td>
+					<td> $${ numberFormat.format( roundToTwo(providers.reduce( (acc, provider) => acc + provider.total, 0 )) ) } </td>
+					<td></td>
+					<td></td>
+				</tr>
+			`
 		}
 	},
 	update_other_providers_table(){
@@ -612,25 +626,15 @@ let project = {
 		}
 	},
 	calculate_subtotal(){
-		this.subtotal = 0
-		for (let i = 0; i < this.providers_list.length; i++){
-			if ( this.providers_list[i].type_total == 'price' ) {
-				this.subtotal += this.providers_list[i].total
-			}
-		}
+		const providers = this.providers_list.filter( element => element.type_total == 'price' )
+		this.subtotal = providers.reduce( ( acc, element ) => acc + element.total, 0 )
 		this.subtotal += this.sum_material_price()
 		document.getElementById('project_subtotal').value = `$${numberFormat.format(this.subtotal)}`
 		this.calculate_final_price()
 	},
 	calculate_final_price(){
-		// this.final_price = this.subtotal
 		const providers = this.providers_list.filter( element => element.type_total == 'subtotal' )
 		this.final_price = providers.reduce( ( acc, element ) => acc + element.total, this.subtotal )
-		// for (let i = 0; i < this.providers_list.length; i++){
-		// 	if ( this.providers_list[i].type_total == 'subtotal' ) {
-		// 		this.final_price += this.providers_list[i].total
-		// 	}
-		// }
 		document.getElementById('project_final_price').value = `$${numberFormat.format( this.final_price )}`
 		if ( this.providers_list.length > 0 ) {
 			this.calcular_porcentaje_representa()
