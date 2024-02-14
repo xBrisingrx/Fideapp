@@ -38,6 +38,7 @@
 //= require sales
 //= require project_types
 //= require projects
+//= require project/providers
 //= require fees
 //= require fee_payments
 //= require payments_types
