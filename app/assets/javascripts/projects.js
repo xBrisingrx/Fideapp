@@ -71,7 +71,6 @@ let project = {
 			provider.provider_porcent = 0
 			provider.total = provider.value_iva + provider.provider_price_calculate
 			provider.list_id = `${provider.provider_id}_${provider.provider_role}_${type_total}`
-			debugger
 			this.providers_list.push( provider )
 			this.calculate_final_price()
 			$(`.select-2-provider-other-role`).val('').trigger('change')
@@ -158,6 +157,7 @@ let project = {
 		event.preventDefault()
 		let material = {
 			id: parseInt(document.getElementById('project_material_id').value),
+			name: $('#project_material_id option:selected').text(),
 			type_units: document.getElementById('type_unit').value,
 			units: parseInt( document.getElementById('material_units').value ),
 			price: parseFloat( document.getElementById('material_price').value )
@@ -175,34 +175,50 @@ let project = {
 			noty_alert('error', 'El precio debe ser un numero')
 			return
 		}
-
-		let material_name =  $('#project_material_id option:selected').text()
-		$('.project-material-body').append(`
-			<tr id="row-${material.id}">
-				<td>${material_name}</td>
-				<td>${material.type_units}</td>
-				<td>${material.units}</td>
-				<td>${numberFormat.format(material.price)}</td>
-				<td><b>$${numberFormat.format(material.price * material.units)}</b></td>
-				<td><button type="button" class="btn u-btn-red remove-material" onclick="project.remove_material(${material.id})" 
-					title="Quitar material"> <i class="fa fa-trash"></i> </button></td>
-			</tr>
-		`)
 		this.materials_list.push( material )
+		this.update_materials_table()
 		$('#project_material_id option:selected').attr('disabled', 'disabled')
-		$('.select-2-project-material').val('').trigger('change')
+		$('.select-2-project-material').val('Ninguna').trigger('change')
 		$('.select-2-project-material-unit').val('').trigger('change')
-		document.getElementById('material_units').value = 0
-		document.getElementById('material_price').value = 0
+		document.getElementById('material_units').value = ''
+		document.getElementById('material_price').value = ''
 		this.calculate_subtotal()
 	},
 	remove_material(material_id){
 		event.preventDefault()
-		let element = document.querySelector(`.project-material-body #row-${material_id}`)
-		element.remove()
 		$(`#project_material_id option[value='${material_id}']`).attr('disabled', false)
 		this.materials_list = this.materials_list.filter( m => m.id != material_id )
+		this.update_materials_table()
 		this.calculate_subtotal()
+	},
+	update_materials_table(){
+		const table_body = document.getElementById('material-list')
+		table_body.innerHTML = ''
+		for (let i = 0; i < this.materials_list.length; i++) {
+			const material = this.materials_list[i]
+			table_body.innerHTML += `
+				<tr id="row-${material.id}">
+					<td>${material.name}</td>
+					<td>${material.type_units}</td>
+					<td>${material.units}</td>
+					<td>$${numberFormat.format(material.price)}</td>
+					<td><b>$${numberFormat.format( roundToTwo(material.price * material.units) )}</b></td>
+					<td><button type="button" class="btn u-btn-red remove-material" onclick="project.remove_material(${material.id})" 
+						title="Quitar material"> <i class="fa fa-trash"></i> </button></td>
+				</tr>
+			`
+		}
+		table_body.innerHTML += `
+			<tr class="g-bg-cyan-opacity-0_1">
+				<td><strong>Totales:</strong></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td>$${ numberFormat.format( roundToTwo(this.materials_list.reduce( (acc, material) => acc + (material.price * material.units), 0 )) ) }</td>
+				<td></td>
+			</tr>
+		`
+		table_body.parentElement.classList.toggle('d-none', this.materials_list.length == 0)
 	},
 	sum_material_price(){
 		return roundToTwo( this.materials_list.reduce( (acc, element) => acc + (element.price * element.units), 0 ) )
@@ -979,7 +995,7 @@ let project = {
 		const quantity_payment_plan = document.getElementsByClassName('payment-plan').length + 1
 		let html_to_insert = `<table class="table payment-plan">
 		<thead>
-			<th></th> <th></th>`
+			<th colspan=''2></th>`
 		if (payment_plan_quantity_first_pay > 0) {
 			for (let index = 1; index <= payment_plan_quantity_first_pay; index++) {
 				html_to_insert += `<th>${meses[payment_plan_date.getMonth()]}-${payment_plan_date.getFullYear()}</th>`
@@ -1084,19 +1100,13 @@ $(document).ready(function(){
 	$('.select-2-project-provider').select2({ width: '100%',theme: "bootstrap4", language: "es" })	
 	$('.select-2-provider-role').select2({ width: '100%',theme: "bootstrap4", language: "es" })	
 	$('.select-2-payment-method').select2({ width: '100%',theme: "bootstrap4", language: "es" })	
-	$('.select-2-project-material').select2({ width: '100%',theme: "bootstrap4", language: "es" })
-	$('.select-2-project-material-unit').select2({ width: '100%',theme: "bootstrap4", language: "es" })
+	$('.select-2-project-material').select2({ width: '100%',theme: "bootstrap4",placeholder: "Material",language: "es" })
+	$('.select-2-project-material-unit').select2({ width: '100%',theme: "bootstrap4",placeholder: "Unidad medida",language: "es" })
 	$('.select-2-project-type').select2({ width: '100%',theme: "bootstrap4", language: "es" })	
 	$('.select-2-apple-list').select2({ width: '100%',theme: "bootstrap4", placeholder: "Todas seleccionadas", language: "es" })
-	$("#projects_table").DataTable({
-		'language': {'url': "/assets/plugins/datatables_lang_spa.json"}
-	})
 
 	if (document.getElementById("project_date") != null) {
 		setInputDate("#project_date")
-	}
-
-	if (document.getElementById("project_date") != null) {
 		setInputDate("#payment_plan_date")
 	}
 
