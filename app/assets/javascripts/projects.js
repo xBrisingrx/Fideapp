@@ -939,10 +939,10 @@ let project = {
 		}
 	},
 	show_hide_corner_inputs(){
-		document.getElementById("land_corner_input").classList.toggle("d-none", project.lands_corner.length == 0)
-		document.getElementById("label_corner").classList.toggle("d-none", project.lands_corner.length == 0)
-		document.getElementById("land_corner_fee_input").classList.toggle("d-none", project.lands_corner.length == 0)
-		document.getElementById("label_corner_fee").classList.toggle("d-none", project.lands_corner.length == 0)
+		// document.getElementById("land_corner_input").classList.toggle("d-none", project.lands_corner.length == 0)
+		// document.getElementById("label_corner").classList.toggle("d-none", project.lands_corner.length == 0)
+		// document.getElementById("land_corner_fee_input").classList.toggle("d-none", project.lands_corner.length == 0)
+		// document.getElementById("label_corner_fee").classList.toggle("d-none", project.lands_corner.length == 0)
 	},
 	update_price_lands(){ // actualizo cuando cambio el valor de cuota general
 		const number_of_payments = parseInt(document.getElementById("project_number_of_payments").value)
@@ -970,10 +970,16 @@ let project = {
 		}
 	},
 	set_finalized(){
-		document.getElementById('project_first_pay_required').parentElement.parentElement.parentElement.classList.toggle("d-none", event.target.checked)
-		document.getElementById('project_number_of_payments').disabled = event.target.checked
-		if (event.target.checked) {
-			document.getElementById('project_number_of_payments').value = 1	
+		document.getElementById('lands_price_input').classList.toggle("d-none", !event.target.checked)
+		document.getElementById('payment_plan_input').classList.toggle("d-none", event.target.checked)
+		document.getElementById('check_set_final_price').classList.toggle("d-none", !event.target.checked)
+	},
+	set_final_price_manual(){
+		document.getElementById('project_final_price').disabled = !event.target.checked
+	},
+	set_land_price(){
+		if(!event.target.disabled){
+			console.log('metemos unos cambios')
 		}
 	},
 	set_payment_plan_date(){
@@ -1108,6 +1114,10 @@ $(document).ready(function(){
 	if (document.getElementById("project_date") != null) {
 		setInputDate("#project_date")
 		setInputDate("#payment_plan_date")
+	}
+
+	if( document.getElementById('project_final_price') != null ){
+		document.getElementById('project_final_price').disabled = true
 	}
 
 	if (document.getElementById('project_first_pay_required') != null) {
