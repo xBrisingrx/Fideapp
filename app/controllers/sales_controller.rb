@@ -211,7 +211,6 @@ class SalesController < ApplicationController
     @payments = ''
     @fees = sale.fees 
     @first_payments = sale.payments.is_first_pay.actives
-    pp @first_payments
     @row_color = 'table-active'
     @cant_payments = 0
   end
