@@ -109,6 +109,57 @@ class SalesController < ApplicationController
       render json: {status: 'error', msg: 'No se pudo registrar la venta'}, status: 402
   end #create
 
+  def create_bought
+    # se registra una venta de lote pagada
+    land = Land.find(params[:land_id])
+    payment = land.price
+    sale = Sale.new(
+      apply_arrear: false,
+      arrear: 0,
+      comment: "Cancela tierra.",
+      date: params[:date],
+      due_day: 10,
+      number_of_payments: 1,
+      land_id: params[:land_id],
+      price: payment,
+      status: :payed)
+      if sale.save!
+        if params[:clients].blank?
+          return render json: {status: 'error', msg: 'No se han seleccionado clientes'}, status: 422
+        else
+          params[:clients].uniq # me aseguro de que no haya ningun id repetido
+          clients = params[:clients][0].split(',')
+          clients.each do |client| # Generamos los registros de los clientes que hicieron la compra
+            sale.sale_clients.create!(client_id: client)
+          end
+        end
+        sale.sale_products.create!(product_type: 'Land',product_id: land.id) 
+        sale.fees.create!(
+          due_date: sale.date, 
+          value: payment, 
+          number: 1,
+          pay_status: :pagado, 
+          payed: true,
+          pay_date: sale.date
+        )
+
+        sale.payments.create(
+          payments_currency_id: 1,
+          payment: payment,
+          taken_in: 1,
+          comment: "Cancela tierra.",
+          date: sale.date,
+        )
+        render json: {status: 'success', msg: 'Venta exitosa'}, status: :ok
+      else
+        render json: {status: 'errors', msg: 'No se pudo registrar la venta'}, status: :unprocessable_entity
+      end
+    rescue => e
+      puts "Excepcion => #{e.message}"
+      @response = e.message.split(':')
+      render json: {status: 'error', msg: 'No se pudo registrar la venta'}, status: 402
+  end
+
   def edit
     project = Project.find @sale.sale_products.first.product.id
     @quantity_plans = project.payment_plans.group(:option).count.count

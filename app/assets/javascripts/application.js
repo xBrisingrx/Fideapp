@@ -44,6 +44,7 @@
 //= require payments_types
 //= require currencies
 //= require payments
+//= require provider_rols
 
 // require_tree .
 

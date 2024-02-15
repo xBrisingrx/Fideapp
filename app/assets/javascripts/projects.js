@@ -995,7 +995,7 @@ let project = {
 		const quantity_payment_plan = document.getElementsByClassName('payment-plan').length + 1
 		let html_to_insert = `<table class="table payment-plan">
 		<thead>
-			<th colspan=''2></th>`
+			<th></th><th></th>`
 		if (payment_plan_quantity_first_pay > 0) {
 			for (let index = 1; index <= payment_plan_quantity_first_pay; index++) {
 				html_to_insert += `<th>${meses[payment_plan_date.getMonth()]}-${payment_plan_date.getFullYear()}</th>`

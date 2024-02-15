@@ -43,4 +43,23 @@ class FeePayment < ApplicationRecord
     "#{self.payments_type.name} en #{self.currency.name}"
   end
 
+  def self.apply_payment
+    fp = FeePayment.all
+    fp.each do |fee_payment|
+      payment = Payment.create(
+        id: fee_payment.id,
+        sale_id: fee_payment.fee.sale.id,
+        date:fee_payment.date,
+        payments_currency_id:fee_payment.payments_currency_id,
+        payment:fee_payment.payment,
+        taken_in:fee_payment.tomado_en,
+        total:fee_payment.total,
+        first_pay: fee_payment.fee.number == 0,
+        comment: (fee_payment.comment.blank?) ? fee_payment.pay_name : fee_payment.comment,
+        created_at:fee_payment.created_at,
+        updated_at:fee_payment.updated_at
+      )
+    end
+  end
+
 end

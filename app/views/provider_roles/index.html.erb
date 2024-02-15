@@ -1,31 +1,44 @@
-<p id="notice"><%= notice %></p>
-
-<h1>Provider Roles</h1>
-
-<table>
+<h1><i class="fa fa-address-card-o"></i> Funciones de proveedores </h1>
+<%= link_to 'Agregar', new_provider_role_path, {:remote => true, 'data-toggle' =>  "modal",
+      'data-target' => '#modal-provider_role', 'class' => 'btn u-btn-teal justify-content-end mb-2'} %>
+<table id="provider-role-table" class="table hover dt-responsive w-100">
   <thead>
     <tr>
-      <th>Name</th>
-      <th>Description</th>
-      <th>Active</th>
-      <th colspan="3"></th>
+      <th>Nombre</th>
+      <th>Descripción</th>
+      <th>Acciones</th>
     </tr>
   </thead>
-
   <tbody>
-    <% @provider_roles.each do |provider_role| %>
-      <tr>
-        <td><%= provider_role.name %></td>
-        <td><%= provider_role.description %></td>
-        <td><%= provider_role.active %></td>
-        <td><%= link_to 'Show', provider_role %></td>
-        <td><%= link_to 'Edit', edit_provider_role_path(provider_role) %></td>
-        <td><%= link_to 'Destroy', provider_role, method: :delete, data: { confirm: 'Are you sure?' } %></td>
-      </tr>
-    <% end %>
   </tbody>
 </table>
 
-<br>
 
-<%= link_to 'New Provider Rol', new_provider_role_path %>
+<!-- Modal alta de provider_role -->
+<div class="modal fade" id="modal-provider_role" role="dialog"
+     aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+</div>
+<!-- End modal -->
+
+
+<!-- Modal para eliminar provider_role -->
+<div class="modal fade" id="modal-disable-provider-role" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">¿ Esta seguro de dar de baja este tipo de proyecto ?</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <%= form_with(url: disable_provider_role_path, id: 'form-disable-provider-role') do |form| %>
+          <%= form.hidden_field :provider_role_id %>
+          <%= form.submit 'Eliminar', class: 'btn u-btn-red g-mr-10' %>
+          <button type="button" data-dismiss="modal" class="btn u-btn-teal g-mr-10"> Cerrar </button>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Fin modal eliminar provider_role -->

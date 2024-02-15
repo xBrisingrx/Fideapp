@@ -240,16 +240,24 @@ document.getElementById('submit-form-land-sale').addEventListener('click', (even
 	event.preventDefault()
 	
 	set_form_sale()
-
-	if ( validaciones_sale_form() ) {
-		$("#modal-land-sale-confirm").html("<%= j (render 'modal_confirm') %>")
-		populate_land_sale_confirm()
-		$("#modal-land-sale-confirm").modal('show')
+	const bought = document.getElementById('bought').checked
+	if (bought) {
+		if ( valid_land_bought() ) {
+			$("#modal-land-sale-confirm").html("<%= j (render 'modal_confirm_bought') %>")
+			$("#modal-land-sale-confirm").modal('show')
+		}
+	} else {
+		if ( validaciones_sale_form() ) {
+			$("#modal-land-sale-confirm").html("<%= j (render 'modal_confirm') %>")
+			populate_land_sale_confirm()
+			$("#modal-land-sale-confirm").modal('show')
+		}
 	}
 })
 
 function send_sale(){
-	fetch('/sales/', {
+	const url = ( document.getElementById('bought').checked ) ? '/sales/create_bought' : '/sales/'
+	fetch(url, {
       method: 'POST',
       headers: {           
         'X-CSRF-Token': document.getElementsByName('csrf-token')[0].content,
@@ -272,6 +280,7 @@ function send_sale(){
 function set_form_sale() {
 	sale.form = new FormData()
 	sale.form.append('clients[]', get_clients())
+	sale.form.append('bought', document.getElementById('bought').checked)
 	sale.form.append("land_id", document.getElementById('land_id').value)
 	// product
 	sale.form.append("product_id", document.getElementById('product_id').value)
@@ -359,6 +368,21 @@ function validaciones_sale_form() {
 			noty_alert('error', `El valor a pagar en cuotas es menor al que corresponde: $${numberFormat.format(suma_cuotas_sale_land()) }, deberia ser $${numberFormat.format(sale.resto) }`)
 			return false
 		}
+	}
+
+	return true
+}
+
+function valid_land_bought(){
+	// validaciones para cuando el lote ya esta vendido
+	if ($('#fecha_compra').val() === '') {
+		noty_alert( 'error', 'Debe seleccionar una fecha' )
+		return false
+	}
+
+	if (sale.form.get('clients[]').length == 0) {
+		noty_alert( 'error', 'No ha seleccionado clientes.' )
+		return false
 	}
 
 	return true

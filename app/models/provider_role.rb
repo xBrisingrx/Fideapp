@@ -12,4 +12,5 @@
 class ProviderRole < ApplicationRecord
 	validates :name, presence: true, 
 		uniqueness: { case_sensitive: false, message: "Este rol ya se encuentra registrdo" }
+		scope :actives, -> { where( active: true) }
 end

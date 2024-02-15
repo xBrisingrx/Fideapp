@@ -17,7 +17,7 @@ class ProjectTypesController < ApplicationController
 
     respond_to do |format|
       if @project_type.save
-        format.json { render json: { status: 'success', msg: 'Proyecto agregado' }, status: :created }
+        format.json { render json: { status: 'success', msg: 'Tipo de proyecto agregado' }, status: :created }
       else
         format.json { render json: @project_type.errors, status: :unprocessable_entity }
       end
@@ -37,7 +37,7 @@ class ProjectTypesController < ApplicationController
   def disable
     @project_type = ProjectType.find(params[:project_type_id])
     if @project_type.update!(active: false)
-      render json: { status: 'success', msg: 'Manzana eliminada' }, status: :ok
+      render json: { status: 'success', msg: 'Tipo de proyecto eliminado' }, status: :ok
     else
       render json: { status: 'error', msg: 'Ocurrio un error al realizar la operación' }, status: :unprocessable_entity
     end

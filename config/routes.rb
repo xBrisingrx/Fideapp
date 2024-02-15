@@ -9,6 +9,7 @@ Rails.application.routes.draw do
   get 'fee_payments/create'
   resources :payment_methods
   resources :provider_roles
+  post 'disable_provider_role', to: 'provider_roles#disable', as: 'disable_provider_role'
   resources :projects
   root 'main#welcome'
   get 'main/welcome'
@@ -42,7 +43,8 @@ Rails.application.routes.draw do
   post 'disable_provider', to: 'providers#disable', as: 'disable_provider'
   resources :materials, except: [:destroy, :show]
   post 'disable_material', to: 'materials#disable', as: 'disable_material'
-  resources :sales, except: [:show] do 
+  resources :sales, except: [:show] do
+    post 'create_bought', on: :collection
     get 'payment_summary', on: :member
   end
   post 'disable_sale', to: 'sales#disable', as: 'disable_sale'

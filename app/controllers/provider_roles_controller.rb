@@ -3,7 +3,7 @@ class ProviderRolesController < ApplicationController
 
   # GET /provider_rols or /provider_rols.json
   def index
-    @provider_roles = ProviderRole.all
+    @provider_roles = ProviderRole.actives
   end
 
   # GET /provider_rols/1 or /provider_rols/1.json
@@ -12,11 +12,13 @@ class ProviderRolesController < ApplicationController
 
   # GET /provider_rols/new
   def new
+    @title = "Agregar funcion de proveedor"
     @provider_role = ProviderRole.new
   end
 
   # GET /provider_rols/1/edit
   def edit
+    @title = "Editar funcion de proveedor"
   end
 
   # POST /provider_rols or /provider_rols.json
@@ -25,10 +27,8 @@ class ProviderRolesController < ApplicationController
 
     respond_to do |format|
       if @provider_role.save
-        format.html { redirect_to provider_role_url(@provider_role), notice: "Provider rol was successfully created." }
-        format.json { render :show, status: :created, location: @provider_role }
+        format.json { render json: { status: 'success', msg: 'Funcion de proveedor agregada' }, status: :created }
       else
-        format.html { render :new, status: :unprocessable_entity }
         format.json { render json: @provider_role.errors, status: :unprocessable_entity }
       end
     end
@@ -38,23 +38,24 @@ class ProviderRolesController < ApplicationController
   def update
     respond_to do |format|
       if @provider_role.update(provider_role_params)
-        format.html { redirect_to provider_role_url(@provider_role), notice: "Provider rol was successfully updated." }
-        format.json { render :show, status: :ok, location: @provider_role }
+        format.json { render json: { status: 'success', msg: 'Datos actualizados' }, status: :ok, location: @provider_role }
       else
-        format.html { render :edit, status: :unprocessable_entity }
         format.json { render json: @provider_role.errors, status: :unprocessable_entity }
       end
     end
   end
 
-  # DELETE /provider_rols/1 or /provider_rols/1.json
-  def destroy
-    @provider_role.destroy
-
-    respond_to do |format|
-      format.html { redirect_to provider_rols_url, notice: "Provider rol was successfully destroyed." }
-      format.json { head :no_content }
+  def disable
+    @provider_role = ProviderRole.find(params[:provider_role_id])
+    if @provider_role.update!(active: false)
+      render json: { status: 'success', msg: 'Funcion de proveedor eliminada' }, status: :ok
+    else
+      render json: { status: 'error', msg: 'Ocurrio un error al realizar la operación' }, status: :unprocessable_entity
     end
+
+    rescue => e
+      @response = e.message.split(':')
+      render json: { @response[0] => @response[1] }, status: 402
   end
 
   private
