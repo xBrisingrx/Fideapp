@@ -22,14 +22,16 @@
         </thead>
         <tbody>
           <% if !@first_payments.empty? %>
-            <tr>
-              <td colspan='7'>Primer entrega</td>
-              <% @first_payments.each do |first_pay| %>
+            <% @first_payments.each do |first_pay| %>
+              <tr>
+                <td colspan='5' class='g-bg-cyan-opacity-0_1'>Primer entrega</td>
+                <td><%= "#{date_format(first_pay.date)}" %></td>
+                <td><%= "#{first_pay.payments_type.name} en #{first_pay.currency.name}" %></td>
                 <td><%= format_currency(first_pay.payment) %></td>
                 <td><%= "$#{format_currency(first_pay.taken_in)}" %></td>
                 <td><%= "$#{format_currency(first_pay.total)}" %></td>
-              <% end %>
-            </tr>
+              </tr>
+            <% end %>
           <% end %>
 
           <% @fees.each do |fee| %> 
@@ -38,14 +40,14 @@
 
             <% @cant_payments = ( @payments.count > 0) ? @payments.count : 1 %>
             <tr class="<%= @row_color %>">
-              <td rowspan="<%= @cant_payments %>"><%= (fee.number == 0 ) ? "1er entrega" : fee.number %></td>
+              <td rowspan="<%= @cant_payments %>"><%= fee.number %></td>
               <td rowspan="<%= @cant_payments %>"><%= "$ #{format_currency(fee.total_value)}" %></td>
               <td rowspan="<%= @cant_payments %>"><%= "$ #{format_currency(fee.get_adjusts)}" %></td>
               <td rowspan="<%= @cant_payments %>"><%= "$ #{format_currency(fee.get_interests)}" %></td>
               <td rowspan="<%= @cant_payments %>"><%= date_format(fee.due_date) %></td>
               <%if @payments.count > 0 %>
                 <td><%= "#{date_format(@payments.first.date)}" %></td>
-                <td><%= @payments.first.currency.name %></td>
+                <td><%= "#{@payments.first.payments_type.name} en #{@payments.first.currency.name}" %></td>
                 <td><%= format_currency(@payments.first.payment) %></td>
                 <td><%= "$#{format_currency(@payments.first.taken_in)}" %></td>
                 <td><%= "$#{format_currency(@payments.first.total)}" %></td>
@@ -58,7 +60,7 @@
                 <% if i != 0 %>
                   <tr class="<%= @row_color %>">
                     <td><%= "#{date_format(payment.date)}" %></td>
-                    <td><%= payment.currency.name %></td>
+                    <td><%= "#{payment.payments_type.name} en #{payment.currency.name}" %></td>
                     <td><%= format_currency(payment.payment) %></td>
                     <td><%= "$#{format_currency(payment.taken_in)}" %></td>
                     <td><%= "$#{format_currency(payment.total)}" %></td>
