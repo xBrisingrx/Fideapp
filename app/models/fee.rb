@@ -290,13 +290,24 @@ class Fee < ApplicationRecord
   def get_payments_list
     sale = Sale.find(self.sale_id)
     desired_month = self.due_date.month
-
+    desired_year = self.due_date.year
     if sale.fees.last.id == self.id 
       # lista de pagos efectuados en la ultima cuota o mas tarde
-      Payment.where('extract(month from date) >= ?', desired_month).where(sale_id: self.sale_id).no_first_pay.actives.order(date: :asc)
+      Payment.where('extract(month from date) >= ?', desired_month)
+        .where('extract(year from date) >= ?', desired_year)
+        .where(sale_id: self.sale_id)
+        .no_first_pay.actives.order(date: :asc)
+    elsif sale.fees.first.id == self.id
+      Payment.where('extract(month from date) <= ?', desired_month)
+        .where('extract(year from date) <= ?', desired_year)
+        .no_first_pay.actives.order(date: :asc)
+        .where(sale_id: self.sale_id)
     else
       # lista de pagos efectuados el mes indicado
-      Payment.where('extract(month from date) = ?', desired_month).where(sale_id: self.sale_id).no_first_pay.actives.order(date: :asc)
+      Payment.where('extract(month from date) = ?', desired_month)
+        .where(sale_id: self.sale_id)
+        .where('extract(year from date) >= ?', desired_year)
+        .no_first_pay.actives.order(date: :asc)
     end
   end
 
