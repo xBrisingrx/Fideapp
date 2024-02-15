@@ -327,10 +327,7 @@ class Fee < ApplicationRecord
   end
 
   def reset
-    fees = Fee.where(sale_id: self.sale_id)
-    fees.each do |fee|
-      fee.update(pay_status: :pendiente, payed: false)
-    end
+    Fee.where(sale_id: self.sale_id).update_all(pay_status: :pendiente, payed: false)
   end
 
   def set_refinancied
