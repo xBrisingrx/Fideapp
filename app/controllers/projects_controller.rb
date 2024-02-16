@@ -32,11 +32,8 @@ class ProjectsController < ApplicationController
     # params[:project][:price] = params[:project][:subtotal]
     params[:project][:price] = params[:project][:final_price]
     params[:project][:number_of_payments] = 0
-    # byebug
-    # raise 'finaliza'
     ActiveRecord::Base.transaction do 
       project = Project.new(project_params)
-      byebug
       if project.save
         project.check_payment_plan unless params[:project][:finalized] == 'true'
         render json: {status: 'success', msg: 'Proyecto registrado con exito'}, status: :ok
@@ -72,6 +69,6 @@ class ProjectsController < ApplicationController
         project_materials_attributes: [:id, :material_id,:type_units,:units,:price],
         payment_plans_attributes: [ :id, :number, :category, :price, :date, :option ],
         apple_projects_attributes: [:id, :apple_id],
-        land_projects_attributes: [:id, :land_id, :price,price_quotas: [], price_quotas_corner: [] ])
+        land_projects_attributes: [:id, :land_id, :finalized,:status,:price,price_quotas: [], price_quotas_corner: [] ])
     end
 end

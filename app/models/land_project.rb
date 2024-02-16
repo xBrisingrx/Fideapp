@@ -24,7 +24,7 @@ class LandProject < ApplicationRecord
   #   presence: true, 
   #   numericality: { greater_than: 0 }
 
-  validates :status, presence: true
+  # validates :status, presence: true
 
   after_create :create_sale
 

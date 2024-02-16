@@ -108,7 +108,6 @@ class Project < ApplicationRecord
   
   private
   def check_is_finalized
-    byebug
     # if this priject is created with finalized in true means that
     # it's a old project and was paid. Then I must create the land_projects paid and with one quote
     if self.finalized

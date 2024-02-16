@@ -237,14 +237,16 @@ class Sale < ApplicationRecord
 	def generate_fees ( project_id, option )
 		# genero las cuotas teniendo en cuenta los planes de pagos
 		payment_plans = PaymentPlan.where( project_id: project_id, option: option )
+		i = 1
 		payment_plans.each do |plan|
 			self.update( status: :approved )
 			self.fees.create!(
 				due_date: plan.date, 
 				value: plan.price, 
-				number: plan.number,
+				number: i,
 				type_fee: plan.category
 			)
+			i+=1
 		end
 		self.update(number_of_payments: self.fees.count)
 		total = payment_plans.sum(:price)

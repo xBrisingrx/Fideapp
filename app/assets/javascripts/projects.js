@@ -609,11 +609,11 @@ let project = {
 			if (lands[i].checked) {
 				const land_price = ( lands[i].dataset.corner ) ? this.form.get('project[land_corner_price]') : this.form.get('project[land_price]')
 				this.form.append( `project[land_projects_attributes][${i}][land_id]` , lands[i].dataset.landId)
-				this.form.append( `project[land_projects_attributes][${i}][price]` , 0)
+				this.form.append( `project[land_projects_attributes][${i}][price]` , land_price)
 				this.form.append( `project[land_projects_attributes][${i}][price_quotas][]` , land_price )
 				this.form.append( `project[land_projects_attributes][${i}][price_quotas_corner][]` , land_price )
-				this.form.append('project[land_projects_attributes][${i}][finalized][]', document.getElementById('project_finalized').checked )
-				
+				this.form.append(`project[land_projects_attributes][${i}][finalized]`, document.getElementById('project_finalized').checked )
+				// this.form.append( `project[land_projects_attributes][${i}][status]` , 0)
 			}
 		}
 	},
@@ -748,7 +748,8 @@ let project = {
 			if (lands[i].checked)
 			cant_lands ++
 		}
-		const land_price = roundToTwo(document.getElementById('project_final_price').value/cant_lands)
+		// const project_final_price = parseFloat(document.getElementById('project_final_price').value)
+		const land_price = roundToTwo(this.final_price/cant_lands)
 		document.getElementById('project_land_price').value = numberFormat.format( land_price )
 		document.getElementById('project_land_corner_price').value = numberFormat.format( land_price )
 		// if (document.getElementById('project_finalized').checked) {
@@ -991,7 +992,7 @@ let project = {
 		if (!event.target.checked) {
 			this.calculate_final_price()
 		} else {
-			// setear precio final por input
+			
 		}
 	},
 	set_payment_plan_date(){
