@@ -25,17 +25,19 @@ class ProjectsController < ApplicationController
   end
 
   def create
-    params[:project][:land_corner_price] = 0
+    params[:project][:land_price] = 0
     params[:project][:land_corner_price] = 0
     params[:project][:price_fee_corner] = 0
     params[:project][:price_fee] = 0
-    params[:project][:price] = params[:project][:subtotal]
+    # params[:project][:price] = params[:project][:subtotal]
+    params[:project][:price] = params[:project][:final_price]
     params[:project][:number_of_payments] = 0
-
+    byebug
+    raise 'finaliza'
     ActiveRecord::Base.transaction do 
       project = Project.new(project_params)
       if project.save
-        project.check_payment_plan
+        project.check_payment_plan unless params[:project][:finalized]
         render json: {status: 'success', msg: 'Proyecto registrado con exito'}, status: :ok
       end
     end

@@ -41,7 +41,7 @@ let project = {
 			provider.list_id = `${provider.provider_id}_${provider.provider_role}_${type_total}`
 
 			this.providers_list.push( provider )
-
+			
 			$('.select-2-project-provider').val('').trigger('change')
 			$('.select-2-provider-role').val('').trigger('change')
 			$('.select-2-payment-method').val('').trigger('change')
@@ -101,6 +101,15 @@ let project = {
 		this.calculate_subtotal()
 		this.remove_provider_summary_table(id)
 		this.update_summary_table()
+	},
+	update_value_of_others_providers(){
+		this.providers_list.forEach( provider => {
+			if (provider.type_total == 'subtotal') {
+				provider.provider_price_calculate = this.calcular_precio_proveedor( provider )
+				provider.value_iva = this.calculate_value_iva(provider)
+				provider.total = roundToTwo(provider.value_iva + provider.provider_price_calculate)
+			}
+		});
 	},
 	change_method_cobro(){
 		const selected = event.target.value
@@ -268,13 +277,15 @@ let project = {
 		this.form.append('project[project_type_id]', parseInt(document.getElementById('project_project_type_id').value ) )
 		this.form.append('project[number_of_payments]', 0 )
 		this.form.append('project[finalized]', document.getElementById('project_finalized').checked )
+		this.form.append('project[land_price]', parseFloat( document.getElementById('project_land_price').value ) )
+		this.form.append('project[land_corner_price]', parseFloat( document.getElementById('project_land_corner_price').value ) )
 
 		this.add_payment_plans()
 		this.add_providers()
 		this.add_materials()
 		this.add_apples_to_form()
 		this.add_lands_to_form()
-				fetch('/projects/', {
+		fetch('/projects/', {
       method: 'POST',
       headers: {           
         'X-CSRF-Token': document.getElementsByName('csrf-token')[0].content,
@@ -366,12 +377,6 @@ let project = {
 			noty_alert('warning', 'Debe seleccionar el IVA')
 			return false
 		}
-
-		// if ( !( this.project_price > 0 ) ) {
-		// 	noty_alert('warning', 'El proyecto no tiene precio')
-		// 	return false
-		// }
-
 		return true
 	},
 	provider_not_exist({provider_id, provider_role,type_total}){
@@ -645,6 +650,7 @@ let project = {
 		const providers = this.providers_list.filter( element => element.type_total == 'price' )
 		this.subtotal = providers.reduce( ( acc, element ) => acc + element.total, 0 )
 		this.subtotal += this.sum_material_price()
+		this.update_value_of_others_providers()
 		document.getElementById('project_subtotal').value = `$${numberFormat.format(this.subtotal)}`
 		this.calculate_final_price()
 	},
@@ -659,6 +665,7 @@ let project = {
 		}
 		this.calculate_price_land()
 		this.update_summary_table()
+		this.calculate_price_land()
 	},
 	set_porcent_values(){
 
@@ -728,10 +735,6 @@ let project = {
 		document.getElementById(`apple-${apple_id}`).remove()
 	},
 	calculate_price_land(){
-		// if ( document.getElementById("project_final_price").value <= 0 ) {
-		// 	noty_alert("info", "Debe ingresar el valor al proyecto")
-		// 	return
-		// }
 		this.update_lands_to_arrays() // actualizo mis arrays de lotes
 
 		const lands = document.getElementsByClassName("land")
@@ -743,13 +746,13 @@ let project = {
 			if (lands[i].checked)
 			cant_lands ++
 		}
-		const land_price = roundToTwo(this.final_price/cant_lands)
-		document.getElementById('project_land_price').value = land_price
-		document.getElementById('project_land_corner_price').value = land_price
-		if (document.getElementById('project_finalized').checked) {
-			document.getElementById("project_price_fee").value = numberFormat.format( land_price )
-			document.getElementById("project_price_fee_corner").value = numberFormat.format( land_price )
-		}
+		const land_price = roundToTwo(document.getElementById('project_final_price').value/cant_lands)
+		document.getElementById('project_land_price').value = numberFormat.format( land_price )
+		document.getElementById('project_land_corner_price').value = numberFormat.format( land_price )
+		// if (document.getElementById('project_finalized').checked) {
+		// 	document.getElementById("project_price_fee").value = numberFormat.format( land_price )
+		// 	document.getElementById("project_price_fee_corner").value = numberFormat.format( land_price )
+		// }
 	},
 	calculate_value_iva({provider_iva, provider_price_calculate}) {
 		return roundToTwo(( provider_iva * provider_price_calculate ) / 100)
@@ -970,16 +973,23 @@ let project = {
 		}
 	},
 	set_finalized(){
-		document.getElementById('lands_price_input').classList.toggle("d-none", !event.target.checked)
-		document.getElementById('payment_plan_input').classList.toggle("d-none", event.target.checked)
+		document.getElementById('project_land_price').disabled = !event.target.checked
 		document.getElementById('check_set_final_price').classList.toggle("d-none", !event.target.checked)
+		document.getElementById('label_corner').classList.toggle('d-none', !event.target.checked)
+		document.getElementById('land_corner_input').classList.toggle('d-none', !event.target.checked)
+		if(event.target.checked){
+			document.getElementById('land_price_text').innerHTML = "Valor que se registrara como pagado por lote."
+		} else {
+			document.getElementById('land_price_text').innerHTML = "Valor sugerido para el plan de pago."
+		}
+		
 	},
 	set_final_price_manual(){
 		document.getElementById('project_final_price').disabled = !event.target.checked
-	},
-	set_land_price(){
-		if(!event.target.disabled){
-			console.log('metemos unos cambios')
+		if (!event.target.checked) {
+			this.calculate_final_price()
+		} else {
+			// setear precio final por input
 		}
 	},
 	set_payment_plan_date(){
