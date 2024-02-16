@@ -601,17 +601,19 @@ let project = {
 	},
 	add_lands_to_form(){
 		const lands = document.getElementsByClassName("land")
-		let price_quotas = [] 
-		price_quotas = this.get_price_quotas()
-		let price_quotas_corner = []
-		price_quotas_corner = this.get_price_quotas_corner()
+		// let price_quotas = [] 
+		// price_quotas = this.get_price_quotas()
+		// let price_quotas_corner = []
+		// price_quotas_corner = this.get_price_quotas_corner()
 		for (let i = 0; i < lands.length; i++) {
 			if (lands[i].checked) {
 				const land_price = ( lands[i].dataset.corner ) ? this.form.get('project[land_corner_price]') : this.form.get('project[land_price]')
 				this.form.append( `project[land_projects_attributes][${i}][land_id]` , lands[i].dataset.landId)
 				this.form.append( `project[land_projects_attributes][${i}][price]` , 0)
-				this.form.append( `project[land_projects_attributes][${i}][price_quotas][]` , price_quotas )
-				this.form.append( `project[land_projects_attributes][${i}][price_quotas_corner][]` , price_quotas_corner )
+				this.form.append( `project[land_projects_attributes][${i}][price_quotas][]` , land_price )
+				this.form.append( `project[land_projects_attributes][${i}][price_quotas_corner][]` , land_price )
+				this.form.append('project[land_projects_attributes][${i}][finalized][]', document.getElementById('project_finalized').checked )
+				
 			}
 		}
 	},

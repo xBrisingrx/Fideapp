@@ -16,6 +16,7 @@ class LandProject < ApplicationRecord
   # Esta tierra que proyectos tiene
   attribute :price_quotas
   attribute :price_quotas_corner
+  attribute :finalized, :boolean
   belongs_to :land
   belongs_to :project
 
@@ -42,8 +43,16 @@ class LandProject < ApplicationRecord
     )
     # I add product to sale
     sale.sale_products.create( product: project )
-    if sale.approved?
-      sale.generate_fees( self.project_id ,1 )
+    if self.finalized
+      sale.fees.create!(
+        due_date: project.date, 
+        value: self.price_quotas, 
+        number: 1
+      )
+    else
+      if sale.approved?
+        sale.generate_fees( self.project_id ,1 )
+      end
     end
     # if sale.approved?
       
