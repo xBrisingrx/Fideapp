@@ -1012,9 +1012,9 @@ let project = {
 			return
 		}
 		const quantity_payment_plan = document.getElementsByClassName('payment-plan').length + 1
-		let html_to_insert = `<table class="table payment-plan">
+		let html_to_insert = `<table class="table table-responsive payment-plan">
 		<thead>
-			<th></th><th></th>`
+			<th>Opcion #${quantity_payment_plan}</th>`
 		if (payment_plan_quantity_first_pay > 0) {
 			for (let index = 1; index <= payment_plan_quantity_first_pay; index++) {
 				html_to_insert += `<th>${meses[payment_plan_date.getMonth()]}-${payment_plan_date.getFullYear()}</th>`
@@ -1032,7 +1032,6 @@ let project = {
 		html_to_insert += `</thead>
 			<tbody>
 				<tr>
-					<td></td>
 					<td>TOTAL $</td>
 		`
 		if (payment_plan_quantity_first_pay > 0) {
@@ -1052,26 +1051,25 @@ let project = {
 		}
 		html_to_insert += `
 			<tr>
-				<td>Opcion ${quantity_payment_plan}</td>
-				<td><input type='text' id='total-option' disabled/></td>
+				<td><input class='form-control' type='text' id='total-option' disabled/></td>
 		`
 		// lo reseteo para tomar la fecha en los inputs
 		payment_plan_date = new Date(`${document.getElementById("payment_plan_date").value}T00:00:00`)
 		payment_plan_date.setDate(10)
 		if (payment_plan_quantity_first_pay > 0) {
 			for (let index = 1; index <= payment_plan_quantity_first_pay; index++) {
-				html_to_insert += `<td><input type='number' step="0.01" class='payment-plan-first-pay-value' 
+				html_to_insert += `<td><input type='number' step="0.01" class='payment-plan-first-pay-value form-control' 
 					data-date='${payment_plan_date.toLocaleDateString()}' 
 					data-option=${quantity_payment_plan}
 					data-number=${index}
 					onchange='project.sum_payment_plan()'/></td>`
 				payment_plan_date.setMonth( payment_plan_date.getMonth() + 1)
 			}
-			html_to_insert += `<td><input type='text' id='first-pay-saldo' disabled/></td>`
+			html_to_insert += `<td><input class='form-control' type='text' id='first-pay-saldo' disabled/></td>`
 		}
 		if (payment_plan_quantity_quotes > 0) {
 			for (let index = 1; index <= payment_plan_quantity_quotes; index++) {
-				html_to_insert += `<td><input type='number' step="0.01" class='payment-plan-quote-value' 
+				html_to_insert += `<td><input type='number' step="0.01" class='payment-plan-quote-value form-control' 
 					data-date='${payment_plan_date.toLocaleDateString()}' 
 					data-option=${quantity_payment_plan} 
 					data-number=${index} 
