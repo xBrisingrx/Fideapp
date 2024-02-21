@@ -18,6 +18,8 @@
 class Client < ApplicationRecord
 	has_many :sale_clients
 	has_many :contacts
+	has_many :sales, through: :sale_clients
+	has_many :lands, through: :sales
 	validates :code, presence: true
 	validates :name, presence: true
 	validates :last_name, presence: true
