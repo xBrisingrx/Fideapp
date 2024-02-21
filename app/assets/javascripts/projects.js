@@ -628,26 +628,29 @@ let project = {
 			const table = tables[table_index]
 			const payment_plan_first_pay = table.querySelectorAll('.payment-plan-first-pay-value')
 			const payment_plan_quotes = table.querySelectorAll('.payment-plan-quote-value')
+			let cantidad_cuotas = 1
 						if ( payment_plan_first_pay.length > 0 ) {
 				for (let i = 0; i < payment_plan_first_pay.length; i++) {
 					const element = payment_plan_first_pay[i];
-					this.form.append( `project[payment_plans_attributes][${payment_plans_index}][number]` , element.dataset.number)	
+					this.form.append( `project[payment_plans_attributes][${payment_plans_index}][number]` , cantidad_cuotas)	
 					this.form.append( `project[payment_plans_attributes][${payment_plans_index}][category]`,1)	
 					this.form.append( `project[payment_plans_attributes][${payment_plans_index}][date]` , element.dataset.date)
 					this.form.append( `project[payment_plans_attributes][${payment_plans_index}][price]` , parseFloat(element.value))
 					this.form.append( `project[payment_plans_attributes][${payment_plans_index}][option]` , element.dataset.option)
 					payment_plans_index++
+					cantidad_cuotas++
 				}
 			}
 			if ( payment_plan_quotes.length > 0 ) {
 				for (let i = 0; i < payment_plan_quotes.length; i++) {
 					const element = payment_plan_quotes[i];
-					this.form.append( `project[payment_plans_attributes][${payment_plans_index}][number]` , element.dataset.number)	
+					this.form.append( `project[payment_plans_attributes][${payment_plans_index}][number]` , cantidad_cuotas)	
 					this.form.append( `project[payment_plans_attributes][${payment_plans_index}][category]`,2)	
 					this.form.append( `project[payment_plans_attributes][${payment_plans_index}][date]` , element.dataset.date)
 					this.form.append( `project[payment_plans_attributes][${payment_plans_index}][price]` , parseFloat(element.value))
 					this.form.append( `project[payment_plans_attributes][${payment_plans_index}][option]` , element.dataset.option)
 					payment_plans_index++
+					cantidad_cuotas++
 				}
 			}
 		}
