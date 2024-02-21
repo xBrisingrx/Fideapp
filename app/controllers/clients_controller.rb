@@ -1,5 +1,5 @@
 class ClientsController < ApplicationController
-  before_action :set_client, only: %i[ show edit update destroy ]
+  before_action :set_client, only: %i[ show edit update destroy lands_by_client ]
   before_action :marital_status, only: %i[new edit]
 
   def index
@@ -50,6 +50,11 @@ class ClientsController < ApplicationController
     rescue => e
       @response = e.message.split(':')
       render json: { @response[0] => @response[1] }, status: 402
+  end
+
+  def lands_by_client # we get client's lands
+    @lands = @client.lands
+    @title_modal = "Lotes de #{@client.fullname}"
   end
 
   private

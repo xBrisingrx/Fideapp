@@ -33,6 +33,7 @@ Rails.application.routes.draw do
   post 'disable_apple', to: 'apples#disable', as: 'disable_apple'
   post 'disable_land', to: 'lands#disable', as: 'disable_land'
   resources :clients, except: [:destroy, :show] do
+    get 'lands_by_client', on: :member
     resources :contacts,  except: [:destroy, :show] do 
       get "modal_disable", on: :member
       post "disable", on: :member

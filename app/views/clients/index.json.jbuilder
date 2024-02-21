@@ -11,6 +11,9 @@ json.data @clients do |c|
   								 :remote => true, 'data-toggle' =>  'modal',
       							'data-target' => '#modal-client', 
       							'class' => 'u-link-v5 g-color-gray g-color-secondary--hover g-text-underline--none--hover g-ml-12', title: 'Editar'}
+									#{link_to '<i class="hs-admin-home"></i>'.html_safe, lands_by_client_client_path(c), 
+									:remote => true,
+										'class' => 'u-link-v5 g-color-gray g-color-secondary--hover g-text-underline--none--hover g-ml-12', title: 'Ver lotes comprados'}
   							<a class='u-link-v5 g-color-gray g-color-secondary--hover g-text-underline--none--hover g-ml-12' 
   								title='Eliminar' 
   								onclick='modal_disable_client( #{ c.id } )'>
