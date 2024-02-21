@@ -267,6 +267,10 @@ let project = {
 	submit(){
 		event.preventDefault()
 		event.stopPropagation()
+		if(document.getElementsByClassName("land").length == 0) {
+			noty_alert('info','Debe seleccionar los lotes afectados al proyecto')
+			return
+		}
 		this.form.append('project[date]', document.getElementById('project_date').value )
 		this.form.append('project[number]', document.getElementById('project_number').value )
 		this.form.append('project[name]', document.getElementById('project_name').value )
@@ -277,9 +281,9 @@ let project = {
 		this.form.append('project[project_type_id]', parseInt(document.getElementById('project_project_type_id').value ) )
 		this.form.append('project[number_of_payments]', 0 )
 		this.form.append('project[finalized]', document.getElementById('project_finalized').checked )
-		this.form.append('project[land_price]', parseFloat( document.getElementById('project_land_price').value ) )
-		this.form.append('project[land_corner_price]', parseFloat( document.getElementById('project_land_corner_price').value ) )
-
+		this.form.append('project[land_price]', cast_float_from_string_input('project_land_price') )
+		this.form.append('project[land_corner_price]', cast_float_from_string_input('project_land_corner_price') )
+		
 		this.add_payment_plans()
 		this.add_providers()
 		this.add_materials()
@@ -610,8 +614,8 @@ let project = {
 				const land_price = ( lands[i].dataset.corner ) ? this.form.get('project[land_corner_price]') : this.form.get('project[land_price]')
 				this.form.append( `project[land_projects_attributes][${i}][land_id]` , lands[i].dataset.landId)
 				this.form.append( `project[land_projects_attributes][${i}][price]` , land_price)
-				this.form.append( `project[land_projects_attributes][${i}][price_quotas][]` , land_price )
-				this.form.append( `project[land_projects_attributes][${i}][price_quotas_corner][]` , land_price )
+				this.form.append( `project[land_projects_attributes][${i}][price_quotas]` , land_price )
+				this.form.append( `project[land_projects_attributes][${i}][price_quotas_corner]` , land_price )
 				this.form.append(`project[land_projects_attributes][${i}][finalized]`, document.getElementById('project_finalized').checked )
 				// this.form.append( `project[land_projects_attributes][${i}][status]` , 0)
 			}
@@ -743,19 +747,33 @@ let project = {
 		if (lands.length == 0) {
 			return
 		}
-		let cant_lands = 0
-		for (let i = 0; i < lands.length; i++) {
-			if (lands[i].checked)
-			cant_lands ++
-		}
-		// const project_final_price = parseFloat(document.getElementById('project_final_price').value)
-		const land_price = roundToTwo(this.final_price/cant_lands)
+		const cant_lands = Array.from(lands).filter( element => element.checked ).length
+		let land_price = roundToTwo(this.final_price/cant_lands)
 		document.getElementById('project_land_price').value = numberFormat.format( land_price )
 		document.getElementById('project_land_corner_price').value = numberFormat.format( land_price )
-		// if (document.getElementById('project_finalized').checked) {
-		// 	document.getElementById("project_price_fee").value = numberFormat.format( land_price )
-		// 	document.getElementById("project_price_fee_corner").value = numberFormat.format( land_price )
-		// }
+		if (document.getElementById('project_finalized').checked ) {
+			if( document.getElementById('project_set_final_price').checked ){
+				const project_final_price = cast_float_from_string_input('project_final_price')
+				if( !valid_number(project_final_price) ){
+					noty_alert('info', 'Debe ingresar un número válido. Recuerde que los centavos se separan con punto')
+					return
+				}
+				land_price = roundToTwo(project_final_price/cant_lands)
+			}
+			document.getElementById("project_land_price").value = numberFormat.format( land_price )
+			document.getElementById("project_land_corner_price").value = numberFormat.format( land_price )
+		}
+	},
+	set_land_price_to_number(value){
+		// remover solo los puntos y las comas son centavos D
+		let price = value.split('.')
+		if( price.length > 1) {
+			let centavos = price[ price.length - 1 ]
+			price.pop()
+			let pesos = price.reduce( (el, acum) => el + acum, '' )
+			price = pesos+'.'+centavos
+			console.log(price)
+		}
 	},
 	calculate_value_iva({provider_iva, provider_price_calculate}) {
 		return roundToTwo(( provider_iva * provider_price_calculate ) / 100)
@@ -980,6 +998,7 @@ let project = {
 		document.getElementById('check_set_final_price').classList.toggle("d-none", !event.target.checked)
 		document.getElementById('label_corner').classList.toggle('d-none', !event.target.checked)
 		document.getElementById('land_corner_input').classList.toggle('d-none', !event.target.checked)
+		document.getElementById('payment_plan_input').classList.toggle('d-none', !event.target.checked)
 		if(event.target.checked){
 			document.getElementById('land_price_text').innerHTML = "Valor que se registrara como pagado por lote."
 		} else {
@@ -1236,3 +1255,7 @@ async function async_add_apples(){ // adds apples and lands to form
 	} // for apple in apples
 }
 
+function cast_float_from_string_input(input_id){
+	const string = document.getElementById(input_id).value
+	return parseFloat(string.replace('$', '').replaceAll('.', '').replace(',', '.'))
+}

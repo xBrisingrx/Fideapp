@@ -69,6 +69,6 @@ class ProjectsController < ApplicationController
         project_materials_attributes: [:id, :material_id,:type_units,:units,:price],
         payment_plans_attributes: [ :id, :number, :category, :price, :date, :option ],
         apple_projects_attributes: [:id, :apple_id],
-        land_projects_attributes: [:id, :land_id, :finalized,:status,:price,price_quotas: [], price_quotas_corner: [] ])
+        land_projects_attributes: [:id, :land_id, :finalized,:status,:price,:price_quotas, :price_quotas_corner ])
     end
 end

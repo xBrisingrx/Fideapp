@@ -36,7 +36,7 @@
     <%= form.text_field :name,class: 'form-control rounded-0 col-4 col-md-2' %>
   </div>
 
-  <div class="form-group d-none">
+  <div class="form-group">
     <label class="form-check-inline u-check g-pl-25">
       <%= form.check_box :finalized, class: 'g-hidden-xs-up g-pos-abs g-top-0 g-left-0', checked: false, onchange: "project.set_finalized()" %>
       <div class="u-check-icon-checkbox-v6 g-absolute-centered--y g-left-0">
