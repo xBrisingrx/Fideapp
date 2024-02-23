@@ -1075,10 +1075,11 @@ let project = {
 		// lo reseteo para tomar la fecha en los inputs
 		payment_plan_date = new Date(`${document.getElementById("payment_plan_date").value}T00:00:00`)
 		payment_plan_date.setDate(10)
+		
 		if (payment_plan_quantity_first_pay > 0) {
 			for (let index = 1; index <= payment_plan_quantity_first_pay; index++) {
 				html_to_insert += `<td><input type='number' step="0.01" class='payment-plan-first-pay-value form-control' 
-					data-date='${payment_plan_date.toLocaleDateString()}' 
+					data-date='${payment_plan_date.toLocaleDateString('es-AR')}' 
 					data-option=${quantity_payment_plan}
 					data-number=${index}
 					onchange='project.sum_payment_plan()'/></td>`
@@ -1089,7 +1090,7 @@ let project = {
 		if (payment_plan_quantity_quotes > 0) {
 			for (let index = 1; index <= payment_plan_quantity_quotes; index++) {
 				html_to_insert += `<td><input type='number' step="0.01" class='payment-plan-quote-value form-control' 
-					data-date='${payment_plan_date.toLocaleDateString()}' 
+					data-date='${payment_plan_date.toLocaleDateString('es-AR')}' 
 					data-option=${quantity_payment_plan} 
 					data-number=${index} 
 					onchange='project.sum_payment_plan()'/></td>`
