@@ -75,4 +75,13 @@ $(document).on('ready', function () {
 
   // initialization of custom scrollbar
   $.HSCore.components.HSScrollBar.init($('.js-custom-scroll'))
+  
+  $("input[data-type='currency']").on({
+    keyup: function() {
+      formatCurrency($(this));
+    },
+    blur: function() { 
+      formatCurrency($(this), "blur");
+    }
+  })
 })
