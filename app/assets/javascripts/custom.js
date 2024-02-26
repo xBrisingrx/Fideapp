@@ -178,3 +178,14 @@ function string_to_float_with_value(string_value){
     return 0
   }
 }
+
+function set_currency_fn(){
+  $("input[data-type='currency']").on({
+    keyup: function() {
+      formatCurrency($(this));
+    },
+    blur: function() { 
+      formatCurrency($(this), "blur");
+    }
+  })
+}
