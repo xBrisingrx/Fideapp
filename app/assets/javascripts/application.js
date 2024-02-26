@@ -37,8 +37,11 @@
 //= require materials
 //= require sales
 //= require project_types
-//= require projects
+//= require project/project
 //= require project/providers
+//= require project/apples
+//= require project/payment_plan
+//= require project/materials
 //= require fees
 //= require fee_payments
 //= require payments_types
