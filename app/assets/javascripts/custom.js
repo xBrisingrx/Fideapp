@@ -158,5 +158,23 @@ function formatCurrency(input, blur) {
 function string_to_float(input_id){
   // parse a string wiht format "$1.234.567,1" to 1234567.1
 	const string = document.getElementById(input_id).value
-	return parseFloat(string.replace('$', '').replaceAll('.', '').replace(',', '.'))
+  if(string != ''){
+    return parseFloat(string.replace('$', '').replaceAll('.', '').replace(',', '.'))
+  } else {
+    return 0
+  }
+}
+
+function float_to_string( value ) {
+  let string = `${value}`
+  return string.replace('.',',')
+}
+
+function string_to_float_with_value(string_value){
+  // parse a string wiht format "$1.234.567,1" to 1234567.1
+  if(string_value != ''){
+    return parseFloat(string_value.replace('$', '').replaceAll('.', '').replace(',', '.'))
+  } else {
+    return 0
+  }
 }
