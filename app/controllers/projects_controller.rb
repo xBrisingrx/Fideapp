@@ -25,15 +25,9 @@ class ProjectsController < ApplicationController
   end
 
   def create
-    params[:project][:land_price] = 0
-    params[:project][:land_corner_price] = 0
-    params[:project][:price_fee_corner] = 0
-    params[:project][:price_fee] = 0
-    # params[:project][:price] = params[:project][:subtotal]
-    params[:project][:price] = params[:project][:final_price]
-    params[:project][:number_of_payments] = 0
     ActiveRecord::Base.transaction do 
       project = Project.new(project_params)
+      project.price = 0
       if project.save
         project.check_payment_plan unless params[:project][:finalized] == 'true'
         render json: {status: 'success', msg: 'Proyecto registrado con exito'}, status: :ok
@@ -64,7 +58,7 @@ class ProjectsController < ApplicationController
 
     def project_params
       params.require(:project).permit(:number, :name, :active, :price, :total, :status,:final_price,:subtotal,:description,:project_type_id, 
-        :land_corner_price, :land_price, :price_fee, :price_fee_corner, :date, :number_of_payments, :finalized, :first_pay_required, :first_pay_price,
+        :land_corner_price, :land_price, :date, :finalized, :first_pay_required, :first_pay_price,
         project_providers_attributes: [:id, :provider_id,:provider_role_id,:payment_method_id,:price,:iva,:value_iva,:price_calculate,:porcent,:type_total],
         project_materials_attributes: [:id, :material_id,:type_units,:units,:price],
         payment_plans_attributes: [ :id, :number, :category, :price, :date, :option ],
