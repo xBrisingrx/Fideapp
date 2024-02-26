@@ -5,14 +5,14 @@
     <div class="col-2 col-md-2">
       <%= form.label :date, "Fecha inicio de proyecto:" %>
     </div>
-    <%= form.date_field :date, class: 'form-control rounded-0 col-4 col-md-2', onchange: "project.set_payment_plan_date()" %>
+    <%= form.date_field :date, class: 'form-control rounded-0 col-4 col-md-2', onchange: "payment_plan.set_payment_plan_date()", required: true %>
   </div>
 
   <div class="form-group row">
     <div class="col-2 col-md-2">
       <%= form.label :number, "Número:" %>
     </div>
-    <%= form.number_field :number,class: 'form-control rounded-0 col-4 col-md-2' %>
+    <%= form.number_field :number, class: 'form-control rounded-0 col-4 col-md-2', required: true %>
   </div>
 
   <div class="form-group row">
@@ -33,12 +33,12 @@
     <div class="col-2 col-md-1">
       <%= form.label :name, "Nombre:" %>
     </div>
-    <%= form.text_field :name,class: 'form-control rounded-0 col-4 col-md-2' %>
+    <%= form.text_field :name, class: 'form-control rounded-0 col-4 col-md-2', required: true %>
   </div>
 
   <div class="form-group">
     <label class="form-check-inline u-check g-pl-25">
-      <%= form.check_box :finalized, class: 'g-hidden-xs-up g-pos-abs g-top-0 g-left-0', checked: false, onchange: "project.set_finalized()" %>
+      <%= form.check_box :finalized, class: 'g-hidden-xs-up g-pos-abs g-top-0 g-left-0', checked: false, onchange: "project.set_finalized(event)" %>
       <div class="u-check-icon-checkbox-v6 g-absolute-centered--y g-left-0">
         <i class="fa" data-check-icon="&#xf00c"></i>
       </div>
@@ -64,16 +64,18 @@
                       {:include_blank => "Seleccione urbanizacion"},
                       class: 'form-control select-2-apple-list', 
                       required: true,
-                      onchange:"project.charge_sectors()") %>
+                      onchange:"project_apples.charge_sectors()") %>
       <div class="invalid-feedback sector_id"></div>
     </div>
     <div class="form-group col-2">
-      <select id="sector_list" class="form-control select-2-apple-list" onchange="project.charge_apples()">
+      <select id="sector_list" class="form-control select-2-apple-list" onchange="project_apples.charge_apples()">
         <option value=""> Elegir sector </option>
       </select>
     </div>
 
-    <button type="button" id="show_apple_list" class="btn u-btn-primary" data-toggle="modal" data-target="#modal_apple_list" disabled>Seleccionar manzanas</button>
+    <div class="col-2">
+      <button type="button" id="show_apple_list" class="btn u-btn-primary" data-toggle="modal" data-target="#modal_apple_list" disabled>Seleccionar manzanas</button>
+    </div>
     <div class="col-1">
       <button type="button" class="btn u-btn-teal" onclick="async_add_apples()" ><i class="fa fa-plus"></i></button>
     </div>
@@ -113,10 +115,10 @@
       </select>
     </div>
     <div class="col-2">
-       <%= form.number_field :provider_price, class: 'form-control', step:'0.01', placeholder: 'Monto' %>
+       <%= form.text_field :provider_price, class: 'form-control', step:'0.01', placeholder: 'Monto', data: { type: "currency" } %>
     </div>
     <div class="col-1">
-      <button id="add-provider" class="btn u-btn-teal" onclick="project.add_provider('price')"><i class="fa fa-plus"></i></button>
+      <button id="add-provider" class="btn u-btn-teal" onclick="project_providers.add('price')"><i class="fa fa-plus"></i></button>
     </div>
   </div>
 
@@ -133,7 +135,9 @@
         <th>Acciones</th>
       </tr>
     </thead>
-    <tbody id="provider-list" class="project-provider-body"></tbody>
+    <tbody id="provider-list" class="project-provider-body">
+      <tr> <td colspan='8'  class='text-center'> No se ha agregado ningun proveedor. </td> </tr>
+    </tbody>
   </table>
   <hr class="w-25 g-my-20">
   <div class="form-group row">
@@ -156,13 +160,13 @@
       </select>
     </div>
     <div class="col-2">
-      <input type="number" placeholder="Unidades" id="material_units" class='form-control rounded-0 '>
+      <input type="number" placeholder="Unidades" id="material_units" class='form-control rounded-0'>
     </div>
     <div class="col-2">
-      <input type="number" placeholder="Valor por unidad" id="material_price" class='form-control rounded-0'>
+      <input type="text" placeholder="Valor por unidad" id="material_price" class='form-control rounded-0' data-type='currency'>
     </div>
     <div class="col-2">
-      <button id="add-material" class="btn u-btn-teal" onclick="project.add_material()"><i class="fa fa-plus"></i></button>
+      <button id="add-material" type="button" class="btn u-btn-teal" onclick="project_materials.add(event)"><i class="fa fa-plus"></i></button>
     </div>
   </div>
   <table class="table table-sm mx-auto d-none">
@@ -183,7 +187,7 @@
     <div class="col-2 col-md-2">
       <%= form.label :subtotal, '<b>Subtotal:</b>'.html_safe, class: 'g-font-size-16'%>
     </div>
-    <%= form.text_field :subtotal, class: 'form-control rounded-0 col-4 col-md-2', disabled: true %>
+    <%= form.text_field :subtotal, class: 'form-control rounded-0 col-4 col-md-2', disabled: true, data: { type: "currency" } %>
     <div class="invalid-feedback project_subtotal"></div>
   </div>
 
@@ -215,11 +219,11 @@
        <%= form.number_field :other_provider_price, class: 'form-control', step:'0.01', placeholder: '%' %>
     </div>
     <div class="col-1">
-      <button id="add-other-provider" class="btn u-btn-teal" onclick="project.add_other_provider('subtotal')"><i class="fa fa-plus"></i></button>
+      <button id="add-other-provider" class="btn u-btn-teal" onclick="project_providers.add('subtotal')"><i class="fa fa-plus"></i></button>
     </div>
   </div>
 
-  <table id="table_other_provider" class="table table-sm mx-auto mb-4 mt-2 table-striped mb-4 d-none">
+  <table id="table_other_provider" class="table table-sm mx-auto mb-4 mt-2 table-striped mb-4">
     <thead>
       <tr>
         <th>Inverviniente</th>
@@ -240,7 +244,7 @@
     <div class="col-2 col-md-2">
       <%= form.label :final_price, '<b>Total:</b>'.html_safe, class: 'g-font-size-16' %>
     </div>
-    <%= form.text_field :final_price, class: 'form-control rounded-0 col-4', disabled: true, onchange: "project.calculate_price_land()" %>
+    <%= form.text_field :final_price, class: 'form-control rounded-0 col-4', disabled: true, onchange: "project.update_final_price_manual()", data: { type: "currency" } %>
     <div class="invalid-feedback field_price"></div>
     <label id="check_set_final_price" class="form-check-inline u-check g-pl-25 ml-4 d-none">
       <%= form.check_box :set_final_price, class: 'g-hidden-xs-up g-pos-abs g-top-0 g-left-0', checked: false, onchange: "project.set_final_price_manual()" %>
@@ -272,13 +276,13 @@
         <%= form.label :land_price, 'Precio por lote' %>
       </div>
       <div class="col-4 col-md-2">
-         <%= form.text_field :land_price, class: 'form-control', step:'0.01', placeholder: 'Precio unitario por lote', disabled: true %>
+         <%= form.text_field :land_price, class: 'form-control', step:'0.01', placeholder: 'Precio unitario por lote', disabled: true, data: { type: "currency" } %>
       </div>
       <div class="col-4 col-md-2 d-none" id="label_corner">
         <%= form.label :land_corner_price, 'Precio esquinas' %>
       </div>
       <div class="col-4 col-md-2 d-none" id="land_corner_input">
-         <%= form.text_field :land_corner_price, class: 'form-control', step:'0.01', placeholder: 'Precio esquinas'%>
+         <%= form.text_field :land_corner_price, class: 'form-control', step:'0.01', placeholder: 'Precio esquinas', data: { type: "currency" }%>
       </div>
     </div>
   </div>
@@ -299,7 +303,7 @@
         <input type="date" name="payment_plan[date]" id="payment_plan_date" class="form-control">
       </div>
       <div class="col-2 d-flex align-items-center">
-        <button type="button" class="btn u-btn-blue" onclick="project.add_payment_plan()"><i class="fa fa-plus"></i></button>
+        <button type="button" class="btn u-btn-blue" onclick="payment_plan.add()"><i class="fa fa-plus"></i></button>
       </div>
     </div>
   </div>
@@ -314,7 +318,7 @@
   </div>
 
   <div class="mt-4">
-    <button type="button" class="btn u-btn-teal mr-2" onclick="project.submit()"> Guardar </button>
+    <button type="button" class="btn u-btn-teal mr-2" onclick="project.submit(event)"> Guardar </button>
     <%= link_to "Cancelar", projects_path, class:"btn u-btn-red"%>
   </div>
 <% end %>

@@ -34,7 +34,6 @@ class LandProject < ApplicationRecord
   def create_sale
     project = Project.find(self.project_id)
     land = Land.find(self.land_id)
-    number_of_payments = project.number_of_payments
     sale = Sale.create(
       date: project.date,
       land_id: land.id,

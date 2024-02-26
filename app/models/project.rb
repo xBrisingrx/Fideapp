@@ -17,9 +17,6 @@
 #  created_at         :datetime         not null
 #  updated_at         :datetime         not null
 #  date               :date             not null
-#  price_fee          :decimal(15, 2)   not null
-#  price_fee_corner   :decimal(15, 2)   not null
-#  number_of_payments :integer          not null
 #  first_pay_required :boolean          default(TRUE)
 #  first_pay_price    :decimal(15, 2)
 #
@@ -43,7 +40,7 @@ class Project < ApplicationRecord
     presence: true
     # numericality: { greater_than: 0 }
   validates :number, presence: true, numericality: { only_integer: true }
-  validates :date, presence: true
+  validates :date,:price, :subtotal, :final_price, presence: true
   
   after_create :check_is_finalized
 

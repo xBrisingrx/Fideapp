@@ -16,7 +16,7 @@
 #  active     :boolean          default(TRUE)
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
-#  type_fee   :integer          default(NULL)
+#  type_fee   :integer          default("quote")
 #
 class Fee < ApplicationRecord
   # La cuota es un acuerdo de pagos
@@ -26,7 +26,6 @@ class Fee < ApplicationRecord
   belongs_to :sale
   has_many :adjusts, dependent: :destroy
   has_many :interests, dependent: :destroy
-  has_many :fee_payments, dependent: :destroy #esta relacion ya no se usa
 
   scope :actives, -> { where(active: true) }
   scope :no_cero, -> { where( "number > 0" ) }
