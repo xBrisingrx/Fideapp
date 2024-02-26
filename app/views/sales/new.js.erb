@@ -12,6 +12,8 @@ sale.entrega = 0;
 
 setInputDate("#date")
 
+document.getElementById('price').disabled = sale.precio != 0
+set_currency_fn()
 function fee_start_date_info(){
 	noty_alert('info', 'Si coloca una fecha las cuotas corren a partir de esa fecha. En caso de colocar día de vencimiento se tomara ese día de vencimiento. Si no coloca fecha se toma como referencia la fecha de venta', 10000)
 }
@@ -45,13 +47,11 @@ function remove_client( id ) {
 	$(`#client_id option[value='${id}']`).attr('disabled', false)
 }
 
-function get_clients() {
-	let compradores = []
-	let lista = document.getElementsByClassName('client-id')
-	for (let i = lista.length - 1; i >= 0; i--) {
-		compradores.push(lista[i].dataset.id)
+function add_clients_to_form() {
+	const clients = document.getElementsByClassName('client-id')
+	for (let i = 0; i < clients.length; i++) {
+		sale.form.append( `sale[sale_clients_attributes][${i}][client_id]`, clientt[i].id)
 	}
-	return compradores
 }
 
 function get_clients_names() {
@@ -200,6 +200,7 @@ document.getElementById('setear_cuotas').addEventListener('click', function(e){
 		if (cantidad_de_cuotas.value == '' || cantidad_de_cuotas.value < 1) {
 			cantidad_de_cuotas.classList.add('is-invalid')
 			noty_alert('error', 'Debe ingresar una cantidad de cuotas')
+			this.checked = false
 			return
 		} else {
 			cantidad_de_cuotas.classList.remove('is-invalid')
@@ -279,22 +280,21 @@ function send_sale(){
 
 function set_form_sale() {
 	sale.form = new FormData()
-	sale.form.append('clients[]', get_clients())
-	sale.form.append('bought', document.getElementById('bought').checked)
-	sale.form.append("land_id", document.getElementById('land_id').value)
-	// product
-	sale.form.append("product_id", document.getElementById('product_id').value)
-	sale.form.append("product_type", document.getElementById('product_type').value)
+	add_clients_to_form()
+	sale.form.append('sale[bought]', document.getElementById('bought').checked)
+	sale.form.append("sale[land_id]", document.getElementById('land_id').value)
+	sale.form.append("sale[sale_products_attributes][product_id]", document.getElementById('product_id').value)
+	sale.form.append("sale[sale_products_attributes][product_type]", document.getElementById('product_type').value)
 
-	sale.form.append("comment", document.getElementById('comment').value)
-	sale.form.append("apply_arrear", document.getElementById('apply_arrear').checked)
-	sale.form.append("arrear", document.getElementById('arrear').value)
-	sale.form.append("due_day", document.getElementById('due_day').value)
-	sale.form.append("fee_start_date", document.getElementById('fee_start_date').value)
-	sale.form.append("price", document.getElementById('price').value)
-	sale.form.append("date", document.getElementById('date').value )
-	sale.form.append("number_of_payments", document.getElementById('number_of_payments').value )
-	sale.form.append("setear_cuotas_manual", document.getElementById('setear_cuotas').checked)
+	sale.form.append("sale[comment]", document.getElementById('comment').value)
+	sale.form.append("sale[apply_arrear]", document.getElementById('apply_arrear').checked)
+	sale.form.append("sale[arrear]", document.getElementById('arrear').value)
+	sale.form.append("sale[due_day]", document.getElementById('due_day').value)
+	sale.form.append("sale[fee_start_date]", document.getElementById('fee_start_date').value)
+	sale.form.append("sale[price]", document.getElementById('price').value)
+	sale.form.append("sale[date]", document.getElementById('date').value )
+	sale.form.append("sale[number_of_payments]", document.getElementById('number_of_payments').value )
+	sale.form.append("sale[setear_cuotas_manual]", document.getElementById('setear_cuotas').checked)
 	if ( sale.form.get('setear_cuotas_manual') == 'true' ) {
   	sale.form.append("valores_cuota[]", get_cuotas_manual() )
 	} else {
