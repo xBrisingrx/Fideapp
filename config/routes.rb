@@ -11,7 +11,7 @@ Rails.application.routes.draw do
   resources :provider_roles
   post 'disable_provider_role', to: 'provider_roles#disable', as: 'disable_provider_role'
   resources :projects
-  root 'main#welcome'
+  root 'clients#index'
   get 'main/welcome'
 
   namespace :authentication, path: '', as: '' do
