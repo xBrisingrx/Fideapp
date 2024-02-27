@@ -3,18 +3,26 @@
   
   <%= form.hidden_field :land_id, value: @land_id %>
   <%= form.hidden_field :product_id, value: @product.id %>
-  <%= form.hidden_field :price, value: @product.price %>
+  
   <%= form.hidden_field :product_type, value: @product_type %>
-
-  <div class="mb-2">
-    <b><u>Valor del lote:</u> $ <%= format_currency(@product.price) %></b>
+  <div class="form-group row">
+    <div class="col-4 col-lg-3">
+      <%= form.label :price, 'Valor del lote' %>
+    </div>
+    <div class="form-group col-8 col-lg-6">
+      <%= form.text_field :price, class: 'form-control rounded-0 col-6',
+        value: @product.price,
+        required: true, 
+        data: { type: "currency" } %>
+    </div>
+    <div class="invalid-feedback msg_price"></div>
   </div>
 
   <div class="form-group row">
     <div class="col-4 col-lg-3">
       <%= form.label :date, 'Fecha de la compra (*)' %>
     </div>
-    <div class="form-group col-8 col-ls-6">
+    <div class="form-group col-8 col-lg-6">
       <%= form.date_field :date, class: 'form-control rounded-0 col-6' %>
     </div>
     <div class="invalid-feedback msg_fecha_compra"></div>
@@ -24,7 +32,7 @@
     <div class="col-4 col-lg-3">
       <%= form.label :client_id, 'Quien compra (*)' %>
     </div>
-    <div class="form-group col-8 col-ls-6">
+    <div class="form-group col-8 col-lg-6">
       <%= form.select(:client_id, @clients.collect {|c| ["#{c.last_name} #{c.name}", c.id]}, 
                       {:include_blank => "Seleccione comprador"},
                       class: 'select-2-client-land') %>
