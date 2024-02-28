@@ -29,7 +29,7 @@ class Sale < ApplicationRecord
 
 	before_create :set_attributes 
 	after_create :register_activity
-	accepts_nested_attributes_for :sale_clients, :sale_products, :fees
+	accepts_nested_attributes_for :sale_clients, :sale_products, :fees, :payments
 
 	enum status: [:not_approved, :approved, :payed]
 

@@ -8,10 +8,10 @@
     </select>
   </div>
   <div class="col-2">
-    <input type="number" id='payment' class='form-control rounded-0' step='0.01' onchange="calculo_de_entrega()">
+    <input type="text" data-type='currency' id='payment' class='form-control rounded-0' step='0.01' onchange="calculo_de_entrega()">
   </div>
-  <input type="number" id='exchange_value' class='form-control rounded-0 col-2 ml-2' step='0.01' onchange="calculo_de_entrega()" style="display:none">
-  <input type="number" id='calculo_en_pesos' class='form-control rounded-0 col-2 ml-2' step='0.01' placeholder='Calculo valor en $' style="display:none" disabled>
+  <input type="text" data-type='currency' id='exchange_value' class='form-control rounded-0 col-2 ml-2 d-none' step='0.01' onchange="calculo_de_entrega()" style="display:none">
+  <input type="text" data-type='currency' id='calculo_en_pesos' class='form-control rounded-0 col-2 ml-2 d-none' step='0.01' placeholder='Calculo valor en $' style="display:none" disabled>
   <input type="text" id="name_pay" class='form-control rounded-0 col-2 ml-2' placeholder='Detalle entrega...'>
   <input type="date" id="pay_date" class='form-control rounded-0 col-2 ml-2'>
   <label class="u-file-attach-v2 g-color-gray-dark-v5 mb-0 ml-2">

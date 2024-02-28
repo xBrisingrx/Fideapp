@@ -123,11 +123,11 @@ function sumar_entregas(entrega) {
 	entrega = calculo
 }
 
-function all_payments(form_data) {
+function add_paymentos_to_form() {
 	const payments = document.getElementsByClassName('payment-data')
 	let i = 0
 	for (let pay of payments) {
-		let paid = parseFloat( pay.querySelector('#payment').value )
+		let paid = string_to_float_with_value( pay.querySelector('#payment').value )
 		if ( !valid_number(paid) ) {
 			form_data.append('num_pays', 0 )
 			pay.querySelector('#payment').parentElement.classList.add('u-has-error-v1')
@@ -142,8 +142,8 @@ function all_payments(form_data) {
 			return
 		}
 		pay.querySelector('#payment_currency').parentElement.classList.remove('u-has-error-v1')
-		let exchange_value = parseFloat( pay.querySelector('#exchange_value').value )
-		let valor_en_pesos = parseFloat( pay.querySelector('#calculo_en_pesos').value )
+		let exchange_value = string_to_float_with_value( pay.querySelector('#exchange_value').value )
+		let valor_en_pesos = string_to_float_with_value( pay.querySelector('#calculo_en_pesos').value )
 		let detail = pay.querySelector('#name_pay')
 		let date = pay.querySelector('#pay_date').value
     if ( currency_selected.dataset.exchange == 'true' && !valid_number(exchange_value) ) {
@@ -155,24 +155,24 @@ function all_payments(form_data) {
     if ( !valid_number(valor_en_pesos) ) {
     	return
     }
-    form_data.append( `payment_currency_id_${i}`, payment_currency_id )
-    form_data.append( `payment_${i}`, paid );
-    form_data.append( `tomado_en_${i}`, exchange_value )
-    form_data.append( `value_in_pesos_${i}`, valor_en_pesos )
-    form_data.append( `detail_${i}`, ( pay.querySelector('#name_pay') !== null ) ? pay.querySelector('#name_pay').value : '' )
-    form_data.append( `pay_date_${i}`, date )
+		sale.form.append( `sale[payments_attributes][${i}][payments_currency_id]`, payment_currency_id)
+		sale.form.append( `sale[payments_attributes][${i}][payment]`, paid)
+		sale.form.append( `sale[payments_attributes][${i}][taken_in]`, exchange_value)
+		sale.form.append( `sale[payments_attributes][${i}][comment]`, pay.querySelector('#name_pay').value)
+		sale.form.append( `sale[payments_attributes][${i}][date]`, date)
+		
 		let files = pay.querySelector('#fileAttachment')
 		if (files !== null) {
 			let totalFiles = files.files.length
 			if (totalFiles > 0) {
 				for (let n = 0; n < totalFiles; n++) {
-	        form_data.append(`files_${i}[]`, files.files[n])
+	        // form_data.append(`files_${i}[]`, files.files[n])
+					sale.form.append( `sale[payments_attributes][${i}][files][]`, files.files[n])
 	      }
 			}
 		}
 	}
-	form_data.append('num_pays', i )
-	return
+	// form_data.append('num_pays', i )
 }
 /*END JS payments*/
 // document.getElementById('paid').addEventListener('change', function(event) {
@@ -223,8 +223,8 @@ function get_cuotas_manual() {
 	let cantidad_de_cuotas = parseInt( document.getElementById('number_of_payments').value ) + 1
 
 	for (let i = 1; i < cantidad_de_cuotas; i++) {
-		let valor_cuota = parseFloat( document.getElementById(`cuota_n_${i}`).value )
-		if (valor_cuota == '' || isNaN(valor_cuota)) {
+		let valor_cuota = string_to_float_with_value( document.getElementById(`cuota_n_${i}`).value )
+		if (!valid_number(valor_cuota)) {
 			document.getElementById(`cuota_n_${i}`).classList.add('is-invalid')
 			return null
 		} else {
@@ -285,9 +285,6 @@ function set_form_sale() {
 	add_clients_to_form()
 	sale.form.append('sale[bought]', document.getElementById('bought').checked)
 	sale.form.append("sale[land_id]", document.getElementById('land_id').value)
-	sale.form.append("sale[sale_products_attributes][product_id]", document.getElementById('product_id').value)
-	sale.form.append("sale[sale_products_attributes][product_type]", document.getElementById('product_type').value)
-
 	sale.form.append("sale[comment]", document.getElementById('comment').value)
 	sale.form.append("sale[apply_arrear]", document.getElementById('apply_arrear').checked)
 	sale.form.append("sale[arrear]", document.getElementById('arrear').value)
@@ -296,16 +293,25 @@ function set_form_sale() {
 	sale.form.append("sale[price]", document.getElementById('price').value)
 	sale.form.append("sale[date]", document.getElementById('date').value )
 	sale.form.append("sale[number_of_payments]", document.getElementById('number_of_payments').value )
-	sale.form.append("sale[setear_cuotas_manual]", document.getElementById('setear_cuotas').checked)
-	if ( sale.form.get('setear_cuotas_manual') == 'true' ) {
-  	sale.form.append("valores_cuota[]", get_cuotas_manual() )
-	} else {
-		sale.form.append("valor_cuota", parseFloat( document.getElementById('valor_cuota').value))
-	  sale.form.append("number_cuota_increase", document.getElementById('number_cuota_increase').value )
-	  sale.form.append("valor_cuota_aumentada", document.getElementById('valor_cuota_aumentada').value )
-	}
+	add_fees_to_form()
+	// add sale_product
+	sale.form.append("sale[sale_products_attributes][product_id]", document.getElementById('product_id').value)
+	sale.form.append("sale[sale_products_attributes][product_type]", document.getElementById('product_type').value)
+	// add payments
+  add_paymentos_to_form()
+}
 
-  all_payments(sale.form)
+function add_fees_to_form(){
+	// add fees information to form
+	// all of this values are virtuals
+	if(document.getElementById('setear_cuotas').checked) {
+		sale.form.append("sale[fees_values][]", get_cuotas_manual() )
+	} else {
+		sale.form.append("sale[fee_value]", parseFloat( document.getElementById('valor_cuota').value))
+	  sale.form.append("sale[number_fee_increase]", document.getElementById('number_cuota_increase').value )
+	  sale.form.append("sale[value_fee_increase]", document.getElementById('valor_cuota_aumentada').value )
+	}
+	
 }
 
 function validaciones_sale_form() {

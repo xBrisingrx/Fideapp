@@ -275,6 +275,7 @@ class SalesController < ApplicationController
       params.require(:sale).permit(:apply_arrear, :arrear, :comment, :date, :number_of_payments, :price, :status, :refinanced,
         sale_clients_attributes: [:id, :client_id],
         sale_products_attributes: [:id, :product_id, :product_type],
-        fees_attributes: [:id, :value, :due_date])
+        fees_attributes: [:id, :value, :due_date],
+        payments_attributes: [:id,:payments_currency_id,:payment,:taken_in,:comment,:date,:first_pay ])
     end
 end
