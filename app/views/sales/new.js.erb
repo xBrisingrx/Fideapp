@@ -14,12 +14,13 @@ sale.cant_payments = 0;
 sale.cant_payment_files = 0;
 sale.entrega = 0;
 
-
-document.getElementById('price').disabled = sale.precio != 0
-set_currency_fn()
 function fee_start_date_info(){
 	noty_alert('info', 'Si coloca una fecha las cuotas corren a partir de esa fecha. En caso de colocar día de vencimiento se tomara ese día de vencimiento. Si no coloca fecha se toma como referencia la fecha de venta', 10000)
 }
+
+document.getElementById('bought').addEventListener('click', (event) => {
+	document.getElementById('number_of_payments').required = !event.target.checked
+})
 
 document.getElementById('add-client').addEventListener('click', (event) => {
 	event.preventDefault()
@@ -32,7 +33,7 @@ document.getElementById('add-client').addEventListener('click', (event) => {
 					<input type="text" value="${client_name}" class="client-id form-control rounded-0 " data-id=${client.value} disabled></input>
 				</div>
 				<div>
-					<button type="button" class="btn u-btn-red remove-client" onclick="remove_client(${client.value})" title="Quitar comprador"> <i class="fa fa-trash"></i> </button>
+					<button type="button" class="btn u-btn-red remove-client" onclick="remove_client(event, ${client.value})" title="Quitar comprador"> <i class="fa fa-trash"></i> </button>
 				</div>
 			</div>
 		`)
@@ -43,7 +44,7 @@ document.getElementById('add-client').addEventListener('click', (event) => {
 	}
 })
 
-function remove_client( id ) {
+function remove_client( event, id ) {
 	event.preventDefault()
 	let element = document.getElementById(id)
 	element.remove()
@@ -53,7 +54,7 @@ function remove_client( id ) {
 function add_clients_to_form() {
 	const clients = document.getElementsByClassName('client-id')
 	for (let i = 0; i < clients.length; i++) {
-		sale.form.append( `sale[sale_clients_attributes][${i}][client_id]`, clients[i].id)
+		sale.form.append( `sale[sale_clients_attributes][${i}][client_id]`, clients[i].dataset.id)
 	}
 }
 
@@ -73,6 +74,7 @@ document.getElementById('add-payment').addEventListener('click', (e) => {
 	sale.cant_payments++
 	sale.cant_payment_files++
 	$('#payment-list').append("<%= j ( render partial: 'input_pay', locals: { cp: @cp, first_label: false } ) %>")
+	set_currency_fn()
 })
 
 function remove_payment(event){
@@ -87,8 +89,8 @@ function calc_valor_en_pesos(e){
 	const select = node.querySelector(`#payment_currency`)
 	const selected = select.options[select.selectedIndex]
 	let calculo_en_pesos = node.querySelector(`#calculo_en_pesos`)
-	let paid = parseFloat(node.querySelector(`#payment`).value)
-	let exchange_value = parseFloat(node.querySelector(`#exchange_value`).value)
+	let paid = string_to_float_with_value(node.querySelector(`#payment`).value)
+	let exchange_value = string_to_float_with_value(node.querySelector(`#exchange_value`).value)
 
 	if ( !valid_number(exchange_value) || !valid_number(paid) ) {
 		calculo_en_pesos.value = 0
@@ -98,7 +100,7 @@ function calc_valor_en_pesos(e){
 	calculo_en_pesos.value = exchange_value * paid
 }
 
-function calculo_de_entrega() {
+function calculo_de_entrega(event) {
 	const input = event.target
 	const payment_currency = event.target.parentElement.parentElement.querySelector('#payment_currency')
 	if (payment_currency.value == '0') {
@@ -129,7 +131,7 @@ function add_paymentos_to_form() {
 	for (let pay of payments) {
 		let paid = string_to_float_with_value( pay.querySelector('#payment').value )
 		if ( !valid_number(paid) ) {
-			form_data.append('num_pays', 0 )
+			// form_data.append('num_pays', 0 )
 			pay.querySelector('#payment').parentElement.classList.add('u-has-error-v1')
 			return
 		}
@@ -293,6 +295,7 @@ function set_form_sale() {
 	sale.form.append("sale[price]", document.getElementById('price').value)
 	sale.form.append("sale[date]", document.getElementById('date').value )
 	sale.form.append("sale[number_of_payments]", document.getElementById('number_of_payments').value )
+	sale.form.append("sale[number_of_payments]", 'approved' )
 	add_fees_to_form()
 	// add sale_product
 	sale.form.append("sale[sale_products_attributes][product_id]", document.getElementById('product_id').value)
@@ -307,9 +310,9 @@ function add_fees_to_form(){
 	if(document.getElementById('setear_cuotas').checked) {
 		sale.form.append("sale[fees_values][]", get_cuotas_manual() )
 	} else {
-		sale.form.append("sale[fee_value]", parseFloat( document.getElementById('valor_cuota').value))
+		sale.form.append("sale[fee_value]", string_to_float_with_value( document.getElementById('valor_cuota').value))
 	  sale.form.append("sale[number_fee_increase]", document.getElementById('number_cuota_increase').value )
-	  sale.form.append("sale[value_fee_increase]", document.getElementById('valor_cuota_aumentada').value )
+	  sale.form.append("sale[value_fee_increase]", string_to_float_with_value(document.getElementById('valor_cuota_aumentada').value) )
 	}
 	
 }
@@ -322,12 +325,12 @@ function validaciones_sale_form() {
 		return false
 	}
 
-	if (sale.form.get('clients[]').length == 0) {
+	if (document.getElementsByClassName('client-id').length == 0) {
 		noty_alert( 'error', 'No ha seleccionado clientes.' )
 		return false
 	}
 
-	if (sale.form.get('number_of_payments') == '' ) {
+	if (sale.form.get('sale[number_of_payments]') == '' ) {
 		document.getElementById('number_of_payments').parentElement.classList.add('u-has-error-v1')
 		$('#msg_number_of_payment').html('')
 		$('#msg_number_of_payment').append(`<p class='text-danger ml-4'> Debe ingresar las cuotas </>`)
@@ -337,46 +340,46 @@ function validaciones_sale_form() {
 		$('#msg_number_of_payment').html('')
 	}
 
-	if ( sale.form.get('setear_cuotas_manual') == 'true' ) {
-		if ( sale.form.get("valores_cuota[]") == 'null' ) {
-			noty_alert('error', 'Debe ingresar el valor válido a cada cuota')
-			return false
-		}
-	} else {
-		// validaciones cuotas manual
-		if ( sale.form.get("number_cuota_increase") > 0 ) {
-			if ( sale.form.get("valor_cuota_aumentada") == '' ) {
-				noty_alert( 'error', 'Debe ingresar el valor aumentado de la cuota.' )
-				return false
-			}
-			if ( parseInt( sale.form.get("number_cuota_increase") ) > parseInt( sale.form.get('number_of_payments') ) ) {
-				document.getElementById('number_cuota_increase').classList.add('u-has-error-v1')
-				noty_alert( 'error', 'Cuota de aumento es mayor a la cantidad de cuotas' )
-				return false
-			} else 
-				document.getElementById('number_cuota_increase').classList.remove('u-has-error-v1')
-		}
+	// if ( sale.form.get('setear_cuotas_manual') == 'true' ) {
+	// 	if ( sale.form.get("valores_cuota[]") == 'null' ) {
+	// 		noty_alert('error', 'Debe ingresar el valor válido a cada cuota')
+	// 		return false
+	// 	}
+	// } else {
+	// 	// validaciones cuotas manual
+	// 	if ( sale.form.get("number_cuota_increase") > 0 ) {
+	// 		if ( sale.form.get("valor_cuota_aumentada") == '' ) {
+	// 			noty_alert( 'error', 'Debe ingresar el valor aumentado de la cuota.' )
+	// 			return false
+	// 		}
+	// 		if ( parseInt( sale.form.get("number_cuota_increase") ) > parseInt( sale.form.get('number_of_payments') ) ) {
+	// 			document.getElementById('number_cuota_increase').classList.add('u-has-error-v1')
+	// 			noty_alert( 'error', 'Cuota de aumento es mayor a la cantidad de cuotas' )
+	// 			return false
+	// 		} else 
+	// 			document.getElementById('number_cuota_increase').classList.remove('u-has-error-v1')
+	// 	}
 
-		if ( sale.form.get("number_cuota_increase") == '' && sale.form.get("valor_cuota_aumentada") > 0 ) {
-			noty_alert( 'error', 'Debe ingresar a partir de que cuota aumenta el valor.' )
-			return false
-		}
+	// 	if ( sale.form.get("number_cuota_increase") == '' && sale.form.get("valor_cuota_aumentada") > 0 ) {
+	// 		noty_alert( 'error', 'Debe ingresar a partir de que cuota aumenta el valor.' )
+	// 		return false
+	// 	}
 
-		if (document.getElementById('apply_arrear').checked && document.getElementById('arrear').value == '') {
-			noty_alert('error', 'Debe ingresar % de mora')
-			return false
-		}
+	// 	if (document.getElementById('apply_arrear').checked && document.getElementById('arrear').value == '') {
+	// 		noty_alert('error', 'Debe ingresar % de mora')
+	// 		return false
+	// 	}
 
-		if ( ( document.getElementsByClassName('payment-data').length != sale.form.get("num_pays") ) && document.getElementsByClassName('payment-data').length > 1 ) {
-			noty_alert('error', 'Datos invalidos en primer pago', sale.form.get("num_pays"))
-			return false
-		}
+	// 	if ( ( document.getElementsByClassName('payment-data').length != sale.form.get("num_pays") ) && document.getElementsByClassName('payment-data').length > 1 ) {
+	// 		noty_alert('error', 'Datos invalidos en primer pago', sale.form.get("num_pays"))
+	// 		return false
+	// 	}
 
-		if (suma_cuotas_sale_land() < sale.resto) {
-			noty_alert('error', `El valor a pagar en cuotas es menor al que corresponde: $${numberFormat.format(suma_cuotas_sale_land()) }, deberia ser $${numberFormat.format(sale.resto) }`)
-			return false
-		}
-	}
+	// 	if (suma_cuotas_sale_land() < sale.resto) {
+	// 		noty_alert('error', `El valor a pagar en cuotas es menor al que corresponde: $${numberFormat.format(suma_cuotas_sale_land()) }, deberia ser $${numberFormat.format(sale.resto) }`)
+	// 		return false
+	// 	}
+	// }
 
 	return true
 }
@@ -388,7 +391,7 @@ function valid_land_bought(){
 		return false
 	}
 
-	if (sale.form.get('clients[]').length == 0) {
+	if (document.getElementsByClassName('client-id').length == 0) {
 		noty_alert( 'error', 'No ha seleccionado clientes.' )
 		return false
 	}
@@ -398,10 +401,10 @@ function valid_land_bought(){
 
 function populate_land_sale_confirm(){
 	populate_land_sale_data('Valor del lote', `$${numberFormat.format(sale.precio)}`)
-	populate_land_sale_data('Fecha de la compra', format_date(sale.form.get("date")))
+	populate_land_sale_data('Fecha de la compra', format_date(sale.form.get("sale[date]")))
 	populate_land_sale_data('Compradores', get_clients_names() )
 	populate_land_sale_data('Primer entrega', `$${numberFormat.format(sale.entrega)}` )
-	populate_land_sale_data('Cuotas', sale.form.get("number_of_payments") )
+	populate_land_sale_data('Cuotas', sale.form.get("sale[number_of_payments]") )
 	populate_land_sale_data('A pagar en cuotas', `$${numberFormat.format(suma_cuotas_sale_land()) }` )
 }
 

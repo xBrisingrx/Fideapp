@@ -64,7 +64,7 @@ let sale = {
     } )
     .catch( error => noty_alert('error', 'Ocurrio un error, no se pudo registrar la venta') )
   },
-  set_exchange(){
+  set_exchange(event){
     const select = event.target
     const nodo = event.target.parentElement.parentElement
     const selected = select.options[select.selectedIndex]
@@ -74,22 +74,19 @@ let sale = {
     if (selected.dataset.exchange == 'true') {
       tomado_en.value = ''
       tomado_en.placeholder = `1 ${selected.dataset.currency} en $`
-      tomado_en.style.display = 'block'
-      calculo_en_pesos.style.display = 'block'
     } else {
       tomado_en.value = 1
-      tomado_en.style.display = 'none'
-      calculo_en_pesos.style.display = 'none'
     }
-
+    tomado_en.classList.toggle( 'd-none', !(selected.dataset.exchange == 'true') )
+    calculo_en_pesos.classList.toggle( 'd-none', !(selected.dataset.exchange == 'true') )
     if ( valid_number(parseFloat(tomado_en.value)) || valid_number( parseFloat(nodo.querySelector(`#payment`).value) ) ) {
       calc_valor_en_pesos(event.target)
     }
     this.calcular_monto_pagado()
   },
   calc_valor_en_pesos(object){
-    const fee_payment_value = parseFloat(document.getElementById(`${object}payment`).value)
-    const exchange_value = parseFloat(document.getElementById(`${object}value_in_pesos`).value)
+    const fee_payment_value = string_to_float_with_value(document.getElementById(`${object}payment`).value)
+    const exchange_value = string_to_float_with_value(document.getElementById(`${object}value_in_pesos`).value)
     const calculo_en_pesos = document.getElementById(`${object}calculo_en_pesos`)
 
     if ( !valid_number(exchange_value) || !valid_number(fee_payment_value) ) {
@@ -105,7 +102,7 @@ let sale = {
     sale.entrega = 0
     // recorremos y sumamos las entregas
     for (let pay of payments) {
-      const payed = parseFloat( pay.querySelector('#calculo_en_pesos').value )
+      const payed = string_to_float_with_value( pay.querySelector('#calculo_en_pesos').value )
       if (valid_number(payed)) {
         sale.entrega += payed
       }
@@ -121,7 +118,8 @@ let sale = {
       $('#valor_restante').append(`A pagar en cuotas: <b>$${sale.resto}</b>`)
       calular_valor_cuota()
     } else if ( sale.entrega > sale.precio ) {
-      $('#valor_restante').append(`<p class='text-danger ml-4'> Ingreso un valor mayor al del lote </>`)
+      $('#valor_restante').append(`A pagar en cuotas: <b>0</b>`)
+      // $('#valor_restante').append(`<p class='text-danger ml-4'> Ingreso un valor mayor al del lote </>`)
     }
   }
 }

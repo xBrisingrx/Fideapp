@@ -18,6 +18,12 @@
 #  refinanced         :boolean          default(FALSE)
 #
 class Sale < ApplicationRecord
+	attribute :fee_value, :decimal 
+	attribute :number_fee_increase, :decimal
+	attribute :value_fee_increase, :integer
+	attribute :bought, :boolean
+	attribute :fee_start_date, :date
+
 	has_many :sale_clients, dependent: :destroy
 	has_many :clients, through: :sale_clients
 	has_many :sale_products, dependent: :destroy

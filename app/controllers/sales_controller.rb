@@ -39,6 +39,21 @@ class SalesController < ApplicationController
   end
 
   def create
+    @sale = Sale.new(sale_params)
+    ActiveRecord::Base.transaction do 
+      respond_to do |format|
+        if @sale.save
+          byebug
+          raise '=> testeo del create'
+          render json: {status: 'success', msg: 'Venta exitosa'}, status: :ok
+        else
+          render json: {status: 'errors', msg: 'No se pudo registrar la venta'}, status: :unprocessable_entity
+        end
+      end
+    end
+  end
+
+  def create2
     ActiveRecord::Base.transaction do 
       sale = Sale.new(
         apply_arrear: params[:apply_arrear],
@@ -102,6 +117,7 @@ class SalesController < ApplicationController
       else
         render json: {status: 'errors', msg: 'No se pudo registrar la venta'}, status: :unprocessable_entity
       end # save sale
+      raise 'Fin del testeo de venta de lote '
     end # transaction
     rescue => e
       puts "Excepcion => #{e.message}"
@@ -272,7 +288,9 @@ class SalesController < ApplicationController
     end
 
     def sale_params
-      params.require(:sale).permit(:apply_arrear, :arrear, :comment, :date, :number_of_payments, :price, :status, :refinanced,
+      params.require(:sale).permit(:apply_arrear, :arrear, :comment, :date, :number_of_payments, 
+          :price, :status, :refinanced, :fee_value, :number_fee_increase, :value_fee_increase, :bought, 
+          :land_id, :due_day, :fee_start_date,
         sale_clients_attributes: [:id, :client_id],
         sale_products_attributes: [:id, :product_id, :product_type],
         fees_attributes: [:id, :value, :due_date],

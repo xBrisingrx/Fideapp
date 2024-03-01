@@ -62,7 +62,7 @@
   
   <div class="form-group row">
     <%= form.label :number_of_payments, 'Cantidad de cuotas:' , class: 'col-3' %>
-    <%= form.number_field :number_of_payments, class: 'form-control rounded-0 col-3', step:'0.01' %>
+    <%= form.number_field :number_of_payments, class: 'form-control rounded-0 col-3', step:'0.01', required:true %>
     <div id="msg_number_of_payment"></div>
   </div>
 
