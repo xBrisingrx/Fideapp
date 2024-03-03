@@ -13,7 +13,7 @@
 
 <div class="row mb-2">
   <%= render(partial: 'card_pay_small', 
-             locals: { color: 'lightred-v2', paid: sale.total_value, detail: 'Debe' })%>
+             locals: { color: 'brown', paid: sale.total_value, detail: 'Pactado' })%>
   <%= render(partial: 'card_pay_small', 
              locals: { color: 'teal-v2', paid: sale.saldo_pagado, detail: 'Haber' })%>
   <%= render(partial: 'card_pay_small', 
@@ -21,7 +21,9 @@
   <%= render(partial: 'card_pay_small', 
              locals: { color: 'purple', paid: sale.get_all_owes, detail: 'Saldo' })%>
   <%= render(partial: 'card_pay_small', 
-             locals: { color: 'brown', paid: sale.owes_this_month, detail: "Saldo #{I18n.t("date.month_names")[Date.today.month]}" })%>
+             locals: { color: (sale.owes_this_month > 0) ? 'red' : 'green', 
+              paid: sale.owes_this_month, 
+              detail: "Saldo #{I18n.t("date.month_names")[Date.today.month]}" })%>
   <%= render(partial: 'card_pay_small', 
              locals: { color: 'deeporange', paid: sale.paid_this_month, detail: "Haber #{I18n.t("date.month_names")[Date.today.month]}" })%>
 </div>   

@@ -5,18 +5,18 @@
 
 <div class="row mb-4 mt-4">
   <%= render(partial: 'lands/card_pay',  
-             locals: { color: 'lightred-v2', paid: @apple.total_price, detail: 'Debe' })%>
+             locals: { color: 'brown', paid: @apple.total_price, detail: 'Pactado' })%>
   <%= render(partial: 'lands/card_pay', 
              locals: { color: 'teal-v2', paid: @apple.get_all_pay, detail: 'Haber' })%>
   <%= render(partial: 'lands/card_pay', 
              locals: { color: 'indigo', paid: @apple.get_all_increments, detail: 'Ajuste/Mora' })%>
   <%= render(partial: 'lands/card_pay', 
-             locals: { color: 'purple', paid: @apple.get_all_owes, detail: 'Saldo' })%>
+             locals: { color: ( @apple.get_all_owes > 0 ) ? 'red' : 'green', paid: @apple.get_all_owes, detail: 'Saldo' })%>
 </div>
 
 <div class="row mb-4">
   <%= render(partial: 'lands/card_pay', 
-             locals: { color: 'brown', paid: @apple.owes_this_month, detail: "Saldo #{I18n.t("date.month_names")[Date.today.month]}" }) %>
+             locals: { color: ( @apple.owes_this_month > 0 ) ? 'red' : 'green', paid: @apple.owes_this_month, detail: "Saldo #{I18n.t("date.month_names")[Date.today.month]}" }) %>
   <%= render(partial: 'lands/card_pay', 
              locals: { color: 'deeporange', paid: @apple.paid_this_month, detail: "Haber #{I18n.t("date.month_names")[Date.today.month]}" }) %>
 </div>
