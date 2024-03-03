@@ -1,12 +1,17 @@
 $("#modal-land").html("<%= j (render partial: 'shared/modal', locals:{ size: 'xl' } ) %>")
 $('.select-2-client-land').select2({ width: '80%',theme: "bootstrap4" })
 setInputDate("#date")
+setInputDate("#fee_start_date")
 sale.precio = document.getElementById("price").value
+
+if(sale.precio != 0){
+	document.getElementById('price').value = `$${formatNumber( document.getElementById('price').value )}`
+}
+
 document.getElementById('price').disabled = sale.precio != 0
 set_currency_fn()
 
 $("#modal-land").modal('show')
-
 
 sale.cuotas = 0
 sale.resto =  document.getElementById("price").value
@@ -18,8 +23,35 @@ function fee_start_date_info(){
 	noty_alert('info', 'Si coloca una fecha las cuotas corren a partir de esa fecha. En caso de colocar día de vencimiento se tomara ese día de vencimiento. Si no coloca fecha se toma como referencia la fecha de venta', 10000)
 }
 
-document.getElementById('bought').addEventListener('click', (event) => {
-	document.getElementById('number_of_payments').required = !event.target.checked
+document.getElementById('sale_was_payed').addEventListener('click', (event) => {
+	if (event.target.checked) {
+		if (document.getElementById('date').value == '') {
+			noty_alert('info', 'Debe ingresar fecha de compra')
+			addClassInvalid(document.getElementById('date'))
+			event.target.checked = false
+			return
+		} else {
+			addClassValid(document.getElementById('date'))
+		}
+		document.getElementById('number_of_payments').value = 1
+	} else {
+		document.getElementById('number_of_payments').value = 0
+	}
+	document.getElementById('inputs_sale_not_payed').classList.toggle('d-none', event.target.checked)
+	calular_valor_cuota()
+	generate_fees()
+})
+
+document.getElementById("price").addEventListener('change', (event) => {
+	const land_price = string_to_float_with_value(event.target.value)
+	if (valid_number(land_price)) {
+		sale.precio = land_price
+		sale.resto = land_price
+		sale.calcular_monto_pagado()
+		addClassValid( event.target )
+		calular_valor_cuota()
+		generate_fees()
+	}
 })
 
 document.getElementById('add-client').addEventListener('click', (event) => {
@@ -28,13 +60,11 @@ document.getElementById('add-client').addEventListener('click', (event) => {
 	if (client.value != null && client.value != '') {
 		let client_name =  $('#client_id option:selected').text()
 		$('.client-list').append(`
-			<div class="row" id="${client.value}">
-				<div class="mb-2  mx-4 col-6">
-					<input type="text" value="${client_name}" class="client-id form-control rounded-0 " data-id=${client.value} disabled></input>
-				</div>
-				<div>
-					<button type="button" class="btn u-btn-red remove-client" onclick="remove_client(event, ${client.value})" title="Quitar comprador"> <i class="fa fa-trash"></i> </button>
-				</div>
+			<div class="col-md-12 col-lg-6 col-xl-4 row mt-2" id="${client.value}">
+				<input type="text" value="${client_name}" class="client-id form-control rounded-0 col-8 mr-1" data-id=${client.value} disabled></input>
+				<button type="button" class="btn u-btn-red remove-client" onclick="remove_client(event, ${client.value})" title="Quitar a ${ client_name }">
+					<i class="fa fa-trash"></i>
+				</button>
 			</div>
 		`)
 		$('#client_id option:selected').attr('disabled', 'disabled')
@@ -87,7 +117,6 @@ function remove_payment(event){
 function calc_valor_en_pesos(e){
 	const node = e.parentElement.parentElement
 	const select = node.querySelector(`#payment_currency`)
-	const selected = select.options[select.selectedIndex]
 	let calculo_en_pesos = node.querySelector(`#calculo_en_pesos`)
 	let paid = string_to_float_with_value(node.querySelector(`#payment`).value)
 	let exchange_value = string_to_float_with_value(node.querySelector(`#exchange_value`).value)
@@ -146,7 +175,6 @@ function add_paymentos_to_form() {
 		pay.querySelector('#payment_currency').parentElement.classList.remove('u-has-error-v1')
 		let exchange_value = string_to_float_with_value( pay.querySelector('#exchange_value').value )
 		let valor_en_pesos = string_to_float_with_value( pay.querySelector('#calculo_en_pesos').value )
-		let detail = pay.querySelector('#name_pay')
 		let date = pay.querySelector('#pay_date').value
     if ( currency_selected.dataset.exchange == 'true' && !valid_number(exchange_value) ) {
     	noty_alert('error','Debe ingresar en cuanto toma la moneda ingresada')
@@ -154,14 +182,19 @@ function add_paymentos_to_form() {
     	return
     }
 
+		if(date == '') {
+			date = document.getElementById('date').value
+		}
+
     if ( !valid_number(valor_en_pesos) ) {
     	return
     }
 		sale.form.append( `sale[payments_attributes][${i}][payments_currency_id]`, payment_currency_id)
 		sale.form.append( `sale[payments_attributes][${i}][payment]`, paid)
 		sale.form.append( `sale[payments_attributes][${i}][taken_in]`, exchange_value)
-		sale.form.append( `sale[payments_attributes][${i}][comment]`, pay.querySelector('#name_pay').value)
+		sale.form.append( `sale[payments_attributes][${i}][comment]`, pay.querySelector('#payment_comment').value)
 		sale.form.append( `sale[payments_attributes][${i}][date]`, date)
+		sale.form.append( `sale[payments_attributes][${i}][first_pay]`, true)
 		
 		let files = pay.querySelector('#fileAttachment')
 		if (files !== null) {
@@ -177,82 +210,115 @@ function add_paymentos_to_form() {
 	// form_data.append('num_pays', i )
 }
 /*END JS payments*/
-// document.getElementById('paid').addEventListener('change', function(event) {
-// 	calcular_monto_pagado()
-// })
 
 document.getElementById('number_of_payments').addEventListener('change', function(event) {
-	sale.cuotas = this.value
+	event.target.classList.toggle('is-invalid', event.target.value =='')
 	calular_valor_cuota()
+	generate_fees()
+})
+
+document.getElementById('due_day').addEventListener('change', function(event) {
+	event.target.classList.toggle('is-invalid', event.target.value =='')
+	generate_fees()
+})
+
+document.getElementById('fee_start_date').addEventListener('change', function(event) {
+	event.target.classList.toggle('is-invalid', event.target.value =='')
+	generate_fees()
 })
 
 function calular_valor_cuota() {
-	if (sale.cuotas > 0 && sale.resto > 0) {
-		sale.valor_cuota = sale.resto / sale.cuotas
-		sale.valor_cuota = roundToTwo( sale.valor_cuota )
-		document.getElementById('valor_cuota').value = sale.valor_cuota
-	} else if (sale.cuotas > 0) {
-		sale.valor_cuota = sale.precio / sale.cuotas
-		sale.valor_cuota = roundToTwo( sale.valor_cuota )
-		document.getElementById('valor_cuota').value = sale.valor_cuota
+	sale.cuotas = document.getElementById('number_of_payments').value
+	if(sale.cuotas < 1) {
+		return
 	}
+	const a_pagar_en_cuotas = ( sale.resto > 0 ) ? sale.resto : sale.precio
+	sale.valor_cuota = roundToTwo( a_pagar_en_cuotas/sale.cuotas )
 }
 
 document.getElementById('setear_cuotas').addEventListener('click', function(e){
-	let cantidad_de_cuotas = document.getElementById('number_of_payments')
-	if ( this.checked ) {
-		if (cantidad_de_cuotas.value == '' || cantidad_de_cuotas.value < 1) {
-			cantidad_de_cuotas.classList.add('is-invalid')
-			noty_alert('error', 'Debe ingresar una cantidad de cuotas')
-			this.checked = false
-			return
-		} else {
-			cantidad_de_cuotas.classList.remove('is-invalid')
-		}
-		document.getElementById('cuotas_automaticas').style.display = 'none'
-		sale.set_cuotas( cantidad_de_cuotas.value, 'cuotas_manual' )
-		cantidad_de_cuotas.disabled = true
-	} else {
-		document.getElementById('cuotas_manual').innerHTML = ''
-		cantidad_de_cuotas.classList.remove('is-invalid')
-		cantidad_de_cuotas.disabled = false
-		document.getElementById('cuotas_automaticas').style.display = 'block'
+	const fees = document.getElementsByClassName('fee_added')
+	if(fees.length == 0){
+		e.target.checked = false
+		return
 	}
+	const is_check = e.target.checked
+	for( let fee of fees ) {
+		fee.querySelector('#fee_value').disabled = !is_check
+		fee.querySelector('#fee_date').disabled = !is_check
+	}
+	document.getElementById('number_of_payments').disabled = is_check
+	document.getElementById('due_day').disabled = is_check
+	document.getElementById('fee_start_date').disabled = is_check
+
+	// debugger
 })
 
-function get_cuotas_manual() {
-	let cuotas = []
-	let cantidad_de_cuotas = parseInt( document.getElementById('number_of_payments').value ) + 1
-
-	for (let i = 1; i < cantidad_de_cuotas; i++) {
-		let valor_cuota = string_to_float_with_value( document.getElementById(`cuota_n_${i}`).value )
-		if (!valid_number(valor_cuota)) {
-			document.getElementById(`cuota_n_${i}`).classList.add('is-invalid')
-			return null
-		} else {
-			document.getElementById(`cuota_n_${i}`).classList.remove('is-invalid')
-		}
-		cuotas.push( valor_cuota )
+function generate_fees(){
+	const number_of_fees = document.getElementById('number_of_payments').value
+	
+	if (!valid_number(sale.valor_cuota) && valid_number(number_of_fees) ) {
+		noty_alert('info', "Debe ingresar el valor del lote")
+		addClassInvalid( document.getElementById('price') )
+		debugger
+		return
 	}
-	return cuotas
+	
+	let fee_value = `${sale.valor_cuota}`.replace('.', ',')
+	const due_day = document.getElementById('due_day').value
+	const fee_start_date = document.getElementById("fee_start_date").value
+	let html_to_insert = ''
+	if (number_of_fees > 0 && due_day > 0 && fee_start_date != '') {
+		fee_value = string_to_currency(fee_value)
+
+		let fee_date =  new Date(`${fee_start_date}T00:00:00`)
+		fee_date.setDate( due_day )
+		for (let i = 1; i <= number_of_fees; i++) {
+			html_to_insert += `
+				<div class='row col-12 my-2 fee_added' >
+					<label class='col-4 col-md-2'> Cuota #${i} </label>
+					<input id='fee_value' type='text' 
+						data-type='currency' 
+						data-number='${i}' 
+						value='${fee_value}'
+						class='form-control rounded-0 col-4 col-md-2 fee_value_input'
+						onchange='show_total_pagado_en_cuotas()'
+						disabled>
+					<label class='col-4 col-md-1'> Fecha:  </label>
+					<input id='fee_date' type='date' value='${date_to_string(fee_date)}' class='form-control rounded-0 col-4 col-md-2' disabled >
+				</div>
+				`	
+			fee_date.setMonth( fee_date.getMonth() + 1 )
+		} // end for
+	} // end if
+	document.getElementById('fees_list').innerHTML = html_to_insert
+	set_currency_fn()
 }
 
-document.getElementById('apply_arrear').addEventListener('click', function(e){
-	document.getElementById('arrear').required = this.checked
-})
+function show_total_pagado_en_cuotas(){
+	if (document.getElementById('setear_cuotas').checked) {
+		const sum = `${suma_cuotas_sale_land()}`
+		document.getElementById('total_pagado_en_cuotas').innerHTML = `Total a pagar en cuotas: <b>${ string_to_currency(sum) }</b>`
+	}
+}
+
+function set_fee_start_date(event){
+	let first_pay_date = new Date(`${event.target.value}T00:00:00`)
+	first_pay_date.setMonth( first_pay_date.getMonth() + 1 )
+	document.getElementById('fee_start_date').value = date_to_string( first_pay_date )
+	if ( !document.getElementById('setear_cuotas').checked  ) {
+		generate_fees()
+	}
+}
 
 document.getElementById('submit-form-land-sale').addEventListener('click', (event) => {
 	event.preventDefault()
-	
 	set_form_sale()
-	const bought = document.getElementById('bought').checked
-	if (bought) {
-		if ( valid_land_bought() ) {
+	if ( validaciones_sale_form() ) {
+		if ( document.getElementById('sale_was_payed').checked ) {
 			$("#modal-land-sale-confirm").html("<%= j (render 'modal_confirm_bought') %>")
 			$("#modal-land-sale-confirm").modal('show')
-		}
-	} else {
-		if ( validaciones_sale_form() ) {
+		} else {
 			$("#modal-land-sale-confirm").html("<%= j (render 'modal_confirm') %>")
 			populate_land_sale_confirm()
 			$("#modal-land-sale-confirm").modal('show')
@@ -261,8 +327,7 @@ document.getElementById('submit-form-land-sale').addEventListener('click', (even
 })
 
 function send_sale(){
-	const url = ( document.getElementById('bought').checked ) ? '/sales/create_bought' : '/sales/'
-	fetch(url, {
+	fetch('/sales/', {
       method: 'POST',
       headers: {           
         'X-CSRF-Token': document.getElementsByName('csrf-token')[0].content,
@@ -284,37 +349,37 @@ function send_sale(){
 
 function set_form_sale() {
 	sale.form = new FormData()
-	add_clients_to_form()
-	sale.form.append('sale[bought]', document.getElementById('bought').checked)
 	sale.form.append("sale[land_id]", document.getElementById('land_id').value)
 	sale.form.append("sale[comment]", document.getElementById('comment').value)
-	sale.form.append("sale[apply_arrear]", document.getElementById('apply_arrear').checked)
-	sale.form.append("sale[arrear]", document.getElementById('arrear').value)
 	sale.form.append("sale[due_day]", document.getElementById('due_day').value)
-	sale.form.append("sale[fee_start_date]", document.getElementById('fee_start_date').value)
-	sale.form.append("sale[price]", document.getElementById('price').value)
 	sale.form.append("sale[date]", document.getElementById('date').value )
 	sale.form.append("sale[number_of_payments]", document.getElementById('number_of_payments').value )
-	sale.form.append("sale[number_of_payments]", 'approved' )
-	add_fees_to_form()
-	// add sale_product
-	sale.form.append("sale[sale_products_attributes][product_id]", document.getElementById('product_id').value)
-	sale.form.append("sale[sale_products_attributes][product_type]", document.getElementById('product_type').value)
-	// add payments
+	sale.form.append("sale[land_sale]", document.getElementById('land_sale').value)
+	sale.form.append("sale[land_price]", string_to_float_with_value(document.getElementById('price').value))
+	sale.form.append("sale[price]", get_sale_price())
+	// set status to sale
+	const sale_status = ( document.getElementById('sale_was_payed').checked ) ? 'payed' : 'approved'
+	sale.form.append("sale[status]", sale_status)
+	add_clients_to_form()
   add_paymentos_to_form()
+	add_fees_to_form()
 }
 
 function add_fees_to_form(){
-	// add fees information to form
-	// all of this values are virtuals
-	if(document.getElementById('setear_cuotas').checked) {
-		sale.form.append("sale[fees_values][]", get_cuotas_manual() )
-	} else {
-		sale.form.append("sale[fee_value]", string_to_float_with_value( document.getElementById('valor_cuota').value))
-	  sale.form.append("sale[number_fee_increase]", document.getElementById('number_cuota_increase').value )
-	  sale.form.append("sale[value_fee_increase]", string_to_float_with_value(document.getElementById('valor_cuota_aumentada').value) )
+	const fees = document.getElementsByClassName('fee_added')
+	if(fees.length == 0){
+		noty_alert('warn', 'No se ha generado cuotas')
+		return
 	}
-	
+	for (let index = 0; index < fees.length; index++) {
+		const fee = fees[index];
+		const fee_value =  string_to_float_with_value(fee.querySelector('#fee_value').value)
+		const fee_date = fee.querySelector('#fee_date').value
+		const fee_number = fee.querySelector('#fee_value').dataset.number
+		sale.form.append( `sale[fees_attributes][${index}][number]`, fee_number)
+		sale.form.append( `sale[fees_attributes][${index}][value]`, fee_value)
+		sale.form.append( `sale[fees_attributes][${index}][due_date]`, fee_date)
+	}
 }
 
 function validaciones_sale_form() {
@@ -365,10 +430,6 @@ function validaciones_sale_form() {
 	// 		return false
 	// 	}
 
-	// 	if (document.getElementById('apply_arrear').checked && document.getElementById('arrear').value == '') {
-	// 		noty_alert('error', 'Debe ingresar % de mora')
-	// 		return false
-	// 	}
 
 	// 	if ( ( document.getElementsByClassName('payment-data').length != sale.form.get("num_pays") ) && document.getElementsByClassName('payment-data').length > 1 ) {
 	// 		noty_alert('error', 'Datos invalidos en primer pago', sale.form.get("num_pays"))
@@ -384,23 +445,9 @@ function validaciones_sale_form() {
 	return true
 }
 
-function valid_land_bought(){
-	// validaciones para cuando el lote ya esta vendido
-	if ($('#fecha_compra').val() === '') {
-		noty_alert( 'error', 'Debe seleccionar una fecha' )
-		return false
-	}
-
-	if (document.getElementsByClassName('client-id').length == 0) {
-		noty_alert( 'error', 'No ha seleccionado clientes.' )
-		return false
-	}
-
-	return true
-}
-
 function populate_land_sale_confirm(){
 	populate_land_sale_data('Valor del lote', `$${numberFormat.format(sale.precio)}`)
+	populate_land_sale_data('Saldo a pagar', `$${numberFormat.format(get_sale_price())}`)
 	populate_land_sale_data('Fecha de la compra', format_date(sale.form.get("sale[date]")))
 	populate_land_sale_data('Compradores', get_clients_names() )
 	populate_land_sale_data('Primer entrega', `$${numberFormat.format(sale.entrega)}` )
@@ -419,19 +466,15 @@ function populate_land_sale_data(name, info){
 }
 
 function suma_cuotas_sale_land(){
-	let suma = 0
-	if ( sale.form.get('setear_cuotas_manual') == 'true' ) {
-		let cuotas = document.getElementsByClassName('cuota_n')
-		for (let cuota of cuotas) {
-			suma += parseFloat(cuota.value)
-		}
-	} else {
-		if ( (sale.form.get('number_cuota_increase') > 0) && (sale.form.get('valor_cuota_aumentada') > 0) ) {
-			suma = (sale.form.get('number_cuota_increase') - 1) * sale.form.get('valor_cuota')
-			suma += ( sale.form.get('number_of_payments') - sale.form.get('number_cuota_increase') + 1 ) * sale.form.get('valor_cuota_aumentada')
-		} else {
-			suma = sale.form.get('number_of_payments') * sale.form.get('valor_cuota')
-		}
-	}
-	return suma
+	const cuotas = document.getElementsByClassName('fee_value_input')
+	return Array.from(cuotas).reduce( (acum, element) => acum + string_to_float_with_value(element.value), 0 )
+}
+
+function sum_primer_entrega(){
+	const primer_entrega = document.getElementsByClassName('calculo_en_pesos')
+	return Array.from( primer_entrega ).reduce( (acum, element) => acum + string_to_float_with_value(element.value), 0 )
+}
+
+function get_sale_price() {
+	return suma_cuotas_sale_land() + sum_primer_entrega()
 }

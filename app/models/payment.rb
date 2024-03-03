@@ -25,7 +25,7 @@ class Payment < ApplicationRecord
   has_one :payments_type, through: :payments_currency
   has_one :adjust
   has_one :interest
-  has_many_attached :images
+  has_many_attached :files
   has_one :credit_note, dependent: :destroy
 
   validates :taken_in,:date, :payment, :total, presence: true

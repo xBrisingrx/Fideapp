@@ -11,9 +11,9 @@
     <input type="text" data-type='currency' id='payment' class='form-control rounded-0' step='0.01' onchange="calculo_de_entrega(event)">
   </div>
   <input type="text" data-type='currency' id='exchange_value' class='form-control rounded-0 col-2 ml-2 d-none' step='0.01' onchange="calculo_de_entrega(event)" >
-  <input type="text" data-type='currency' id='calculo_en_pesos' class='form-control rounded-0 col-2 ml-2 d-none' step='0.01' placeholder='Calculo valor en $'  disabled>
-  <input type="text" id="name_pay" class='form-control rounded-0 col-2 ml-2' placeholder='Detalle entrega...'>
-  <input type="date" id="pay_date" class='form-control rounded-0 col-2 ml-2'>
+  <input type="text" data-type='currency' id='calculo_en_pesos' class='form-control rounded-0 col-2 ml-2 d-none calculo_en_pesos' step='0.01' placeholder='Calculo valor en $'  disabled>
+  <input type="text" id="payment_comment" class='form-control rounded-0 col-2 ml-2' placeholder='Detalle entrega...'>
+  <input type="date" id="pay_date" class='form-control rounded-0 col-2 ml-2' onchange="set_fee_start_date(event)">
   <label class="u-file-attach-v2 g-color-gray-dark-v5 mb-0 ml-2">
     <input id="fileAttachment" name="file-attachment[]" type="file" multiple>
     <i class="icon-cloud-upload g-font-size-16 g-pos-rel g-top-2 g-mr-5"></i>

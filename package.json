@@ -1,5 +1,7 @@
 {
   "name": "Fideapp",
   "private": true,
-  "dependencies": {}
+  "dependencies": {
+    "cleave-zen": "^0.0.14"
+  }
 }

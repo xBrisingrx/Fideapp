@@ -25,7 +25,7 @@ let project = {
 			provider_id: parseInt( document.getElementById(`project_${provider_type}_id`).value ),
 			provider_role: parseInt( document.getElementById(`project_${provider_type}_role`).value ),
 			payment_method_id: ( type_total == 'price') ? 1 : 2,
-			provider_price: parseFloat(document.getElementById(`project_${provider_type}_price`).value),
+			provider_price: string_to_float(`project_${provider_type}_price`),
 			provider_iva: parseFloat( document.getElementById(`${provider_type}_iva`).value ),
 			type_total: type_total
 		}
@@ -1257,9 +1257,4 @@ async function async_add_apples(){ // adds apples and lands to form
 		 project.show_hide_corner_inputs()
 		 project.calculate_price_land()
 	} // for apple in apples
-}
-
-function cast_float_from_string_input(input_id){
-	const string = document.getElementById(input_id).value
-	return parseFloat(string.replace('$', '').replaceAll('.', '').replace(',', '.'))
 }

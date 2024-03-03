@@ -52,6 +52,23 @@ function setInputDate(_id){
     _dat.value = data;
 }
 
+function date_to_string(date){
+  var   d = date.getDate(),
+        m = date.getMonth()+1, 
+        y = date.getFullYear(),
+        data;
+
+    if(d < 10){
+        d = "0"+d;
+    };
+    if(m < 10){
+        m = "0"+m;
+    };
+
+    data = y+"-"+m+"-"+d;
+    return data
+}
+
 function format_date(date) {
   let d = date.split('-')
   return `${d[2]}-${d[1]}-${d[0]}`
@@ -188,4 +205,13 @@ function set_currency_fn(){
       formatCurrency($(this), "blur");
     }
   })
+}
+
+function string_to_currency(string_value){
+  // si paso un numero con decimales el formatNumber lo formatea mal, por ese motivo lo separo
+  const split_value = string_value.split(',') // separo pesos de centavos
+  string_value = '$'+formatNumber( split_value[0] ) + ','
+  // si tiene centavos se lo sumamos
+  string_value += ( split_value[1] != undefined ) ? split_value[1] : '00'
+  return string_value
 }

@@ -13,22 +13,23 @@ class SalesController < ApplicationController
     @currencies = Currency.select(:id, :name).where(active: true)
     @payments_types = PaymentsType.actives
     @cp = PaymentsCurrency.actives
-    @sale = Sale.new(arrear: 0.5, due_day: 10)
-    @product_type = params[:product_type]
+    @sale = Sale.new(due_day: 10)
+    @product_type = params[:product_type].capitalize
     @product_id = params[:product_id]
     @land_id = params[:land_id]
     # land = Land.find params[:land_id]
     case @product_type
-      when 'land'
-         @product = Land.select(:id, :price, :code).find(@product_id) 
+      when 'Land'
+         @product = Land.select(:id, :price, :code).find_by(id: @product_id) 
          @title_modal = "Venta del lote #{@product.code}"
-      when 'project'
+         @is_land_sale = true
+      when 'Project'
         @product = Project.find @product_id
         @title_modal = "Proyecto: #{@product.project_type.name}"
         land_project = LandProject.where(land_id: params[:land_id], project_id: @product.id ).first
         @price = land_project.price
         render :sale_project
-      when 'sale'
+      when 'Sale'
         @product = Sale.select(:id, :price, :refinanced).find(@product_id)
         @title_modal = "Refinanciación"
         @price = @product.get_all_owes
@@ -39,139 +40,15 @@ class SalesController < ApplicationController
   end
 
   def create
-    @sale = Sale.new(sale_params)
+    sale = Sale.new(sale_params)
     ActiveRecord::Base.transaction do 
-      respond_to do |format|
-        if @sale.save
-          byebug
-          raise '=> testeo del create'
-          render json: {status: 'success', msg: 'Venta exitosa'}, status: :ok
-        else
-          render json: {status: 'errors', msg: 'No se pudo registrar la venta'}, status: :unprocessable_entity
-        end
-      end
-    end
-  end
-
-  def create2
-    ActiveRecord::Base.transaction do 
-      sale = Sale.new(
-        apply_arrear: params[:apply_arrear],
-        arrear: params[:arrear],
-        comment: params[:comment],
-        date: params[:date],
-        due_day: params[:due_day],
-        number_of_payments: params[:number_of_payments],
-        land_id: params[:land_id],
-        price: 0,
-        status: :approved)
-      if sale.save!
-        # cuando se vende tierra va con clientes, si es proyecto no
-        if params[:product_type] == 'land'
-          if params[:clients].blank?
-            return render json: {status: 'error', msg: 'No se han seleccionado clientes'}, status: 422
-          else
-            params[:clients].uniq # me aseguro de que no haya ningun id repetido
-            clients = params[:clients][0].split(',')
-            clients.each do |client| # Generamos los registros de los clientes que hicieron la compra
-              sale.sale_clients.create!(client_id: client)
-            end
-          end
-        end
-
-        sale.sale_products.create!(product_type: params[:product_type].capitalize,product_id: params[:product_id]) # reg venta del producto
-
-        if params[:num_pays].to_i > 0 # Se ingreso un primer pago
-          for i in 1..params[:num_pays].to_i do  
-            payments_currency_id = params["payment_currency_id_#{i}".to_sym].to_i
-            taken_in = params["value_in_pesos_#{i}".to_sym].to_f
-            pay = params["payment_#{i}".to_sym].to_f
-            payment = sale.payments.new(
-              payments_currency_id: payments_currency_id,
-              payment: pay,
-              taken_in: params["tomado_en_#{i}".to_sym].to_f,
-              comment: params["detail_#{i}".to_sym],
-              date: ( params["pay_date_#{i}".to_sym] ),
-              first_pay: true
-            )
-            if !params["files_#{i}".to_sym].blank?
-              payment.images = params["files_#{i}".to_sym]
-            end
-            payment.save!
-          end
-        end
-
-        # Fecha de compra
-        today = sale.date 
-
-        # Fecha de vencimiento si venciera ESTE mes, en base a eso saco las siguientes fechas de vencimiento
-        due_date = Time.new(today.year, today.month, sale.due_day.to_i)
-        if params[:setear_cuotas_manual] == "true"
-           sale.generar_cuotas_manual( params[:valores_cuota], params[:fee_start_date] )
-        else
-          sale.generar_cuotas( params[:number_cuota_increase].to_i, params[:valor_cuota_aumentada].to_f, params[:valor_cuota].to_f, params[:fee_start_date] )
-        end
-        
-        sale.calculate_total_value!
+      if sale.save
         render json: {status: 'success', msg: 'Venta exitosa'}, status: :ok
       else
         render json: {status: 'errors', msg: 'No se pudo registrar la venta'}, status: :unprocessable_entity
-      end # save sale
-      raise 'Fin del testeo de venta de lote '
+      end
     end # transaction
     rescue => e
-      puts "Excepcion => #{e.message}"
-      @response = e.message.split(':')
-      render json: {status: 'error', msg: 'No se pudo registrar la venta'}, status: 402
-  end #create
-
-  def create_bought
-    # se registra una venta de lote pagada
-    land = Land.find(params[:land_id])
-    payment = land.price
-    sale = Sale.new(
-      apply_arrear: false,
-      arrear: 0,
-      comment: "Cancela tierra.",
-      date: params[:date],
-      due_day: 10,
-      number_of_payments: 1,
-      land_id: params[:land_id],
-      price: payment,
-      status: :payed)
-      if sale.save!
-        if params[:clients].blank?
-          return render json: {status: 'error', msg: 'No se han seleccionado clientes'}, status: 422
-        else
-          params[:clients].uniq # me aseguro de que no haya ningun id repetido
-          clients = params[:clients][0].split(',')
-          clients.each do |client| # Generamos los registros de los clientes que hicieron la compra
-            sale.sale_clients.create!(client_id: client)
-          end
-        end
-        sale.sale_products.create!(product_type: 'Land',product_id: land.id) 
-        sale.fees.create!(
-          due_date: sale.date, 
-          value: payment, 
-          number: 1,
-          pay_status: :pagado, 
-          payed: true,
-          pay_date: sale.date
-        )
-
-        sale.payments.create(
-          payments_currency_id: 1,
-          payment: payment,
-          taken_in: 1,
-          comment: "Cancela tierra.",
-          date: sale.date,
-        )
-        render json: {status: 'success', msg: 'Venta exitosa'}, status: :ok
-      else
-        render json: {status: 'errors', msg: 'No se pudo registrar la venta'}, status: :unprocessable_entity
-      end
-    rescue => e
-      puts "Excepcion => #{e.message}"
       @response = e.message.split(':')
       render json: {status: 'error', msg: 'No se pudo registrar la venta'}, status: 402
   end
@@ -193,8 +70,6 @@ class SalesController < ApplicationController
 
   def sale_project
     sale = Sale.new(
-      apply_arrear: params[:apply_arrear],
-      arrear: params[:arrear],
       comment: params[:comment],
       date: params[:date],
       due_day: params[:due_day],
@@ -288,12 +163,11 @@ class SalesController < ApplicationController
     end
 
     def sale_params
-      params.require(:sale).permit(:apply_arrear, :arrear, :comment, :date, :number_of_payments, 
-          :price, :status, :refinanced, :fee_value, :number_fee_increase, :value_fee_increase, :bought, 
-          :land_id, :due_day, :fee_start_date,
+      params.require(:sale).permit(:comment, :date, :number_of_payments, 
+          :price, :status, :refinanced, :land_id, :due_day, :land_sale, :land_price,
         sale_clients_attributes: [:id, :client_id],
         sale_products_attributes: [:id, :product_id, :product_type],
-        fees_attributes: [:id, :value, :due_date],
-        payments_attributes: [:id,:payments_currency_id,:payment,:taken_in,:comment,:date,:first_pay ])
+        fees_attributes: [:id, :number,:value, :due_date],
+        payments_attributes: [:id,:payments_currency_id,:payment,:taken_in,:comment,:date,:first_pay, files:[] ])
     end
 end

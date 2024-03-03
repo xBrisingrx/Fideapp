@@ -115,11 +115,11 @@ let sale = {
     }
 
     if (sale.entrega > 0 &&  !isNaN(sale.entrega) && sale.entrega <= sale.precio) {
-      $('#valor_restante').append(`A pagar en cuotas: <b>$${sale.resto}</b>`)
+      const resto = `${sale.resto}`
+      $('#valor_restante').append(`A pagar en cuotas: <b>${string_to_currency(resto)}</b>`)
       calular_valor_cuota()
     } else if ( sale.entrega > sale.precio ) {
       $('#valor_restante').append(`A pagar en cuotas: <b>0</b>`)
-      // $('#valor_restante').append(`<p class='text-danger ml-4'> Ingreso un valor mayor al del lote </>`)
     }
   }
 }

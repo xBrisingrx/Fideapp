@@ -4,8 +4,6 @@
 #
 #  id                 :bigint           not null, primary key
 #  status             :integer          default("not_approved")
-#  apply_arrear       :boolean          default(TRUE), not null
-#  arrear             :decimal(15, 2)   default(0.5), not null
 #  comment            :text(65535)
 #  date               :date             not null
 #  due_day            :integer          default(10), not null
@@ -18,23 +16,20 @@
 #  refinanced         :boolean          default(FALSE)
 #
 class Sale < ApplicationRecord
-	attribute :fee_value, :decimal 
-	attribute :number_fee_increase, :decimal
-	attribute :value_fee_increase, :integer
-	attribute :bought, :boolean
-	attribute :fee_start_date, :date
+	attribute :land_sale, :boolean # I use this attribute to verify if I sold a land
+	attribute :land_price, :decimal
 
+	belongs_to :land
 	has_many :sale_clients, dependent: :destroy
 	has_many :clients, through: :sale_clients
-	has_many :sale_products, dependent: :destroy
-	belongs_to :land 
+	has_many :sale_products, dependent: :destroy 
 	has_many :fees, dependent: :destroy 
 	has_many :fee_payments, through: :fees
 	has_many :payments, dependent: :destroy
 	has_many :credit_notes, dependent: :destroy
 
 	before_create :set_attributes 
-	after_create :register_activity
+	after_create :verify_is_a_land_sale, :create_payed, :register_activity
 	accepts_nested_attributes_for :sale_clients, :sale_products, :fees, :payments
 
 	enum status: [:not_approved, :approved, :payed]
@@ -277,7 +272,31 @@ class Sale < ApplicationRecord
 
 	def set_attributes
 		self.date = Time.now.strftime("%Y/%m/%d") if self.date.blank? 
-		self.due_day = 10 if self.due_day.blank? 
-		self.arrear = 0 if self.arrear.blank? 
+		self.due_day = 10 if self.due_day.blank?
+	end
+
+	def verify_is_a_land_sale
+		if self.land_sale?
+			self.sale_products.create( product: self.land )
+			self.land.update(price: land_price) if self.land.price == 0
+		end
+	end
+
+	def create_payed
+		# se genero una venta de tierra ya pagada
+		if self.payed?
+			self.fees.first.update(
+				pay_status: :pagado,
+				payed: true,
+				pay_date: self.date
+			)
+			self.payments.create(
+				payments_currency_id: 1,
+				payment: self.price,
+				taken_in: 1,
+				comment: "Cancela tierra.",
+				date: self.date,
+			)
+		end
 	end
 end
