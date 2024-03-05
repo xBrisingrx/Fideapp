@@ -80,4 +80,12 @@ class Apple < ApplicationRecord
     end
     increments
   end
+
+  def get_value
+    apple_value = 0
+    self.lands.each do |land|
+      apple_value += land.get_value
+    end
+    apple_value
+  end
 end

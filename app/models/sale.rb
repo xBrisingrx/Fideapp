@@ -262,6 +262,14 @@ class Sale < ApplicationRecord
 			self.generate_fees( project.id ,option )
 		end
 	end
+
+	def get_value
+		sale_value = 0
+		self.fees.each do |fee|
+			sale_value += fee.total_value
+		end
+		sale_value
+	end
 	
 	private
 

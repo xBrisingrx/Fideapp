@@ -1,16 +1,42 @@
 $("#modal").html("<%= j (render partial: 'shared/modal', locals:{ size: 'lg' } ) %>")
-
+set_currency_fn()
+document.getElementById('land_price').value = '$'+float_to_string( <%= @land.price %> )
 $("#modal").modal('show')
 
-$("#form-land").on("ajax:success", function(event) {
-    lands_table.ajax.reload(null,false)
-    let msg = JSON.parse(event.detail[2].response)
-    noty_alert(msg.status, msg.msg)
-    $("#modal").modal('hide')
-  }).on("ajax:error", function(event) {
-		let msg = JSON.parse(event.detail[2].response)
-		$.each( msg, function( key, value ) {
-			$(`#form-land #land_${key}`).addClass('is-invalid')
-			$(`#form-land .land_${key}`).text( value ).show('slow')
-		})
-})
+document.getElementById('form-land').addEventListener('submit', (e) => {
+  e.preventDefault()
+  e.stopPropagation()
+  const form = new FormData()
+  const blueprint = document.getElementById('land_blueprint').files[0]
+  form.append( `land[code]`, document.getElementById('land_code').value)
+  form.append( `land[is_green_space]`, document.getElementById('land_is_green_space').checked)
+  form.append( `land[is_corner]`, document.getElementById('land_is_corner').checked)
+  form.append( `land[measure]`, document.getElementById('land_measure').value)
+  form.append( `land[area]`, document.getElementById('land_area').value)
+  form.append( `land[ubication]`, document.getElementById('land_ubication').value)
+  form.append( `land[price]`, string_to_float_with_value( document.getElementById('land_price').value ) )
+  if (blueprint != undefined) {
+    form.append( `land[blueprint]`, blueprint)
+  }
+  fetch(e.target.action, {
+    method: 'PATCH',
+    headers: {           
+      'X-CSRF-Token': document.getElementsByName('csrf-token')[0].content,
+      },
+      body: form
+    }
+  )
+  .then( response => response.json() )
+  .then( response => {
+    if (response.status === 'success') {
+      lands_table.ajax.reload(null,false)
+      noty_alert(response.status, response.msg)
+      $("#modal").modal('hide')
+    } else {
+      $.each( response, function( key, value ) {
+        $(`#form-land #land_${key}`).addClass('is-invalid')
+        $(`#form-land .land_${key}`).text( value ).show('slow')
+      })
+    }		
+  } )
+}) // end submit event
