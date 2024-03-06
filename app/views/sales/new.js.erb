@@ -5,7 +5,7 @@ setInputDate("#fee_start_date")
 sale.precio = document.getElementById("price").value
 
 if(sale.precio != 0){
-	document.getElementById('price').value = `$${formatNumber( document.getElementById('price').value )}`
+	document.getElementById('price').value = `${string_to_currency( document.getElementById('price').value )}`
 }
 
 document.getElementById('price').disabled = sale.precio != 0
@@ -126,7 +126,7 @@ function calc_valor_en_pesos(e){
 		$('#valor_restante').html('')
 		return
 	}
-	calculo_en_pesos.value = exchange_value * paid
+	calculo_en_pesos.value = string_to_currency( `${exchange_value * paid}` )
 }
 
 function calculo_de_entrega(event) {

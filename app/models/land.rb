@@ -105,4 +105,12 @@ class Land < ApplicationRecord
     increments
   end
 
+  def get_value
+    land_value = 0
+    self.sales.each do |sale|
+      land_value += sale.get_value
+    end
+    land_value
+  end
+
 end
