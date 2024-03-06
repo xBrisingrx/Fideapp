@@ -12,10 +12,11 @@ class PaymentsController < ApplicationController
   def new
     @title_modal = "Registrar pago"
     @sale_id = params[:sale_id]
+    @sale = Sale.find( params[:sale_id] )
+    @date_last_payment = @sale.payments.actives.no_first_pay.order(:date).first&.date
+    @date_first_fee_no_pay = @sale.fees.no_payed.actives.first&.due_date
     @fee = Fee.current_fee( @sale_id ) #obtengo la cuota que corresponde pagar
-    current_month = Time.new.month
-    @fee_total_value = @fee.total_value
-    @adeuda = @fee.get_deuda
+    @total_to_pay = @fee.get_deuda # total valor de cuotas hasta hoy - monto pagado
     @apply_arrear = @fee.apply_arrear?
     @payments_currencies = PaymentsCurrency.actives
     if @apply_arrear
@@ -31,11 +32,11 @@ class PaymentsController < ApplicationController
       # El % que se seteo cuando se hizo la venta
       @porcentaje_interes = @fee.sale.arrear
       @interes_sugerido = @fee.calcular_interes
-      @total_a_pagar = ( @interes_sugerido + @adeuda ).round(2)
+      @total_a_pagar = ( @interes_sugerido + @total_to_pay ).round(2)
     else
       @fecha_primer_cuota_impaga = Date.today
       @porcentaje_interes = 0
-      @total_a_pagar = ( @adeuda ).round(2)
+      @total_a_pagar = ( @total_to_pay ).round(2)
       @interes_diario = 0
     end
     @payment = Payment.new

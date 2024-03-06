@@ -63,8 +63,9 @@ class Fee < ApplicationRecord
   end
 
   def apply_arrear?
+    # en realidad, si la cuota no esta pagada , no importa que hayan pagos ese mes, seguiria vencida
     there_is_payment_this_month = Payment.where( 'extract(month from date) = ?', self.due_date.month ).where(sale_id: self.sale_id).actives.no_first_pay
-    self.expired? && self.sale.apply_arrear && there_is_payment_this_month.empty?
+    self.expired? && there_is_payment_this_month.empty?
   end
 
   def is_last_fee? #verificamos si esta es la ultima cuota de esta venta
@@ -81,7 +82,9 @@ class Fee < ApplicationRecord
     #obtenemos los pagos de los meses hasta esta cuota
     # y los restamos por el valor de las cuotas para saber cuanto se debe
     # hasta ese mes 
-    fees = Fee.where(sale_id: self.sale_id).where('number <= ?', self.number)
+    end_month = Date.today.end_of_month()
+    # fees = Fee.where(sale_id: self.sale_id).where('number <= ?', self.number)
+    fees = Fee.where(sale_id: self.sale_id).where('due_date <= ?', end_month)
     #obtenemos los pagos realizados en las cuotas, omitimos la primer entrega
     paymets = Payment.where( sale_id: self.sale_id ).actives.no_first_pay.sum(:total)
     owes = 0
@@ -97,20 +100,6 @@ class Fee < ApplicationRecord
     end
   end
 
-  # def get_deuda_cuotas_anteriores
-  #   fees = Fee.where(sale_id: self.sale_id).where('number < ?', self.number).order(:number)
-  #   if fees.blank? # es la 1er cuota, significa q no hay pagos de cuotas anteriores
-  #     0
-  #   else
-  #     paymets = Payment.until_fee( self.sale_id, fees.last.due_date) # pagos de esta venta hasta la cuota anterior a esta
-  #     owes = 0
-  #     fees.each do |fee|
-  #       owes += fee.total_value
-  #     end
-  #     owes - paymets
-  #   end
-  # end
-
   def owes
     self.get_deuda
   end
@@ -118,10 +107,6 @@ class Fee < ApplicationRecord
   def has_debt?
     self.get_deuda > 0
   end
-
-  # def get_fee_owes
-  #   self.total_value - self.fee_payments.sum(:valor_acarreado)
-  # end
 
   def total_value
     adjust = self.adjusts.sum(:value)
@@ -231,21 +216,6 @@ class Fee < ApplicationRecord
     end # fees_to_pay.each
   end # pago_supera_cuota
 
-  # def reset_payments
-  #   self.fee_payments.destroy_all
-  #   self.update(
-  #     owes: self.value,
-  #     total_value: self.value,
-  #     comment: '',
-  #     comment_adjust:'',
-  #     adjust: 0,
-  #     pay_status: :pendiente,
-  #     payment: 0,
-  #     payed: 0,
-  #     interest: 0
-  #   )
-  # end
-
   def show_owes_in_table
     first_month_day = Date.today.beginning_of_month
     last_month_day = Date.today.end_of_month
@@ -311,7 +281,6 @@ class Fee < ApplicationRecord
   end
 
   def update_payment_data
-    # update_payment_data
     payments = self.fee_payments.actives
     self.interest = 0
     self.total_value = self.value + self.get_adjusts
@@ -323,14 +292,23 @@ class Fee < ApplicationRecord
   end
 
   def self.current_fee( sale_id, date = Time.new )
+    # le tengo que buscar un mejor nombre al metodo
     month = date.month
     year = date.year 
     fee = Fee.where('extract(month  from due_date) = ?', month)
       .where('extract(year  from due_date) = ?', year)
       .where.not(pay_status: :pagado)
       .where(sale_id: sale_id)
-    if fee.empty? # escenario donde se paso la fecha de vencimiento de la ultima cuota
-      current_fee = Sale.find(sale_id).fees.last 
+    if fee.empty?
+      # escenario donde se paso la fecha de vencimiento de la ultima cuota o 
+      fees = Sale.find(sale_id).fees.where.not(pay_status: :pagado)
+      if fees.first.due_date > date
+      # escenario donde estamos adelantando pagos
+      # ejemplo, estan ingresando pagos y la cuota a pagar es la del mes siguiente
+        current_fee = fees.first
+      else
+        fees.last
+      end
     else 
       current_fee = fee.first
     end

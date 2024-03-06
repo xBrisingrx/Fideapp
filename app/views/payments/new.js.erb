@@ -2,45 +2,19 @@ $("#modal-sale-product").html("<%= j (render partial: 'shared/modal', locals:{ s
 
 setInputDate("#payment_date")
 payment.reset()
+set_currency_fn()
 
 payment.date = document.getElementById('payment_date').value
 payment.valor_cuota = 0
-payment.adeuda = parseFloat(<%= @adeuda %>)
-
-if (<%= @apply_arrear %>) {
-	// Si corresponde, manejamos los campos del interes/recargo sugerido
-	payment.recargo_sugerido = parseFloat(<%= @interes_sugerido %>)
-	document.getElementById('payment_aply_interest').checked = true
-	document.getElementById('payment_interest').value = payment.recargo_sugerido
-	document.getElementById('payment_aply_interest').addEventListener('click', function(event) {
-		$( '#payment_interest').prop("disabled", !this.checked )
-		if ( this.checked ) {
-			payment.recargo_sugerido = parseFloat(<%= @interes_sugerido %>)
-			document.getElementById('payment_interest').value = <%= @interes_sugerido %>
-			document.getElementById('payment_total_to_pay').innerHTML = `$${numberFormat.format(payment.total_to_pay())}`
-		} else {
-			payment.recargo_sugerido = 0.0
-			document.getElementById('payment_interest').value = payment.recargo_sugerido
-			document.getElementById('payment_total_to_pay').innerHTML = `$${numberFormat.format(payment.total_to_pay())}`
-		}
-	})
-} else {
-	// Si no corresponde aplicar interes solo se paga la cuota 
-	document.querySelector('#form-payment #esta_vencido').style.display = 'none'
-}
+payment.adeuda = parseFloat(<%= @total_to_pay %>)
 
 $("#modal-sale-product").modal('show')
 
-document.getElementById('payment_interest').addEventListener('change', function(event) {
-	payment.recargo_sugerido = parseFloat( this.value )
-	if (!isNaN( payment.recargo_sugerido )) {
-		addClassValid(this)
-		document.getElementById('payment_total_to_pay').innerHTML = `$${numberFormat.format(payment.total_to_pay() )}`
-	} else {
-		payment.recargo_sugerido = 0.0
-		document.getElementById('payment_interest').value = payment.recargo_sugerido
-		document.getElementById('payment_total_to_pay').innerHTML = `$${numberFormat.format(payment.sumar_sin_recargo() )}`
-	}
+document.getElementById('payment_porcent').addEventListener('change', e => {
+	const porcent = e.target.value
+	// Sumamos la deuda + ajuste por inflacion
+	const owes_with_arrear = roundToTwo( ( ( payment.adeuda * porcent ) / 100 ) + payment.adeuda )
+	document.
 })
 
 
