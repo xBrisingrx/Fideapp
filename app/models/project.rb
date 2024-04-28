@@ -93,20 +93,11 @@ class Project < ApplicationRecord
     end
     paid
   end
-
-  def check_payment_plan
-    if self.payment_plans.group(:option).count.count == 1
-      sale_products = SaleProduct.where( product: self )
-      sale_products.each do |sp|
-        sp.sale.generate_fees( sp.product.id,1 )
-      end
-    end
-  end
   
   private
   def check_is_finalized
-    # if this priject is created with finalized in true means that
-    # it's a old project and was paid. Then I must create the land_projects paid and with one quote
+    # if this project is created with finalized in true means that
+    # it's a old project and was paid. Then I must create the land_projects paid with one quote
     if self.finalized
       self.land_projects.update_all( status: :payed )
       sale_products = SaleProduct.where(product: self)
