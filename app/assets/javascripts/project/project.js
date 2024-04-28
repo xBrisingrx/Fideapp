@@ -69,7 +69,7 @@ let project = {
 		project_apples.add_apples_to_form()
 		project_apples.add_lands_to_form()
 		if( !document.getElementById('project_finalized').checked ) {
-			payment_plan.add_to_form()
+			payment_plan.add_to_form(this.form,'project[payment_plans_attributes]')
 		}
 		fetch('/projects/', {
       method: 'POST',
@@ -310,7 +310,12 @@ let project = {
 			project_apples.calculate_price_land()
 		}
 	},
-	
+	check_all() {		
+		let apples_added = document.getElementsByClassName("apple-added")
+		for (let checkbox in apples_added) {
+			apples_added[checkbox].checked = event.target.checked
+		}
+	},
 }
 
 $(document).ready(function(){
