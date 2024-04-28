@@ -29,7 +29,6 @@ class ProjectsController < ApplicationController
       project = Project.new(project_params)
       project.price = 0
       if project.save
-        project.check_payment_plan unless params[:project][:finalized] == 'true'
         render json: {status: 'success', msg: 'Proyecto registrado con exito'}, status: :ok
       end
     end
