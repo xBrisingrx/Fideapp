@@ -15,7 +15,10 @@ const payment_plan = {
 		const quantity_payment_plan = document.getElementsByClassName('payment-plan').length + 1
 		let html_to_insert = `<table class="table table-responsive payment-plan">
 		<thead>
-			<th>Opcion #${quantity_payment_plan}</th>`
+			<th id='option_number'>Opcion #${quantity_payment_plan} 
+				<button type='button' class='btn btn-danger btn-sm' 
+					onclick='payment_plan.remove(event)' title='Quitar plan de pago' >
+					<i class='fa fa-trash'></i></button></th>`
 		if (payment_plan_quantity_first_pay > 0) {
 			for (let index = 1; index <= payment_plan_quantity_first_pay; index++) {
 				html_to_insert += `<th>${meses[payment_plan_date.getMonth()]}-${payment_plan_date.getFullYear()}</th>`
@@ -91,6 +94,29 @@ const payment_plan = {
 				formatCurrency($(this), "blur");
 			}
 		})
+	},
+	remove(event){
+		const table = event.target.parentElement.parentElement.parentElement.parentElement
+		debugger
+		table.remove()
+		this.update_after_remove()
+	},
+	update_after_remove(){
+		let i = 1
+		const plans = document.getElementsByClassName('payment-plan')
+		for(const plan of plans){
+			plan.querySelector('#option_number').innerHTML = `
+				Opcion #${i} 
+				<button type='button' class='btn btn-danger btn-sm' 
+					onclick='payment_plan.remove(event)' title='Quitar plan de pago' >
+				<i class='fa fa-trash'></i></button>
+			`
+			const inputs = plan.querySelectorAll('.payment-plan-value')
+			for(const input of inputs ) {
+				input.dataset.option = i
+			}
+			i++
+		}
 	},
 	sum_payment_plan(event){
 		let sum_total = 0
