@@ -27,6 +27,9 @@ class Fee < ApplicationRecord
   has_many :adjusts, dependent: :destroy
   has_many :interests, dependent: :destroy
 
+  validates :due_date, :number, :value, presence: true
+  validates :value, numericality: { greater_than: 0 }
+
   scope :actives, -> { where(active: true) }
   scope :no_cero, -> { where( "number > 0" ) }
   scope :no_payed, -> { where.not(pay_status: :pagado) }
