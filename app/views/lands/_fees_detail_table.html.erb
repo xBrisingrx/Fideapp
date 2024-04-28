@@ -161,5 +161,7 @@
       <% end %> 
     </tbody>
   </table>
-  <%= render(partial: "table_info_for_month", locals: { fees: sale.fees }) %>
+  <% if !sale.payed? %>
+    <%= render(partial: "table_info_for_month", locals: { fees: sale.fees }) %>
+  <% end %>
 </div>
