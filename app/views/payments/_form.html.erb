@@ -42,7 +42,7 @@
       <div class="row">
         <%= form.label :interest, 'Mora:' , class: 'col-6 col-sm-6 col-md-6 col-lg-3 col-xl-2' %>
         <%= form.text_field :interest, data: {type: "currency"}, class: 'form-control rounded-0 col-4 mr-2', onchange: "payment.sum_interest(event)"%>
-        <small class='ml-1 text-danger payment_interest_err '>debe ingresar el valor de mora </small>
+        <small class='ml-1 text-danger payment_interest_err'></small>
       </div>
     </div>
   </div>
