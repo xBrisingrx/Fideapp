@@ -8,12 +8,6 @@ document.getElementById('payment_plan_option').addEventListener('change', (event
   add_payment_plan()
 })
 
-$("#form-sale").on("ajax:success", function(event) {
-  location.reload();
-}).on("ajax:error", function(event) {
-  console.warn('algo salio mal')
-})
-
 function add_payment_plan(){
   document.getElementById('payment_plan_input').innerHTML = `
     <p><b>Agregar plan de pagos</b></p>
@@ -43,7 +37,6 @@ document.getElementById('form-select-plan-data').addEventListener('submit', (eve
   const form = new FormData()
   if ( document.getElementById('payment_plan_option').value === 'custom' ) {
     payment_plan.add_to_form(form, 'sale[payment_plan]')
-    console.log('add')
   }
   form.append('sale[payment_plan][option]', document.getElementById('payment_plan_option').value)
   fetch( event.target.action,{
