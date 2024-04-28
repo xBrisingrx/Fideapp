@@ -209,7 +209,7 @@ function set_currency_fn(){
 
 function string_to_currency(string_value){
   // si paso un numero con decimales el formatNumber lo formatea mal, por ese motivo lo separo
-  const split_value = string_value.split(',') // separo pesos de centavos
+  const split_value = string_value.replace('.', ',').split(',') // separo pesos de centavos
   string_value = '$'+formatNumber( split_value[0] ) + ','
   // si tiene centavos se lo sumamos
   string_value += ( split_value[1] != undefined ) ? split_value[1] : '00'
