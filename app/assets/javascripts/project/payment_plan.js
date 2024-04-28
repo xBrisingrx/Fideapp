@@ -1,5 +1,9 @@
 const payment_plan = {
 	add(){
+		if(document.getElementById("payment_plan_date").value === ""){
+			noty_alert('info', 'Debe ingresar la fecha')
+			return
+		}
 		const payment_plan_quantity_first_pay = parseInt(document.getElementById('payment_plan_quantity_first_pay').value)
 		const payment_plan_quantity_quotes = parseInt(document.getElementById('payment_plan_quantity_quotes').value)
 		let payment_plan_date = new Date(`${document.getElementById("payment_plan_date").value}T00:00:00`)
@@ -107,23 +111,23 @@ const payment_plan = {
 		}
 		table.querySelector('#total-option').value = numberFormat.format(sum_total)
 	},
-  add_to_form(){
+  add_to_form(form, entity){
+		// entity es el nombre con el que vamos a enviar nuestros valores
+		// este metodo lo uso en projectos y en el selector de plan de pagos.
 		const tables = document.getElementsByClassName("payment-plan")
 		let payment_plans_index = 0
 		for (let table_index = 0; table_index < tables.length; table_index++) {
 			const table = tables[table_index]
 			const quotes = table.querySelectorAll('.payment-plan-value')
-			const first_pay = table.querySelectorAll('.payment-plan-first-pay-value')
-			const plan_quotes = table.querySelectorAll('.payment-plan-quote-value')
 			let cantidad_cuotas = 1
 			for(let i = 0; i < quotes.length; i++) {
 				const element = quotes[i];
 				const plan_category = ( element.classList.contains('payment-plan-first-pay-value') ) ? 1 : 2
-				project.form.append( `project[payment_plans_attributes][${payment_plans_index}][number]` , cantidad_cuotas)	
-				project.form.append( `project[payment_plans_attributes][${payment_plans_index}][category]`,plan_category)	
-				project.form.append( `project[payment_plans_attributes][${payment_plans_index}][date]` , element.dataset.date)
-				project.form.append( `project[payment_plans_attributes][${payment_plans_index}][price]` ,  string_to_float_with_value(element.value))
-				project.form.append( `project[payment_plans_attributes][${payment_plans_index}][option]` , element.dataset.option)
+				form.append( `${entity}[${payment_plans_index}][number]` , cantidad_cuotas)	
+				form.append( `${entity}[${payment_plans_index}][category]`,plan_category)	
+				form.append( `${entity}[${payment_plans_index}][date]` , element.dataset.date)
+				form.append( `${entity}[${payment_plans_index}][price]` ,  string_to_float_with_value(element.value))
+				form.append( `${entity}[${payment_plans_index}][option]` , element.dataset.option)
 				payment_plans_index++
 				cantidad_cuotas++
 			}
