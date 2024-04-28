@@ -41,12 +41,14 @@ class Fee < ApplicationRecord
   end
 
   def interes_diario 
-    ( (self.sale.arrear/100) * self.value )
+    # ( (self.sale.arrear/100) * self.value )
+    0
   end
 
   def calcular_interes date = nil
     # la ultima cuota vencida es toda cuota que no este en estado PAGADO
-    interes_diario = ( (self.sale.arrear/100) * self.value)
+    # interes_diario = ( (self.sale.arrear/100) * self.value)
+    interes_diario = 0
     primer_cuota_vencida = self.sale.fees.actives.no_payed.order(:number).first
     if primer_cuota_vencida.blank?
       0
@@ -66,6 +68,7 @@ class Fee < ApplicationRecord
     # en realidad, si la cuota no esta pagada , no importa que hayan pagos ese mes, seguiria vencida
     there_is_payment_this_month = Payment.where( 'extract(month from date) = ?', self.due_date.month ).where(sale_id: self.sale_id).actives.no_first_pay
     self.expired? && there_is_payment_this_month.empty?
+
   end
 
   def is_last_fee? #verificamos si esta es la ultima cuota de esta venta
@@ -83,7 +86,6 @@ class Fee < ApplicationRecord
     # y los restamos por el valor de las cuotas para saber cuanto se debe
     # hasta ese mes 
     end_month = Date.today.end_of_month()
-    # fees = Fee.where(sale_id: self.sale_id).where('number <= ?', self.number)
     fees = Fee.where(sale_id: self.sale_id).where('due_date <= ?', end_month)
     #obtenemos los pagos realizados en las cuotas, omitimos la primer entrega
     paymets = Payment.where( sale_id: self.sale_id ).actives.no_first_pay.sum(:total)

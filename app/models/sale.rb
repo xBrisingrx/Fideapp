@@ -198,21 +198,23 @@ class Sale < ApplicationRecord
 	def has_expires_fees?
 		today = Date.today
 		date = "#{today.year}-#{today.month}-#{today.day}"
-		!self.fees.no_payed.where("due_date <= ?", date).actives.empty?
+		!self.fees.no_payed.where("due_date <= ?", date).actives.blank?
 	end
 
-	def primer_cuota_impaga 
-		# es importante tenes la primer cuota impaga para calcular los intereses y la deuda
-		self.fees.no_payed.order(:number).first
+	def date_first_fee_no_payed
+		# obtenemos el vencimiento de la primer cuota impaga
+		# a partir de esa fecha es que corre el vencimiento de mi venta
+		self.fees.no_payed.actives.order(:number).first&.due_date
 	end
 
-	def fecha_inicio_interes
-		date = self.primer_cuota_impaga.due_date
-		"#{date.year}-#{date.month}-01"
-	end
+	# def primer_cuota_impaga 
+	# 	# es importante tener la primer cuota impaga para calcular los intereses y la deuda
+	# 	self.fees.no_payed.order(:number).first
+	# end
 
-	# def fees_for_month 
-	# 	fees = self.fees.actives.select("fees.id, fees.due_date, extract(month from fees.due_date) as month, fees.value").group("month")
+	# def fecha_inicio_interes
+	# 	date = self.primer_cuota_impaga.due_date
+	# 	"#{date.year}-#{date.month}-01"
 	# end
 
 	def get_increments
@@ -270,7 +272,14 @@ class Sale < ApplicationRecord
 		end
 		sale_value
 	end
-	
+
+	def date_last_payment
+		# get date to last payment 
+		date = self.payments.actives.no_first_pay.order(:date).first&.date
+		date_last_payment = (date) ? date.strftime('%d-%m-%y') : 'No hay pago registrado'
+		date_last_payment
+	end
+
 	private
 
 	def register_activity

@@ -1,7 +1,5 @@
 <%= form_with(model: @payment, class: 'needs-validation g-brd-around g-brd-gray-light-v4 g-pa-10 g-mb-10', id: 'form-payment') do |form| %>
-  <%= form.hidden_field :sale_id, value: @sale_id%>
-  <%= form.hidden_field :fee_id, value: @fee_id%>
-  <%= form.hidden_field :start_date_owes, value: @fecha_primer_cuota_impaga %>
+  <%= form.hidden_field :sale_id, value: @sale.id%>
   <div class="form-group row">
     <div class="col-4 col-lg-3">
       <%= form.label :date, 'Fecha' %>
@@ -9,7 +7,7 @@
     <div class="form-group col-8 col-ls-6">
       <%= form.date_field :date, class: 'form-control rounded-0 col-6', required: true %>
     </div>
-    <div class="invalid-feedback msg_fecha_compra"></div>
+    <small class='ml-1 text-danger payment_date_err'></small>
   </div>
 
   <div class="row">
@@ -18,45 +16,50 @@
     </div>
   </div>
 
-  <% if @date_first_fee_no_pay <= Date.today %>
-    <div id="expired" class="mx-auto text-center">
-      <div class="row">
-        <div class="col-4 col-md-3">
-          <label class="u-label g-bg-darkred g-mr-10 g-mb-5 g-rounded-5"> Cuota vencida desde  </label>
-          <h3><%= date_format(@fee.due_date) %></h3>
-        </div>
-        <div class="col-4 col-md-3">
-          <label class="u-label g-bg-brown g-mr-10 g-mb-5 g-rounded-5"> Ultimo pago  </label>
-          <h3><%= date_format(@fee.due_date) %></h3>
-        </div>
-        <div class="col-4 col-md-3">
-          <label class="u-label g-bg-purple g-mr-10 g-mb-5 g-rounded-5"> Deuda acumulada  </label>
-          <h3>$<%= format_currency( @total_to_pay ) %></h3>
-        </div>
+  <div id="expired" class="mb-2">
+    <div class="row mx-auto text-center ">
+      <div class="col-md-12 col-lg-6 col-xl-4">
+        <label class="u-label g-bg-darkred g-mr-10 g-mb-5 g-rounded-5"> Cuota vencida desde  </label>
+        <h3><%= date_format(@date_first_fee_no_payed) %></h3>
       </div>
-      <div class="form-group row">
-        <div class="col-6 row">
-          <%= form.label :porcent, 'Porcentaje inflación:'%>
-          <%= form.number_field :porcent, class: 'form-control rounded-0 col-3'%>
-        </div>
-        <div class="col-6 row">
-          <%= form.label :interest, 'Mora $:' , class: 'col-3' %>
-          <%= form.text_field :interest, data: {type: "currency"}, class: 'form-control rounded-0 col-3'%>
-        </div>
-        <div class="invalid-feedback payment_interest"></div>
+      <div class="col-md-12 col-lg-6 col-xl-4">
+        <label class="u-label g-bg-brown g-mr-10 g-mb-5 g-rounded-5"> Ultimo pago  </label>
+        <h3><%= @date_last_payment %></h3>
+      </div>
+      <div class="col-md-12 col-lg-6 col-xl-4">
+        <label class="u-label g-bg-purple g-mr-10 g-mb-5 g-rounded-5"> Deuda acumulada  </label>
+        <h3>$<%= format_currency( @total_to_pay ) %></h3>
       </div>
     </div>
-  <% end %>
-  <div class="form-group row">
-    <%= form.label :adjust, 'Ajuste $:' , class: 'col-3' %>
-    <%= form.text_field :adjust, data: {type: "currency"}, class: 'form-control rounded-0 col-3', value: 0 %>
-    <div class="invalid-feedback payment_adjust"></div>
+    <div class="form-group ml-2">
+      <div class="row">
+        <%= form.label :porcent, 'Porcentaje inflación:', class: 'col-6 col-sm-6 col-md-6 col-lg-3 col-xl-2'%>
+        <%= form.number_field :porcent, class: 'form-control rounded-0 col-4 mr-2', onchange: "payment.get_arrear(event)"%>
+        <small class='ml-1 text-danger payment_porcent_err'></small>
+      </div>
+    </div>
+    <div class="form-group ml-2">
+      <div class="row">
+        <%= form.label :interest, 'Mora:' , class: 'col-6 col-sm-6 col-md-6 col-lg-3 col-xl-2' %>
+        <%= form.text_field :interest, data: {type: "currency"}, class: 'form-control rounded-0 col-4 mr-2', onchange: "payment.sum_interest(event)"%>
+        <small class='ml-1 text-danger payment_interest_err '>debe ingresar el valor de mora </small>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-group ml-2">
+    <div class="row">
+      <%= form.label :adjust, 'Ajuste:' , class: 'col-6 col-sm-6 col-md-6 col-lg-3 col-xl-2' %>
+      <%= form.text_field :adjust, data: {type: "currency"}, class: 'form-control rounded-0 col-4 mr-2', onchange: "payment.update_adjust(event)" %>
+      <small class='ml-1 text-danger payment_adjust_err'></small>
+    </div>
   </div>
 
   <div class="form-group">
     <%= form.text_area :comment_adjust,
         class: 'form-control form-control-md u-textarea-expandable g-brd-gray-light-v7 g-brd-gray-light-v3--focus g-rounded-4 g-resize-none g-overflow-hidden', 
           row: '3', placeholder: 'Motivo del ajuste...'%>
+    <small class='ml-1 text-danger payment_comment_adjust_err'></small>
   </div>
 
   <div class="form-group row">
@@ -66,7 +69,7 @@
 
   <%= form.label :payment_entered, 'Ingresar pago $:' , class: 'font-weight-bold' %>
   <div class="form-group row ml-4">
-    <select name="payments_currency_id" id="payments_currency_id" class="col-2 form-control rounded-0 payment-currency u-has-error-v1" onchange="set_exchange()">
+    <select name="payments_currency_id" id="payments_currency_id" class="col-2 form-control rounded-0 payment-currency u-has-error-v1" onchange="set_exchange(event)">
       <option value="0"> Tipo de entrega </option>
       <% @payments_currencies.each do |payment_currency| %>
         <option value="<%= payment_currency.id %>" 
@@ -76,14 +79,18 @@
         </option>
       <%end%>
     </select>
+    <small class='ml-1 text-danger payment_currency_id_err'></small>
     <%= form.text_field :payment, data: {type: "currency"}, class: 'form-control rounded-0 col-2 ml-2' , required: true %>
+    <small class='ml-1 text-danger payment_payment_err'></small>
     <%= form.text_field :value_in_pesos, data: {type: "currency"}, class: 'form-control rounded-0 col-2 ml-2 ', placeholder: '', style: 'display:none' %>
+    <small class='ml-1 text-danger payment_value_in_pesos_err'></small>
     <%= form.text_field :calculo_en_pesos, data: {type: "currency"}, class: 'form-control rounded-0 col-2 ml-2 ' , placeholder: 'Calculo valor en $',  style: 'display:none', disabled:true %>
     <%= form.text_field :name_pay, class: 'form-control rounded-0 col-2 ml-2 ', placeholder: 'Detalle entrega', value: '' %>
     <label class="u-file-attach-v2 g-color-gray-dark-v5 mb-0 ml-2">
-      <input id="payment-images" name="payment-images[]" type="file" multiple>
+      <input id="payment_images" name="payment-images[]" type="file" multiple>
       <i class="icon-cloud-upload g-font-size-16 g-pos-rel g-top-2 g-mr-5"></i>
       <span class="js-value"></span>
+      <small class='ml-1 text-danger payment_images_err'></small>
     </label>
   </div>
 
@@ -91,6 +98,7 @@
     <%= form.text_area :comment, 
         class: 'form-control form-control-md u-textarea-expandable g-brd-gray-light-v7 g-brd-gray-light-v3--focus g-rounded-4 g-resize-none g-overflow-hidden', 
           row: '3', placeholder: 'Comentario...'%>
+    <small class='ml-1 text-danger payment_comment_err'></small>
   </div>
 
   <div class="actions">

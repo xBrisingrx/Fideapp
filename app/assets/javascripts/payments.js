@@ -1,6 +1,6 @@
 let payment = {
 	valor_cuota: 0,
-	recargo_sugerido: 0,
+	recargo: 0,
 	ajuste: 0,
 	total_a_pagar: 0,
 	adeuda: 0,
@@ -12,13 +12,13 @@ let payment = {
 	id: '',
 	date:'',
 	total_to_pay(){
-		return this.ajuste + this.adeuda + this.recargo_sugerido + this.valor_cuota
+		return this.ajuste + this.adeuda + this.recargo
 	},
 	sumar_sin_recargo() {
 		return this.ajuste + this.adeuda + this.valor_cuota
 	},
 	sumar_sin_ajuste() {
-		return this.recargo_sugerido + this.adeuda + this.valor_cuota
+		return this.recargo + this.adeuda + this.valor_cuota
 	},
 	sumar_pago_parcial(){
 		return this.total_a_pagar + this.ajuste
@@ -46,5 +46,31 @@ let payment = {
 			document.getElementById(`${name}_value_in_pesos`).value = 1
 			document.getElementById(`${name}_calculo_en_pesos`).value = ( !isNaN( fee_payment_value ) ) ? fee_payment_value : 0.0
 		}
+	},
+	get_arrear(event){
+		// obtenemos el valor de la mora acumulada por inflacion
+		// en el input ingresarmos el % de inflacion acumulado
+    this.recargo = (event.target.value * this.adeuda)/100
+    document.querySelector('#payment_interest').value = string_to_currency(`${this.recargo}`)
+    document.querySelector('#payment_total_to_pay').innerHTML = string_to_currency(`${this.total_to_pay()}`)
+  },
+	sum_interest(event){
+		if(event.target.value == ''){
+			this.recargo = 0
+			event.target.value = 0
+		} else {
+			this.recargo = string_to_float_with_value(event.target.value)
+		}
+		document.querySelector('#payment_total_to_pay').innerHTML = string_to_currency(`${this.total_to_pay()}`)
+	},
+	update_adjust(event){
+		const adjust = string_to_float_with_value(event.target.value)
+		if (!isNaN( adjust )) {
+			this.ajuste = adjust
+			addClassValid(event.target)
+		} else {
+			this.ajuste = 0.0
+		}
+		document.querySelector('#payment_total_to_pay').innerHTML = string_to_currency(`${this.total_to_pay()}`)
 	}
 }
