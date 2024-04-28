@@ -153,17 +153,7 @@ let project = {
 		if(!payment_plan.valid_form_data()){
 			return false
 		}
-
-		// if(!project_providers.valid_form_data()){
-		// 	return false
-		// }
-
-		// if(!project_apples.valid_form_data()){
-		// 	return false
-		// }
-
 		return true
-
 	},
 	disabled_and_reset_select(select_id, select_class){
 		$(`#${select_id} option:selected`).attr('disabled', 'disabled')
