@@ -1,4 +1,4 @@
-<%= form_with( model: @sale, id: 'form-sale', 
+<%= form_with( model: @sale, id: 'form-select-plan-data', 
   remote:true,  
   class: 'needs-validation g-brd-around g-brd-gray-light-v4 g-pa-10 g-mb-10' ) do |form| %>
   <div class="form-group row">
@@ -11,6 +11,7 @@
          <% for i in 1..@quantity_plans do %>
           <option value="<%= i %>"><%= i %></option>
          <% end %>
+         <option value="custom">Personalizado</option>
       </select>
     </div>
   </div>
@@ -68,6 +69,9 @@
       <hr class="w-50 g-my-20">
     </div>
   <% end %>
+
+  <div id="payment_plan_input"></div>
+  <div class="payment_plan_data"></div>
 
   <div class="actions">
     <%= form.submit 'Financiar', class: "btn u-btn-blue" %>

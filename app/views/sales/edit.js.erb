@@ -1,8 +1,64 @@
 $("#modal").html("<%= j (render partial: 'modal_edit' ) %>")
 $("#modal").modal('show')
 
+document.getElementById('payment_plan_option').addEventListener('change', (event) => {
+  if(event.target.value !== 'custom') {
+    return
+  }
+  add_payment_plan()
+})
+
 $("#form-sale").on("ajax:success", function(event) {
   location.reload();
 }).on("ajax:error", function(event) {
   console.warn('algo salio mal')
+})
+
+function add_payment_plan(){
+  document.getElementById('payment_plan_input').innerHTML = `
+    <p><b>Agregar plan de pagos</b></p>
+    <div class="row form-group">
+      <div class="col-12 col-sm-6 col-md-4">
+        <p>Primer entrega:</p>
+        <input type="number" placeholder="Cantidad de pagos" id="payment_plan_quantity_first_pay" class="form-control">
+      </div>
+      <div class="col-12 col-sm-6 col-md-3">
+        <p>Cuotas: </p>
+        <input type="number" placeholder="Cantidad de pagos" id="payment_plan_quantity_quotes" class="form-control">
+      </div>
+      <div class="col-10 col-sm-6 col-md-3">
+        <p>A partir de:</p>
+        <input type="date" name="payment_plan[date]" id="payment_plan_date" class="form-control">
+      </div>
+      <div class="col-2 d-flex align-items-center">
+        <button type="button" class="btn u-btn-blue" onclick="payment_plan.add()"><i class="fa fa-plus"></i></button>
+      </div>
+    </div>
+  `
+}
+
+document.getElementById('form-select-plan-data').addEventListener('submit', (event) => {
+  event.preventDefault()
+  event.stopImmediatePropagation()
+  const form = new FormData()
+  if ( document.getElementById('payment_plan_option').value === 'custom' ) {
+    payment_plan.add_to_form(form, 'sale[payment_plan]')
+    console.log('add')
+  }
+  form.append('sale[payment_plan][option]', document.getElementById('payment_plan_option').value)
+  fetch( event.target.action,{
+    method: 'PATCH',
+    headers: {           
+      'X-CSRF-Token': document.getElementsByName('authenticity_token')[0].value,
+    },
+    body: form
+  } )
+  .then( response => response.json())
+  .then( response => {
+    if (response.status === 'success') {
+      location.reload();
+    } else {
+      console.error('error')
+    }
+  } )
 })

@@ -242,7 +242,6 @@ class Sale < ApplicationRecord
 		payment_plans = PaymentPlan.where( project_id: project_id, option: option )
 		i = 1
 		payment_plans.each do |plan|
-			self.update( status: :approved )
 			self.fees.create!(
 				due_date: plan.date, 
 				value: plan.price, 
@@ -251,17 +250,39 @@ class Sale < ApplicationRecord
 			)
 			i+=1
 		end
-		self.update(number_of_payments: self.fees.count)
+		self.update(number_of_payments: self.fees.count, status: :approved)
 		total = payment_plans.sum(:price)
 		land_project = LandProject.where( land_id: self.land.id, project_id: project_id ).first
     land_project.update(price: total)
 	end
 
-	def approved_sale option
-		ActiveRecord::Base.transaction do
-			project = Project.find self.sale_products.first.product.id
-			land_project = LandProject.find_by( project: project, land_id: self.land.id )
-			self.generate_fees( project.id ,option )
+	def set_payment_plan payment_plan_data
+		project_id = self.sale_products.first.product.id
+		option = payment_plan_data[:option]
+		if option === 'custom'
+			i = 1
+			ActiveRecord::Base.transaction do
+				payment_plan_data.each do |payment_plan|
+					next if payment_plan[1] === "custom"
+					data = payment_plan[1]
+					self.fees.create(
+						due_date: data['date'], 
+						value: data['price'], 
+						number: i,
+						type_fee: data['category'].to_i
+					)
+					i+=1
+				end
+				self.update(number_of_payments: self.fees.count, status: :approved)
+				total = self.fees.sum(:value)
+				land_project = LandProject.find_by( land_id: self.land_id, project_id: project_id )
+				land_project.update(price: total)
+			end
+		else
+			ActiveRecord::Base.transaction do
+				# land_project = LandProject.find_by( project: project, land_id: self.land.id )
+				self.generate_fees( project_id ,option )
+			end
 		end
 	end
 

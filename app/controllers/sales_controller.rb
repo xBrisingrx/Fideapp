@@ -61,7 +61,7 @@ class SalesController < ApplicationController
   end
 
   def update
-    if @sale.approved_sale( params[:payment_plan][:option] )
+    if @sale.set_payment_plan( params[:sale][:payment_plan] )
       render json: {status: 'success', msg: 'Proyecto financiado.'}, status: :ok
     else
       render json: {status: 'errors', msg: 'No se pudo financiar el proyecto'}, status: :unprocessable_entity
