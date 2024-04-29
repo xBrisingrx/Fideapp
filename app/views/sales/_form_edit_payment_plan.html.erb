@@ -2,6 +2,14 @@
   remote:true,  
   class: 'needs-validation g-brd-around g-brd-gray-light-v4 g-pa-10 g-mb-10' ) do |form| %>
   <div class="form-group row">
+    <div class=" col-md-4 col-lg-3 col-xl-2">
+      <%= form.label :project_price, 'Valor del proyecto $: '%>
+    </div>
+    <div class="col-4">
+      <%= form.text_field :project_price, class: 'form-control', value: format_currency(@project_price), disabled:true%>
+    </div>
+  </div>
+  <div class="form-group row">
     <div class="col-4">
       <label for="">Opcion de pago:</label>
     </div>
@@ -70,25 +78,44 @@
     </div>
   <% end %>
 
-  <div id="payment_plan_input" class='d-none'>
-    <p><b>Agregar plan de pagos</b></p>
-    <div class="row form-group">
-      <div class="col-12 col-sm-6 col-md-4">
-        <p>Primer entrega:</p>
-        <input type="number" placeholder="Cantidad de pagos" id="payment_plan_quantity_first_pay" class="form-control">
-      </div>
-      <div class="col-12 col-sm-6 col-md-3">
-        <p>Cuotas: </p>
-        <input type="number" placeholder="Cantidad de pagos" id="payment_plan_quantity_quotes" class="form-control">
-      </div>
-      <div class="col-10 col-sm-6 col-md-3">
-        <p>A partir de:</p>
-        <input type="date" name="payment_plan[date]" id="payment_plan_date" class="form-control">
-      </div>
-      <div class="col-2 d-flex align-items-center">
-        <button type="button" class="btn u-btn-blue" onclick="payment_plan.add()"><i class="fa fa-plus"></i></button>
-      </div>
+  <div id="custom_payment_plan" class='d-none'>
+    <%= form.label :paid, 'Primer entrega:' , class: 'font-weight-bold' %>
+    <%= render( partial: 'input_pay', locals: { cp: @cp, first_label: true } ) %>
+    <div id="payment-list"></div>
+    <p id="valor_restante"></p>
+
+    <div class="form-group row">
+    <div class="col-4 col-lg-3 col-xl-2">
+      <%= form.label :number_of_payments, 'Cantidad de cuotas:'%>
+      <%= form.number_field :number_of_payments, class: 'form-control rounded-0 number_of_payments', step:'0.01', required:true, onchange: "sale.update_number_of_payments(event)" %>
     </div>
+      <div class="col-4 col-lg-4 col-xl-3">
+        <%= form.label :fee_start_date, 'Vencimiento primer cuota' %>
+        <%= form.date_field :fee_start_date, class: 'form-control rounded-0 date', onchange: "sale.update_date(event)" %>
+      </div>
+      <div class="col-4 col-lg-4 col-xl-3">
+        <%= form.label :due_day, 'Día vencimiento cuota:'%>
+        <%= form.number_field :due_day, class: 'form-control rounded-0 due_day', step:'0.01', value: @sale.due_day, onchange: "sale.update_due_day(event)" %>
+      </div>
+      <div class="col-2">
+        <button type="button" class="btn u-btn-cyan btn-sm" title="Click para ayuda" onclick="fee_start_date_info()"><i class="fa fa-question"></i></button>
+      </div>
+      <div class="invalid-feedback msg_fecha_compra"></div>
+    </div>
+
+    <div class="form-group">
+      <label class="d-flex align-items-center">
+        <span class="mr-4">Editar monto y fecha de cuotas</span>
+        <div class="u-check">
+          <input class="g-hidden-xs-up g-pos-abs g-top-0 g-right-0" id="setear_cuotas" type="checkbox">
+          <div class="u-check-icon-radio-v8">
+            <i class="fa" data-check-icon="&#xf00c"></i>
+          </div>
+        </div>
+      </label>
+    </div>
+    <div id="fees_list"></div>
+    <p id='total_pagado_en_cuotas' ></p>
   </div>
   <div class="payment_plan_data"></div>
 

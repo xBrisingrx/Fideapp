@@ -8,19 +8,19 @@
     </select>
   </div>
   <div class="col-2">
-    <input type="text" data-type='currency' id='payment' class='form-control rounded-0' step='0.01' onchange="calculo_de_entrega(event)">
+    <input type="text" data-type='currency' id='payment' class='form-control rounded-0' step='0.01' onchange="sale.actualizar_monto_en_pesos(event)">
   </div>
-  <input type="text" data-type='currency' id='exchange_value' class='form-control rounded-0 col-2 ml-2 d-none' step='0.01' onchange="calculo_de_entrega(event)" >
-  <input type="text" data-type='currency' id='calculo_en_pesos' class='form-control rounded-0 col-2 ml-2 d-none calculo_en_pesos' step='0.01' placeholder='Calculo valor en $'  disabled>
+  <input type="text" data-type='currency' id='exchange_value' class='form-control rounded-0 col-2 ml-2 d-none' step='0.01' onchange="sale.actualizar_monto_en_pesos(event)" >
+  <input type="text" data-type='currency' id='value_in_pesos' class='form-control rounded-0 col-2 ml-2 d-none value_in_pesos' step='0.01' placeholder='Calculo valor en $'  disabled>
   <input type="text" id="payment_comment" class='form-control rounded-0 col-2 ml-2' placeholder='Detalle entrega...'>
-  <input type="date" id="pay_date" class='form-control rounded-0 col-2 ml-2' onchange="set_fee_start_date(event)">
+  <input type="date" id="pay_date" class='form-control rounded-0 col-2 ml-2' onchange="sale.set_fee_start_date(event)">
   <label class="u-file-attach-v2 g-color-gray-dark-v5 mb-0 ml-2">
     <input id="fileAttachment" name="file-attachment[]" type="file" multiple>
     <i class="icon-cloud-upload g-font-size-16 g-pos-rel g-top-2 g-mr-5"></i>
     <span class="js-value"></span>
   </label>
   <% if first_label %>
-    <button id="add-payment" class="btn u-btn-teal ml-2 "> + </button>
+    <button type="button" id="add-payment" class="btn u-btn-teal ml-2" onclick="sale.add_payment(event)"> + </button>
   <% else %>
     <button onclick="remove_payment(event)" class="btn u-btn-red ml-2"> - </button>
   <% end %>

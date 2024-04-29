@@ -55,9 +55,11 @@ class SalesController < ApplicationController
 
   def edit
     project = Project.find @sale.sale_products.first.product.id
+    @project_price = project.land_price
     @quantity_plans = project.payment_plans.group(:option).count.count
     @first_pays = project.payment_plans.where( category: 1 )
     @quotes = project.payment_plans.where( category: 2 )
+    @cp = PaymentsCurrency.actives
   end
 
   def update

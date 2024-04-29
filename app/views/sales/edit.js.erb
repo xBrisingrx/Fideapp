@@ -1,8 +1,12 @@
 $("#modal").html("<%= j (render partial: 'modal_edit' ) %>")
+set_currency_fn()
+sale.reset()
+sale.due_day = document.querySelector('.due_day').value
+sale.precio = string_to_float_with_value(document.querySelector('#sale_project_price').value) 
 $("#modal").modal('show')
 
 document.getElementById('payment_plan_option').addEventListener('change', (event) => {
-  document.getElementById('payment_plan_input').classList.toggle('d-none', event.target.value !== 'custom')
+  document.getElementById('custom_payment_plan').classList.toggle('d-none', event.target.value !== 'custom')
 })
 
 document.getElementById('form-select-plan-data').addEventListener('submit', (event) => {
