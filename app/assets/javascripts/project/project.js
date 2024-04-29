@@ -54,14 +54,8 @@ let project = {
 		this.form.append('project[description]', document.getElementById('project_description').value )
 		this.form.append('project[number_of_payments]', 0 )
 		this.form.append('project[finalized]', document.getElementById('project_finalized').checked )
-		
-		if( document.getElementById('project_finalized').checked ){
-			this.form.append('project[land_price]', string_to_float('project_land_price') )
-			this.form.append('project[land_corner_price]', string_to_float('project_land_corner_price') )
-		} else {
-			this.form.append('project[land_price]', 0 )
-			this.form.append('project[land_corner_price]', 0 )
-		}
+		this.form.append('project[land_price]', string_to_float('project_land_price') )
+		this.form.append('project[land_corner_price]', string_to_float('project_land_corner_price') )
 		
 		
 		project_providers.add_to_form()
