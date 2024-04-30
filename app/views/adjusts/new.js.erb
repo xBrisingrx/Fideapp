@@ -23,7 +23,7 @@ document.getElementById('form-adjust').addEventListener('submit', event => {
   fetch(event.target.action, {
     method: 'POST',
     headers: {           
-      'X-CSRF-Token': document.getElementsByName('authenticity_token')[0].value,
+      'X-CSRF-Token': event.target.querySelector("input[name='authenticity_token']").value,
     },
     body: form
   })
