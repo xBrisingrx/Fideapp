@@ -8,6 +8,7 @@ class FeesController < ApplicationController
 	end
 
   def new
+    @title_modal = "Agregar cuotas"
     @fee = Fee.new(sale_id: params[:sale_id])
   end
 
