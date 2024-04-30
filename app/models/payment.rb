@@ -32,7 +32,7 @@ class Payment < ApplicationRecord
   attr_accessor :adjust
   attr_accessor :comment_adjust
 
-  validates :taken_in,:date, :payment, :total,:comment ,presence: true
+  validates :taken_in,:date, :payment, :total ,presence: true
   validates :taken_in, :payment, :total, numericality: true
   validate :interest_presence
 

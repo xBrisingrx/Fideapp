@@ -24,6 +24,14 @@ function fee_start_date_info(){
 }
 
 document.getElementById('sale_was_payed').addEventListener('click', (event) => {
+	const land_price = string_to_float_with_value( document.getElementById("price").value )
+	console.log(land_price)
+	if ( !valid_number(land_price) ) {
+		noty_alert('info',"Debe ingresarle un valor al lote")
+		addClassInvalid(document.getElementById('price'))
+		event.target.checked = !event.target.checked
+		return
+	}
 	if (event.target.checked) {
 		if (document.getElementById('date').value == '') {
 			noty_alert('info', 'Debe ingresar fecha de compra')
@@ -250,8 +258,6 @@ document.getElementById('setear_cuotas').addEventListener('click', function(e){
 	document.getElementById('number_of_payments').disabled = is_check
 	document.getElementById('due_day').disabled = is_check
 	document.getElementById('fee_start_date').disabled = is_check
-
-	// debugger
 })
 
 function generate_fees(){
@@ -260,7 +266,6 @@ function generate_fees(){
 	if (!valid_number(sale.valor_cuota) && valid_number(number_of_fees) ) {
 		noty_alert('info', "Debe ingresar el valor del lote")
 		addClassInvalid( document.getElementById('price') )
-		debugger
 		return
 	}
 	

@@ -28,6 +28,7 @@ class Sale < ApplicationRecord
 	has_many :payments, dependent: :destroy
 	has_many :credit_notes, dependent: :destroy
 
+
 	before_create :set_attributes 
 	after_create :verify_is_a_land_sale, :create_payed, :register_activity
 	accepts_nested_attributes_for :sale_clients, :sale_products, :fees, :payments
@@ -256,33 +257,10 @@ class Sale < ApplicationRecord
     land_project.update(price: total)
 	end
 
-	def set_payment_plan payment_plan_data
+	def set_payment_plan option
 		project_id = self.sale_products.first.product.id
-		option = payment_plan_data[:option]
-		if option === 'custom'
-			i = 1
-			ActiveRecord::Base.transaction do
-				payment_plan_data.each do |payment_plan|
-					next if payment_plan[1] === "custom"
-					data = payment_plan[1]
-					self.fees.create(
-						due_date: data['date'], 
-						value: data['price'], 
-						number: i,
-						type_fee: data['category'].to_i
-					)
-					i+=1
-				end
-				self.update(number_of_payments: self.fees.count, status: :approved)
-				total = self.fees.sum(:value)
-				land_project = LandProject.find_by( land_id: self.land_id, project_id: project_id )
-				land_project.update(price: total)
-			end
-		else
-			ActiveRecord::Base.transaction do
-				# land_project = LandProject.find_by( project: project, land_id: self.land.id )
-				self.generate_fees( project_id ,option )
-			end
+		ActiveRecord::Base.transaction do
+			self.generate_fees( project_id ,option )
 		end
 	end
 

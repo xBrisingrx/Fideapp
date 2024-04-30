@@ -49,11 +49,12 @@ let sale = {
     }
     const due_day = parseInt(event.target.value)
     const date = new Date(`${this.date}T00:00:00`)
-    const last_day_of_month = new Date( this.date.getYear(),this.date.getMonth(), 0 )
+    const last_day_of_month = new Date( date.getYear(),date.getMonth(), 0 )
     if( valid_number(due_day) && due_day <= last_day_of_month.getDate() ) {
       this.due_day = due_day
-      this.date.setDate(due_day)
-      document.querySelector('.date').value = date_to_string(this.date)
+      date.setDate(due_day)
+      document.querySelector('.date').value = date_to_string(date)
+      this.date = date_to_string(date)
     } else {
       noty_alert('info', 'Valor invalido')
       return
@@ -191,6 +192,7 @@ let sale = {
       first_pay_date.setDate( this.due_day)
     }
     document.getElementById('sale_fee_start_date').value = date_to_string( first_pay_date )
+    this.date = date_to_string( first_pay_date )
     if ( !document.getElementById('setear_cuotas').checked  ) {
       this.generate_fees()
     }
@@ -223,7 +225,7 @@ let sale = {
               data-number='${i}' 
               value='${fee_value}'
               class='form-control rounded-0 col-4 col-md-2 fee_value_input'
-              onchange='show_total_pagado_en_cuotas()'
+              onchange='sale.show_total_pagado_en_cuotas()'
               disabled>
             <label class='col-4 col-md-1'> Fecha:  </label>
             <input id='fee_date' type='date' value='${date_to_string(fee_date)}' class='form-control rounded-0 col-4 col-md-2' disabled >
@@ -235,11 +237,104 @@ let sale = {
     document.getElementById('fees_list').innerHTML = html_to_insert
     set_currency_fn()
   },
-  add_payment(event){
-    sale.cant_payments++
-    sale.cant_payment_files++
-    $('#payment-list').append("<%= j ( render partial: 'input_pay', locals: { cp: @cp, first_label: false } ) %>")
-    set_currency_fn()
+  remove_payment(event){
+    event.preventDefault()
+    event.target.parentElement.remove()
+    this.cant_payments--
+    this.calcular_monto_pagado()
+  },
+  set_fees_manual(event){
+    const is_check = event.target.checked
+    const fees = document.getElementsByClassName('fee_added')
+    if(fees.length == 0){
+      e.target.checked = false
+      return
+    }
+    for( let fee of fees ) {
+      fee.querySelector('#fee_value').disabled = !is_check
+      fee.querySelector('#fee_date').disabled = !is_check
+    }
+    document.querySelector('.number_of_payments').disabled = is_check
+    document.querySelector('.due_day').disabled = is_check
+    document.querySelector('.fee_start_date').disabled = is_check
+  },
+  add_paymentos_to_form() {
+    const payments = document.getElementsByClassName('payment-data')
+    let i = 0
+    for (let pay of payments) {
+      let paid = string_to_float_with_value( pay.querySelector('#payment').value )
+      if ( !valid_number(paid) ) {
+        pay.querySelector('#payment').parentElement.classList.add('u-has-error-v1')
+        return
+      }
+      i++
+      pay.querySelector('#payment').parentElement.classList.remove('u-has-error-v1')
+      const currency_selected = pay.querySelector('#payment_currency').options[pay.querySelector('#payment_currency').selectedIndex]
+      const payment_currency_id = parseInt( currency_selected.value ) 
+      if (payment_currency_id == 0 ) {
+        pay.querySelector('#payment_currency').parentElement.classList.add('u-has-error-v1')
+        return
+      }
+      pay.querySelector('#payment_currency').parentElement.classList.remove('u-has-error-v1')
+      const exchange_value = string_to_float_with_value( pay.querySelector('#exchange_value').value )
+      const valor_en_pesos = string_to_float_with_value( pay.querySelector('#value_in_pesos').value )
+      const date = pay.querySelector('#pay_date').value
+      if ( currency_selected.dataset.exchange == 'true' && !valid_number(exchange_value) ) {
+        noty_alert('error','Debe ingresar en cuanto toma la moneda ingresada')
+        pay.querySelector('#exchange_value').classList.add('u-has-error-v1')
+        return
+      }
+  
+      if(date == '') {
+        date = document.getElementById('date').value
+      }
+  
+      if ( !valid_number(valor_en_pesos) ) {
+        return
+      }
+      this.form.append( `sale[payments_attributes][${i}][payments_currency_id]`, payment_currency_id)
+      this.form.append( `sale[payments_attributes][${i}][payment]`, paid)
+      this.form.append( `sale[payments_attributes][${i}][taken_in]`, exchange_value)
+      this.form.append( `sale[payments_attributes][${i}][comment]`, pay.querySelector('#payment_comment').value)
+      this.form.append( `sale[payments_attributes][${i}][date]`, date)
+      this.form.append( `sale[payments_attributes][${i}][first_pay]`, true)
+      
+      let files = pay.querySelector('#fileAttachment')
+      if (files !== null) {
+        let totalFiles = files.files.length
+        if (totalFiles > 0) {
+          for (let n = 0; n < totalFiles; n++) {
+            this.form.append( `sale[payments_attributes][${i}][files][]`, files.files[n])
+          }
+        }
+      }
+    }
+  },
+  add_fees_to_form(){
+    const fees = document.getElementsByClassName('fee_added')
+    if(fees.length == 0){
+      noty_alert('warn', 'No se ha generado cuotas')
+      return
+    }
+    for (let index = 0; index < fees.length; index++) {
+      const fee = fees[index];
+      const fee_value =  string_to_float_with_value(fee.querySelector('#fee_value').value)
+      const fee_date = fee.querySelector('#fee_date').value
+      const fee_number = fee.querySelector('#fee_value').dataset.number
+      this.form.append( `sale[fees_attributes][${index}][number]`, fee_number)
+      this.form.append( `sale[fees_attributes][${index}][value]`, fee_value)
+      this.form.append( `sale[fees_attributes][${index}][due_date]`, fee_date)
+    }
+  },
+  show_total_pagado_en_cuotas(){
+    if (document.getElementById('setear_cuotas').checked) {
+      const sum = `${this.suma_cuotas_sale_land()}`
+      document.getElementById('total_pagado_en_cuotas').innerHTML = `Total a pagar en cuotas: <b>${ string_to_currency(sum) }</b>`
+    }
+  },
+  suma_cuotas_sale_land(){
+    const cuotas = document.getElementsByClassName('fee_value_input')
+    return Array.from(cuotas).reduce( (acum, element) => acum + string_to_float_with_value(element.value), 0 )
   }
 }
 

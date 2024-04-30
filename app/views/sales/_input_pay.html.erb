@@ -20,8 +20,8 @@
     <span class="js-value"></span>
   </label>
   <% if first_label %>
-    <button type="button" id="add-payment" class="btn u-btn-teal ml-2" onclick="sale.add_payment(event)"> + </button>
+    <button type="button" id="add-payment" class="btn u-btn-teal ml-2"> + </button>
   <% else %>
-    <button onclick="remove_payment(event)" class="btn u-btn-red ml-2"> - </button>
+    <button onclick="sale.remove_payment(event)" class="btn u-btn-red ml-2"> - </button>
   <% end %>
 </div>

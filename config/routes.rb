@@ -46,6 +46,7 @@ Rails.application.routes.draw do
   resources :sales, except: [:show] do
     post 'create_bought', on: :collection
     get 'payment_summary', on: :member
+    patch 'set_payment_plan', on: :member
   end
   post 'disable_sale', to: 'sales#disable', as: 'disable_sale'
   resources :project_types

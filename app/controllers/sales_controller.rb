@@ -1,5 +1,5 @@
 class SalesController < ApplicationController
-  before_action :set_sale, only: %i[ show edit update destroy ]
+  before_action :set_sale, only: %i[ show edit update destroy set_payment_plan ]
 
   def index
     @sales = Sale.all
@@ -63,7 +63,15 @@ class SalesController < ApplicationController
   end
 
   def update
-    if @sale.set_payment_plan( params[:sale][:payment_plan] )
+    if @sale.update( sale_params )
+      render json: {status: 'success', msg: 'Proyecto financiado.'}, status: :ok
+    else
+      render json: {status: 'errors', msg: 'No se pudo financiar el proyecto'}, status: :unprocessable_entity
+    end
+  end
+
+  def set_payment_plan
+    if @sale.set_payment_plan( params[:payment_plan][:option] )
       render json: {status: 'success', msg: 'Proyecto financiado.'}, status: :ok
     else
       render json: {status: 'errors', msg: 'No se pudo financiar el proyecto'}, status: :unprocessable_entity

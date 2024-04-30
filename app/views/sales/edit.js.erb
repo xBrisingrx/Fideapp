@@ -12,28 +12,32 @@ document.getElementById('payment_plan_option').addEventListener('change', (event
 document.getElementById('form-select-plan-data').addEventListener('submit', (event) => {
   event.preventDefault()
   event.stopImmediatePropagation()
-  const form = new FormData()
-  if ( document.getElementById('payment_plan_option').value === 'custom' ) {
-    payment_plan.add_to_form(form, 'sale[payment_plan]')
+  sale.form = new FormData()
+  const payment_plan = document.getElementById('payment_plan_option').value
+  if ( payment_plan === 'custom' ) {
+    sale.form.append('sale[status]', 'approved')
+    sale.add_paymentos_to_form()
+    sale.add_fees_to_form()
+  } else {
+    sale.form.append('payment_plan[option]', document.getElementById('payment_plan_option').value)
   }
-  form.append('sale[payment_plan][option]', document.getElementById('payment_plan_option').value)
-
+  
   if( document.getElementById('payment_plan_option').value == '' ) {
     noty_alert('info', 'Debe seleccionar un plan de pagos')
     return
   }
 
-  if( document.getElementById('payment_plan_option').value == 'custom' && document.getElementsByClassName('payment-plan').length == 0 ) {
-    noty_alert('info', 'No se agrego un plan de pagos')
+  if( document.getElementById('payment_plan_option').value == 'custom' && document.getElementsByClassName('fee_added').length == 0 ) {
+    noty_alert('info', 'No se generaron cuotas')
     return
   }
-
-  fetch( event.target.action,{
+  const url = ( payment_plan === 'custom' ) ? event.target.action : `${event.target.action}/set_payment_plan`
+  fetch( url,{
     method: 'PATCH',
     headers: {           
       'X-CSRF-Token': document.getElementsByName('authenticity_token')[0].value,
     },
-    body: form
+    body: sale.form
   } )
   .then( response => response.json())
   .then( response => {
@@ -43,4 +47,11 @@ document.getElementById('form-select-plan-data').addEventListener('submit', (eve
       console.error('error')
     }
   } )
+})
+
+document.getElementById('add-payment').addEventListener('click', (event) => {
+  sale.cant_payments++
+  sale.cant_payment_files++
+  $('#payment-list').append("<%= j ( render partial: 'input_pay', locals: { cp: @cp, first_label: false } ) %>")
+  set_currency_fn()
 })
