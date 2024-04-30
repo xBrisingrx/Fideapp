@@ -35,6 +35,7 @@ Rails.application.routes.draw do
     post 'create_bought', on: :collection
     get 'payment_summary', on: :member
     patch 'set_payment_plan', on: :member
+    resources :adjusts, only: [:new, :create]
   end
   post 'disable_sale', to: 'sales#disable', as: 'disable_sale'
   resources :project_types
@@ -46,9 +47,7 @@ Rails.application.routes.draw do
 
   # Fees routes
   get 'detalle_pagos/:id', to: 'fees#details', as: 'detalle_pagos'
-  resources :fees, only: [:show,:create, :new, :update] do
-    resources :adjusts
-  end
+  resources :fees, only: [:show,:create, :new, :update] 
   # End fees routes 
 
   post '/sale_project', to: "sales#sale_project", as: 'sale_project'
