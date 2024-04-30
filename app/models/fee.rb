@@ -128,37 +128,6 @@ class Fee < ApplicationRecord
     total_value
   end
 
- ##### AJUSTE ####
-  def increase_adjust adjust, comment
-    self.adjusts.create( value: adjust, comment: comment )
-    # ya no hace falta actualizar valores
-    # OWES y TOTAL VALUE son calculados
-
-    # self.total_value = self.value + self.get_adjusts + self.interest
-    # self.owes = self.total_value - self.fee_payments.sum(:valor_acarreado)
-
-    # self.save
-  end
-
-  def apply_adjust_one_fee adjust, comment
-    self.increase_adjust(adjust, comment)
-  end
-
-  def apply_adjust_include_fee adjust, comment
-    cuotas = Fee.where(["sale_id = ? and number >= ?", self.sale_id, self.number ])
-    cuotas.each do |cuota|
-      cuota.increase_adjust(adjust, comment)
-    end
-  end
-############# AJUSTE
-  
-  def apply_adjust adjust, comment # aplicamos ajuste a partir de la cuota indicada (inclusive)
-    cuotas = Fee.where(["sale_id = ? and number >= ?", self.sale_id, self.number ])
-    cuotas.each do |cuota|
-      cuota.adjusts.create(value:  adjust, comment: comment)
-    end
-  end
-
   def get_adjusts
     self.adjusts.sum(:value)
   end

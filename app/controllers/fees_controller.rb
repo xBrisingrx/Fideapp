@@ -162,31 +162,6 @@ class FeesController < ApplicationController
       render json: { status: 'error', msg: 'No se pudo registrar el pago' }, status: 402
   end
 
-  def modal_apply_adjust
-    @title_modal = "Aplicar ajuste"
-    @sale = Sale.find params[:sale_id]
-    @fees = @sale.fees.actives.no_cero.no_payed
-  end
-
-  def apply_adjust
-    sale = Sale.find params[:sale_id]
-    fee = Fee.where(sale_id: sale.id, number: params[:fee_number]).first
-    ActiveRecord::Base.transaction do 
-      if params[:apply_to_one_fee].to_i == 1
-        fee.apply_adjust_one_fee(params[:adjust].to_f, params[:comment])
-      else
-        fee.apply_adjust_include_fee(params[:adjust].to_f, params[:comment])
-      end
-      sale.calculate_total_value!
-      sale.update(status: :approved) # si la venta habia sido pagada por completo hay que cambiar el estado
-      render json: { status: 'success', msg: 'Datos actualizados' }, status: :ok
-    end
-    rescue => e
-      puts "Excepcion => #{e.message}"
-      @response = e.message.split(':')
-      render json: {status: 'error', msg: 'No se pudo registrar el ajuste'}, status: 402
-  end
-
   def details
     @cuota = Fee.find(params[:id])
     if @cuota.is_last_fee?
