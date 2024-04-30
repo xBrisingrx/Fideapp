@@ -32,21 +32,23 @@
   <div class="row justify-content-between">
     <div class="col-6">
       <% if !sale.refinanced?%>
-      <%= link_to "<i class='icon-finance-234 u-line-icon-pro'></i> Agregar ajuste".html_safe,
-                  modal_apply_adjust_path(sale.id),
-                  remote: true,
-                  data: {toggle: :modal},
-                  class: 'btn u-btn-outline-cyan u-btn-hover-v1-2 g-font-weight-600 g-letter-spacing-0_5 g-brd-2 g-rounded-10 g-mr-10 g-mb-15' %>
+        <%= link_to "<i class='icon-finance-234 u-line-icon-pro'></i> Agregar ajuste".html_safe,
+                    modal_apply_adjust_path(sale.id),
+                    remote: true,
+                    data: {toggle: :modal},
+                    class: 'btn u-btn-outline-cyan u-btn-hover-v1-2 g-font-weight-600 g-letter-spacing-0_5 g-brd-2 g-rounded-10 g-mr-10 g-mb-15' %>
 
-      <%= link_to "<i class='icon-finance-152 u-line-icon-pro'></i> Agregar cuota".html_safe,
-                  new_fee_path( sale_id: sale.id ),
-                  remote: true,
-                  data: {toggle: :modal},
-                  class: 'btn u-btn-outline-blue u-btn-hover-v1-2 g-font-weight-600 g-letter-spacing-0_5 g-brd-2 g-rounded-10 g-mr-10 g-mb-15' %>
-      <%= link_to "<i class='icon-finance-260 u-line-icon-pro'></i> Refinanciar".html_safe,
-                  new_sale_path( land_id: sale.land.id, product_type: :sale, product_id: sale.id ),
-                  remote: true,
-                  class: 'btn u-btn-outline-pink u-btn-hover-v1-2 g-font-weight-600 g-letter-spacing-0_5 g-brd-2 g-rounded-10 g-mr-10 g-mb-15' %>
+        <%= link_to "<i class='icon-finance-152 u-line-icon-pro'></i> Agregar cuota".html_safe,
+                    new_fee_path( sale_id: sale.id ),
+                    remote: true,
+                    data: {toggle: :modal},
+                    class: 'btn u-btn-outline-blue u-btn-hover-v1-2 g-font-weight-600 g-letter-spacing-0_5 g-brd-2 g-rounded-10 g-mr-10 g-mb-15' %>
+        <% if sale.approved? %>
+          <%= link_to "<i class='icon-finance-260 u-line-icon-pro'></i> Refinanciar".html_safe,
+                    new_sale_path( land_id: sale.land.id, product_type: :sale, product_id: sale.id ),
+                    remote: true,
+                    class: 'btn u-btn-outline-pink u-btn-hover-v1-2 g-font-weight-600 g-letter-spacing-0_5 g-brd-2 g-rounded-10 g-mr-10 g-mb-15' %>
+        <% end %>
       <% end %>
     </div>
 
@@ -64,12 +66,14 @@
     </div>
   </div>
 
-  <div class="row justify-content-end">
-    <%= link_to "<i class='icon-finance-152 u-line-icon-pro'></i> Ingresar pago".html_safe,
-                new_payment_path(sale_id: sale.id),
-                remote: true,
-                class: 'btn u-btn-outline-teal u-btn-hover-v1-2 g-font-weight-600 g-letter-spacing-0_5 g-brd-2 g-rounded-10 g-mr-10 g-mb-15' %>
-  </div>
+  <% if sale.approved? %>
+    <div class="row justify-content-end">
+      <%= link_to "<i class='icon-finance-152 u-line-icon-pro'></i> Ingresar pago".html_safe,
+                  new_payment_path(sale_id: sale.id),
+                  remote: true,
+                  class: 'btn u-btn-outline-teal u-btn-hover-v1-2 g-font-weight-600 g-letter-spacing-0_5 g-brd-2 g-rounded-10 g-mr-10 g-mb-15' %>
+    </div>
+  <% end %>
 
   <table id="sale_land_table" class="table hover dt-responsive w-100 mt-2">
     <thead>
