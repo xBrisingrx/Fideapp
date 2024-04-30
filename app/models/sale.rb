@@ -279,6 +279,24 @@ class Sale < ApplicationRecord
 		date_last_payment
 	end
 
+	def update_payment_status
+    payment = Payment.where(sale_id: self.id).no_first_pay.actives.sum(:total)
+    fees = Fee.where(sale_id: self.id).order('id ASC')
+    fees.first.reset # seteamos las cuotas como pendientes y no pagadas
+    fees.each do |fee|
+      return if payment <= 0.0
+      owes = fee.total_value
+      if payment >= owes
+        # el pago supera el valor de la cuota, eso quiere decir q se cancela entera
+        fee.update(pay_status: :pagado, payed: true, payment: owes)
+      else
+        # no se pago entera, solo se pago lo que quedo en payment
+        fee.update(pay_status: :pago_parcial, payed: true, payment: payment )
+      end
+      payment -= owes
+    end
+  end
+
 	private
 
 	def register_activity

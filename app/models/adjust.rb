@@ -46,5 +46,6 @@ class Adjust < ApplicationRecord
     # actualizamos los datos de la venta asociada
     self.sale.update(status: :approved)# si la venta ya estaba pagada del todo hay que actualizar el estado
     self.sale.calculate_total_value!
+    self.sale.update_payment_status #actualizo el estado de pago de esta venta
   end
 end
