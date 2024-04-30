@@ -1,24 +1,12 @@
 Rails.application.routes.draw do
-  match "/404", via: :all, to: "errors#not_found"
-  match "/500", via: :all, to: "errors#internal_server_error"
-  
   resources :refinancied_sales, only: [:index, :new, :create]
   resources :payments
   resources :credit_notes
-  get 'fee_payments/new'
-  get 'fee_payments/create'
   resources :payment_methods
   resources :provider_roles
   post 'disable_provider_role', to: 'provider_roles#disable', as: 'disable_provider_role'
   resources :projects
-  root 'clients#index'
-
-  namespace :authentication, path: '', as: '' do
-    resources :users, only: [:index,:new, :create]
-    resources :sessions, only: [:create]
-    get 'login', to: 'sessions#new', as: 'login'
-    get 'logout', to: 'sessions#destroy', as: 'logout'
-  end
+  
 
   resources :urbanizations, except: [:destroy, :show]
   post 'disable_urbanization', to: 'urbanizations#disable', as: 'disable_urbanization'
@@ -57,13 +45,9 @@ Rails.application.routes.draw do
   get '/apples/filter_for_sector/:sector_id', to: 'apples#filter_for_sector'
 
   # Fees routes
-  # get 'fees/:sale_id', to: 'fees#index'
   get 'detalle_pagos/:id', to: 'fees#details', as: 'detalle_pagos'
-  get 'partial_payment/:fee_id', to: 'fee_payments#new', as: 'pago_parcial'
   resources :fees, only: [:show,:create, :new, :update] do
-    get 'partial_payment/:fee_id', to: 'fee_payments#new', as: 'partial_payment'
-    post 'partial_payment', to: 'fee_payments#create', as: 'register_partial_payment'
-    resources :fee_payments
+    resources :adjusts
   end
   # End fees routes 
 
@@ -78,4 +62,15 @@ Rails.application.routes.draw do
   resources :payments_types
   resources :currencies
   resource :payments_currencies
+  
+  root 'clients#index'
+  match "/404", via: :all, to: "errors#not_found"
+  match "/500", via: :all, to: "errors#internal_server_error"
+
+  namespace :authentication, path: '', as: '' do
+    resources :users, only: [:index,:new, :create]
+    resources :sessions, only: [:create]
+    get 'login', to: 'sessions#new', as: 'login'
+    get 'logout', to: 'sessions#destroy', as: 'logout'
+  end
 end
