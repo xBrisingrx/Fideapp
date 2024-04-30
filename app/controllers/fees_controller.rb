@@ -26,6 +26,7 @@ class FeesController < ApplicationController
       )
     end
     sale.calculate_total_value!
+    sale.update(status: :approved) # si la venta habia sido pagada por completo hay que cambiar el estado
     render json: { status: 'success', msg: 'Cuotas agregadas' }
   end
 
@@ -177,6 +178,7 @@ class FeesController < ApplicationController
         fee.apply_adjust_include_fee(params[:adjust].to_f, params[:comment])
       end
       sale.calculate_total_value!
+      sale.update(status: :approved) # si la venta habia sido pagada por completo hay que cambiar el estado
       render json: { status: 'success', msg: 'Datos actualizados' }, status: :ok
     end
     rescue => e
