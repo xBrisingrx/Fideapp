@@ -75,6 +75,7 @@ GEM
       activesupport (>= 5.0)
     i18n (1.14.4)
       concurrent-ruby (~> 1.0)
+      racc (~> 1.7)
     jbuilder (2.11.5)
       actionview (>= 5.0.0)
       activesupport (>= 5.0.0)
