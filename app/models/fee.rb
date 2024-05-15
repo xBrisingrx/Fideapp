@@ -41,7 +41,7 @@ class Fee < ApplicationRecord
   enum pay_status: [:pendiente, :pagado, :pago_parcial, :refinancied]
   enum type_fee: [ :no_valid ,:first_pay, :quote]
   
-  after_create :verify_number_of_fees_to_add
+  # after_create :verify_number_of_fees_to_add
   def calcular_primer_pago
     primer_pago = self.fee_payments.sum(:total)
     self.update( payment: primer_pago , value: primer_pago )
@@ -303,13 +303,13 @@ class Fee < ApplicationRecord
   end
 
   def verify_number_of_fees_to_add
-    puts "\n\n #{self.verify_number_of_fees_to_add}====================================================== \n\n\n"
-    return if self.verify_number_of_fees_to_add.nil?
+    puts "\n\n #{self.number_of_fees_to_add}====================================================== \n\n\n"
+    return if self.number_of_fees_to_add.nil?
     
-    if self.verify_number_of_fees_to_add > 0
+    if self.number_of_fees_to_add > 0
       due_date = self.due_date += 1.month
       number = self.number += 1
-      verify_number_of_fees_to_add.times do
+      self.number_of_fees_to_add.times do
         Fee.create(
           due_date: due_date,
           value: self.value,
