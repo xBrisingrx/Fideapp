@@ -9,7 +9,7 @@ class AdjustsController < ApplicationController
   def create
     adjust = Adjust.new(adjust_params)
     if adjust.save
-      render json: { status: 'success', msg: 'Adjuste aplicado' }, status: :ok
+      render json: { status: 'success', msg: 'Adjuste aplicado' }, status: :created
     else
       render json: { status: 'error', msg: 'No se pudo aplicar el ajuste' }, status: :unprocessable_entity
     end
