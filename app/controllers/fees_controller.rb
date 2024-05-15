@@ -20,7 +20,6 @@ class FeesController < ApplicationController
     sale = fee.sale
     last_fee = sale.fees.order(number: 'ASC').last
     fee.number = (last_fee.blank?) ? 1 : last_fee.number + 1 #excenario donde no hayan agregado cuotas
-    fee.number_of_fees_to_add.to_i -= 1
     if fee.save
       render json: { status: 'success', msg: 'Cuotas agregadas' }, status: :created
     else

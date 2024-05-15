@@ -3,6 +3,8 @@ $('.select-2-client-land').select2({ width: '80%',theme: "bootstrap4" })
 setInputDate("#sale_date")
 setInputDate("#sale_fee_start_date")
 sale.precio = document.getElementById('sale_price').value
+sale.date = document.getElementById('sale_date').value
+sale.due_day = document.getElementById('sale_due_day').value
 
 if(sale.precio != 0){
 	document.getElementById('sale_price').value = `${string_to_currency( document.getElementById('sale_price').value )}`
@@ -25,7 +27,7 @@ function fee_start_date_info(){
 
 document.getElementById('sale_was_payed').addEventListener('click', (event) => {
 	const land_price = string_to_float_with_value( document.getElementById('sale_price').value )
-	console.log(land_price)
+	
 	if ( !valid_number(land_price) ) {
 		noty_alert('info',"Debe ingresarle un valor al lote")
 		addClassInvalid(document.getElementById('sale_price'))
@@ -42,10 +44,11 @@ document.getElementById('sale_was_payed').addEventListener('click', (event) => {
 			addClassValid(document.getElementById('sale_date'))
 		}
 		document.getElementById('sale_number_of_payments').value = 1
+
 	} else {
 		document.getElementById('sale_number_of_payments').value = 0
 	}
-	document.getElementById('sale_inputs_sale_not_payed').classList.toggle('d-none', event.target.checked)
+	document.getElementById('inputs_sale_not_payed').classList.toggle('d-none', event.target.checked)
 	calular_valor_cuota()
 	generate_fees()
 })
@@ -261,43 +264,44 @@ document.getElementById('setear_cuotas').addEventListener('click', function(e){
 })
 
 function generate_fees(){
-	const number_of_fees = document.getElementById('sale_number_of_payments').value
+	sale.generate_fees()
+	// const number_of_fees = document.getElementById('sale_number_of_payments').value
 	
-	if (!valid_number(sale.valor_cuota) && valid_number(number_of_fees) ) {
-		noty_alert('info', "Debe ingresar el valor del lote")
-		addClassInvalid( document.getElementById('sale_price') )
-		return
-	}
+	// if (!valid_number(sale.valor_cuota) && valid_number(number_of_fees) ) {
+	// 	noty_alert('info', "Debe ingresar el valor del lote")
+	// 	addClassInvalid( document.getElementById('sale_price') )
+	// 	return
+	// }
 	
-	let fee_value = `${sale.valor_cuota}`.replace('.', ',')
-	const due_day = document.getElementById('sale_due_day').value
-	const fee_start_date = document.getElementById('sale_fee_start_date').value
-	let html_to_insert = ''
-	if (number_of_fees > 0 && due_day > 0 && fee_start_date != '') {
-		fee_value = string_to_currency(fee_value)
+	// let fee_value = `${sale.valor_cuota}`.replace('.', ',')
+	// const due_day = document.getElementById('sale_due_day').value
+	// const fee_start_date = document.getElementById('sale_fee_start_date').value
+	// let html_to_insert = ''
+	// if (number_of_fees > 0 && due_day > 0 && fee_start_date != '') {
+	// 	fee_value = string_to_currency(fee_value)
 
-		let fee_date =  new Date(`${fee_start_date}T00:00:00`)
-		fee_date.setDate( due_day )
-		for (let i = 1; i <= number_of_fees; i++) {
-			html_to_insert += `
-				<div class='row col-12 my-2 fee_added' >
-					<label class='col-4 col-md-2'> Cuota #${i} </label>
-					<input id='fee_value' type='text' 
-						data-type='currency' 
-						data-number='${i}' 
-						value='${fee_value}'
-						class='form-control rounded-0 col-4 col-md-2 fee_value_input'
-						onchange='show_total_pagado_en_cuotas()'
-						disabled>
-					<label class='col-4 col-md-1'> Fecha:  </label>
-					<input id='fee_date' type='date' value='${date_to_string(fee_date)}' class='form-control rounded-0 col-4 col-md-2' disabled >
-				</div>
-				`	
-			fee_date.setMonth( fee_date.getMonth() + 1 )
-		} // end for
-	} // end if
-	document.getElementById('fees_list').innerHTML = html_to_insert
-	set_currency_fn()
+	// 	let fee_date =  new Date(`${fee_start_date}T00:00:00`)
+	// 	fee_date.setDate( due_day )
+	// 	for (let i = 1; i <= number_of_fees; i++) {
+	// 		html_to_insert += `
+	// 			<div class='row col-12 my-2 fee_added' >
+	// 				<label class='col-4 col-md-2'> Cuota #${i} </label>
+	// 				<input id='fee_value' type='text' 
+	// 					data-type='currency' 
+	// 					data-number='${i}' 
+	// 					value='${fee_value}'
+	// 					class='form-control rounded-0 col-4 col-md-2 fee_value_input'
+	// 					onchange='show_total_pagado_en_cuotas()'
+	// 					disabled>
+	// 				<label class='col-4 col-md-1'> Fecha:  </label>
+	// 				<input id='fee_date' type='date' value='${date_to_string(fee_date)}' class='form-control rounded-0 col-4 col-md-2' disabled >
+	// 			</div>
+	// 			`	
+	// 		fee_date.setMonth( fee_date.getMonth() + 1 )
+	// 	} // end for
+	// } // end if
+	// document.getElementById('fees_list').innerHTML = html_to_insert
+	// set_currency_fn()
 }
 
 function show_total_pagado_en_cuotas(){
@@ -373,7 +377,7 @@ function set_form_sale() {
 function add_fees_to_form(){
 	const fees = document.getElementsByClassName('fee_added')
 	if(fees.length == 0){
-		noty_alert('warn', 'No se ha generado cuotas')
+		noty_alert('info', 'No se ha generado cuotas')
 		return
 	}
 	for (let index = 0; index < fees.length; index++) {

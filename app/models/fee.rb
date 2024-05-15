@@ -41,7 +41,7 @@ class Fee < ApplicationRecord
   enum pay_status: [:pendiente, :pagado, :pago_parcial, :refinancied]
   enum type_fee: [ :no_valid ,:first_pay, :quote]
   
-  # after_create :verify_number_of_fees_to_add
+  after_create :verify_number_of_fees_to_add
   def calcular_primer_pago
     primer_pago = self.fee_payments.sum(:total)
     self.update( payment: primer_pago , value: primer_pago )
@@ -303,13 +303,15 @@ class Fee < ApplicationRecord
   end
 
   def verify_number_of_fees_to_add
+    # metodo que uso cuando agrego cuotas de forma manual, desde la vista de pagar cuotas
     puts "\n\n #{self.number_of_fees_to_add}====================================================== \n\n\n"
     return if self.number_of_fees_to_add.nil?
-    
-    if self.number_of_fees_to_add > 0
+    byebug
+    fees_to_add = self.number_of_fees_to_add.to_i - 1
+    if fees_to_add > 0
       due_date = self.due_date += 1.month
       number = self.number += 1
-      self.number_of_fees_to_add.times do
+      fees_to_add.times do
         Fee.create(
           due_date: due_date,
           value: self.value,
@@ -320,8 +322,8 @@ class Fee < ApplicationRecord
         number += 1
       end
     end
-    sale.calculate_total_value!
-    sale.update(status: :approved) # si la venta habia sido pagada por completo hay que cambiar el estado
+    self.sale.calculate_total_value!
+    self.sale.update(status: :approved) # si la venta habia sido pagada por completo hay que cambiar el estado
   end
 
   def greater_than_previous_fee

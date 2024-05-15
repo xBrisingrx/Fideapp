@@ -44,6 +44,7 @@ let sale = {
     event.target.classList.toggle('is-invalid', !valor_valido)
   },
   update_due_day(event){
+    
     if(this.date == '') {
       return
     }
@@ -66,6 +67,9 @@ let sale = {
       this.date = new Date(`${date}T00:00:00`)
       this.due_day = this.date.getDate()
       document.querySelector('.due_day').value = this.due_day
+      if ( !document.getElementById('setear_cuotas').checked  ) {
+        this.generate_fees()
+      }
     }
   },
   set_cuotas(cantidad_cuotas, nodo_id){
@@ -210,6 +214,7 @@ let sale = {
       // addClassInvalid( document.getElementById('price') )
       return
     }
+
     let fee_value = string_to_currency(float_to_string(this.valor_cuota))
     const fee_start_date = document.querySelector(".date").value
     let html_to_insert = ''
