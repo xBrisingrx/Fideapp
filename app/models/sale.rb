@@ -274,7 +274,7 @@ class Sale < ApplicationRecord
 
 	def date_last_payment
 		# get date to last payment 
-		date = self.payments.actives.no_first_pay.order(:date).first&.date
+		date = self.payments.actives.no_first_pay.order(date: :desc).first&.date
 		date_last_payment = (date) ? date.strftime('%d-%m-%y') : 'No hay pago registrado'
 		date_last_payment
 	end

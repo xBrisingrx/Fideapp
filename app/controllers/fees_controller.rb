@@ -9,26 +9,23 @@ class FeesController < ApplicationController
 
   def new
     @title_modal = "Agregar cuotas"
-    @fee = Fee.new(sale_id: params[:sale_id])
+    sale = Sale.find(params[:sale_id])
+    last_fee = sale.fees.order(number: 'ASC').no_cero.last
+    due_date = (last_fee.blank?) ? Date.today.strftime('%d-%m-%y') : last_fee.due_date += 1.month
+    @fee = Fee.new(sale: sale, due_date: due_date)
   end
 
   def create
-    sale = Sale.find( params[:fee][:sale_id])
+    fee = Fee.new(fee_params) 
+    sale = fee.sale
     last_fee = sale.fees.order(number: 'ASC').last
-    number = (last_fee.blank?) ? 1 : last_fee.number #excenario donde no hayan agregado cuotas
-    due_date = last_fee.due_date
-    for i in 1..params[:fee][:number_of_fees].to_i do 
-      number += 1
-      due_date += 1.month
-      sale.fees.create(
-        due_date: due_date, 
-        value: params[:fee][:value], 
-        number: number
-      )
+    fee.number = (last_fee.blank?) ? 1 : last_fee.number + 1 #excenario donde no hayan agregado cuotas
+    fee.number_of_fees_to_add.to_i -= 1
+    if fee.save
+      render json: { status: 'success', msg: 'Cuotas agregadas' }, status: :created
+    else
+      render json: { status: 'error', msg: 'No se pudo agregar la cuota' }, status: :unprocessable_entity
     end
-    sale.calculate_total_value!
-    sale.update(status: :approved) # si la venta habia sido pagada por completo hay que cambiar el estado
-    render json: { status: 'success', msg: 'Cuotas agregadas' }
   end
 
 	def show
@@ -171,5 +168,10 @@ class FeesController < ApplicationController
       @payments = Payment.by_month( @cuota.sale_id,@cuota.due_date )
     end
     @title_modal = 'Detalle del pago realizado'
+  end
+
+  private
+  def fee_params
+    params.require(:fee).permit(:sale_id, :value, :due_date, :number, :number_of_fees_to_add)
   end
 end
