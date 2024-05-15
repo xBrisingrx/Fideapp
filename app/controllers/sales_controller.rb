@@ -9,7 +9,7 @@ class SalesController < ApplicationController
 
   def new
     @cant = 0
-    @clients = Client.select(:id, :name, :last_name).where(active: true)
+    @clients = Client.select(:id, :name, :last_name).where(active: true).order(:name)
     @currencies = Currency.select(:id, :name).where(active: true)
     @payments_types = PaymentsType.actives
     @cp = PaymentsCurrency.actives
