@@ -1,4 +1,4 @@
-<%= form_with( id: 'form-land-sale', 
+<%= form_with(model: @sale, id: 'form-land-sale', 
       class: 'needs-validation g-brd-around g-brd-gray-light-v4 g-pa-10 g-mb-10' ) do |form| %>
   
   <%= form.hidden_field :land_id, value: @land_id %>
@@ -37,7 +37,7 @@
       <%= form.select(:client_id, @clients.collect {|c| ["#{c.last_name} #{c.name}", c.id]}, 
                       {:include_blank => "Seleccione comprador"},
                       class: 'select-2-client-land') %>
-      <button id="add-client" class="btn u-btn-teal"> + </button>
+      <button id="add-client" type="button" class="btn u-btn-teal"> + </button>
       <div class="invalid-feedback client_id"></div>
     </div>
 
@@ -47,7 +47,7 @@
 
   <div class="form-group">
     <label class="form-check-inline u-check g-pl-25">
-      <%= form.check_box :sale_was_payed, class: 'g-hidden-xs-up g-pos-abs g-top-0 g-left-0', checked: false %>
+      <%= form.check_box :was_payed, class: 'g-hidden-xs-up g-pos-abs g-top-0 g-left-0', checked: false %>
       <div class="u-check-icon-checkbox-v6 g-absolute-centered--y g-left-0">
         <i class="fa" data-check-icon="&#xf00c"></i>
       </div>
@@ -69,7 +69,7 @@
     </div>
       <div class="col-4 col-lg-4 col-xl-3">
         <%= form.label :fee_start_date, 'Fecha primer cuota' %>
-        <%= form.date_field :fee_start_date, class: 'form-control rounded-0' %>
+        <%= form.date_field :fee_start_date, class: 'form-control rounded-0 date' %>
       </div>
       <div class="col-4 col-lg-4 col-xl-3">
         <%= form.label :due_day, 'Día vencimiento cuota:'%>
