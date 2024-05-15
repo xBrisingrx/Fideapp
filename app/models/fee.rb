@@ -27,8 +27,11 @@ class Fee < ApplicationRecord
   has_many :adjusts, dependent: :destroy
   has_many :interests, dependent: :destroy
 
+  attr_accessor :number_of_fees_to_add
+
   validates :due_date, :number, :value, presence: true
   validates :value, numericality: { greater_than: 0 }
+  validate :greater_than_previous_fee, on: :create
 
   scope :actives, -> { where(active: true) }
   scope :no_cero, -> { where( "number > 0" ) }
@@ -38,6 +41,7 @@ class Fee < ApplicationRecord
   enum pay_status: [:pendiente, :pagado, :pago_parcial, :refinancied]
   enum type_fee: [ :no_valid ,:first_pay, :quote]
   
+  after_create :verify_number_of_fees_to_add
   def calcular_primer_pago
     primer_pago = self.fee_payments.sum(:total)
     self.update( payment: primer_pago , value: primer_pago )
@@ -295,6 +299,37 @@ class Fee < ApplicationRecord
   def set_refinancied
     if self.pay_status != :pagado
       self.update(pay_status: :refinancied)
+    end
+  end
+
+  def verify_number_of_fees_to_add
+    puts "\n\n #{self.verify_number_of_fees_to_add}====================================================== \n\n\n"
+    return if self.verify_number_of_fees_to_add.nil?
+    
+    if self.verify_number_of_fees_to_add > 0
+      due_date = self.due_date += 1.month
+      number = self.number += 1
+      verify_number_of_fees_to_add.times do
+        Fee.create(
+          due_date: due_date,
+          value: self.value,
+          number: number,
+          sale: self.sale
+        )
+        due_date += 1.month
+        number += 1
+      end
+    end
+    sale.calculate_total_value!
+    sale.update(status: :approved) # si la venta habia sido pagada por completo hay que cambiar el estado
+  end
+
+  def greater_than_previous_fee
+    last_fee = self.sale.fees.order(number: 'ASC').no_cero.last
+    if !last_fee.blank?
+      if self.due_date <= last_fee.due_date
+        error(:due_date, "Esta cuota debe tener un vencimiento posterior a la cuota anterior")
+      end
     end
   end
 

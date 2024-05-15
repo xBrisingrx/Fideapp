@@ -71,6 +71,7 @@ class Payment < ApplicationRecord
   end
 
   def apply_payment_to_fees
+    # hice una copia de este metodo en sale_model#update_payment_status
     return if self.first_pay?
     payment = Payment.where(sale_id: self.sale.id).no_first_pay.actives.sum(:total)
     fees = Fee.where(sale_id: self.sale.id).order('id ASC')
