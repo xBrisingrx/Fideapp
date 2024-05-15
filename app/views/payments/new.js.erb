@@ -86,7 +86,7 @@ document.getElementById('submit-form-payment').addEventListener('click', functio
 	payment.form_data.append("payment[payments_currency_id]", document.getElementById('payments_currency_id').value)
 	payment.form_data.append("payment[comment]", document.getElementById('payment_comment').value)
 	payment.form_data.append("payment[payment]", string_to_float_with_value(document.getElementById('payment_payment').value))
-	payment.form_data.append("payment[taken_in]", parseFloat(document.getElementById('payment_value_in_pesos').value))
+	payment.form_data.append("payment[taken_in]", string_to_float_with_value(document.getElementById('payment_value_in_pesos').value))
 	// intereses por mora aplicados
 	payment.form_data.append("payment[porcent_interest]", document.querySelector('#payment_porcent').value)
 	payment.form_data.append("payment[interest]", payment.recargo)
