@@ -205,8 +205,7 @@ let sale = {
     if( !valid_number(this.cuotas) ) {
       return
     }
-    const a_pagar_en_cuotas = ( this.resto > 0 ) ? this.resto : this.precio
-    this.valor_cuota = roundToTwo( a_pagar_en_cuotas/this.cuotas )
+    this.valor_cuota = roundToTwo( this.resto/this.cuotas )
   },
   generate_fees(){
     if (!valid_number(this.valor_cuota) && !valid_number(this.cuotas) ) {
@@ -283,15 +282,13 @@ let sale = {
       pay.querySelector('#payment_currency').parentElement.classList.remove('u-has-error-v1')
       const exchange_value = string_to_float_with_value( pay.querySelector('#exchange_value').value )
       const valor_en_pesos = string_to_float_with_value( pay.querySelector('#value_in_pesos').value )
-      const date = pay.querySelector('#pay_date').value
+      const date = (pay.querySelector('#pay_date').value != '') 
+        ? pay.querySelector('#pay_date').value 
+        : document.getElementById('sale_date').value 
       if ( currency_selected.dataset.exchange == 'true' && !valid_number(exchange_value) ) {
         noty_alert('error','Debe ingresar en cuanto toma la moneda ingresada')
         pay.querySelector('#exchange_value').classList.add('u-has-error-v1')
         return
-      }
-  
-      if(date == '') {
-        date = document.getElementById('date').value
       }
   
       if ( !valid_number(valor_en_pesos) ) {
@@ -362,8 +359,6 @@ function modal_sales( id ) {
 function pagar_cuota() {
   
 }
-
-
 
 $(document).ready(function(){
 	sale_field_table = $("#sale_field_table").DataTable({ 'language': {'url': "/assets/plugins/datatables_lang_spa.json"} })
