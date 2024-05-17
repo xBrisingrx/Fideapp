@@ -33,7 +33,6 @@ let sale = {
   },
   update_number_of_payments(event){
     const valor_valido = valid_number( parseInt(event.target.value) )
-    console.log(event.target.value)
     if( valor_valido ){
       this.cuotas = event.target.value
       this.calcular_valor_cuota()
@@ -44,7 +43,6 @@ let sale = {
     event.target.classList.toggle('is-invalid', !valor_valido)
   },
   update_due_day(event){
-    
     if(this.date == '') {
       return
     }
@@ -71,6 +69,10 @@ let sale = {
         this.generate_fees()
       }
     }
+  },
+  update_pagado_en_cuotas(){
+    const total_pagado_en_cuotas = this.suma_cuotas_sale_land()
+    document.getElementById('total_pagado_en_cuotas').value = `${string_to_currency( float_to_string( total_pagado_en_cuotas ) )}`
   },
   set_cuotas(cantidad_cuotas, nodo_id){
     cantidad_cuotas++
@@ -211,10 +213,11 @@ let sale = {
     if (!valid_number(this.valor_cuota) && !valid_number(this.cuotas) ) {
       // noty_alert('info', "Debe ingresar el valor del lote")
       // addClassInvalid( document.getElementById('price') )
+      console.info(this.valor_cuota, this.cuotas)
       return
     }
 
-    let fee_value = string_to_currency(float_to_string(this.valor_cuota))
+    const fee_value = string_to_currency(float_to_string(this.valor_cuota))
     const fee_start_date = document.querySelector(".date").value
     let html_to_insert = ''
     if (this.cuotas > 0 && this.due_day > 0 && fee_start_date != '') {
@@ -229,7 +232,7 @@ let sale = {
               data-number='${i}' 
               value='${fee_value}'
               class='form-control rounded-0 col-4 col-md-2 fee_value_input'
-              onchange='sale.show_total_pagado_en_cuotas()'
+              onchange='sale.update_pagado_en_cuotas()'
               disabled>
             <label class='col-4 col-md-1'> Fecha:  </label>
             <input id='fee_date' type='date' value='${date_to_string(fee_date)}' class='form-control rounded-0 col-4 col-md-2' disabled >
@@ -240,6 +243,7 @@ let sale = {
     } // end if
     document.getElementById('fees_list').innerHTML = html_to_insert
     set_currency_fn()
+    this.update_pagado_en_cuotas()
   },
   remove_payment(event){
     event.preventDefault()
@@ -328,15 +332,10 @@ let sale = {
       this.form.append( `sale[fees_attributes][${index}][due_date]`, fee_date)
     }
   },
-  show_total_pagado_en_cuotas(){
-    if (document.getElementById('setear_cuotas').checked) {
-      const sum = `${this.suma_cuotas_sale_land()}`
-      document.getElementById('total_pagado_en_cuotas').innerHTML = `Total a pagar en cuotas: <b>${ string_to_currency(sum) }</b>`
-    }
-  },
   suma_cuotas_sale_land(){
     const cuotas = document.getElementsByClassName('fee_value_input')
-    return Array.from(cuotas).reduce( (acum, element) => acum + string_to_float_with_value(element.value), 0 )
+    const total = Array.from(cuotas).reduce( (acum, element) => acum + string_to_float_with_value(element.value), 0 )
+    return roundToTwo(total)
   }
 }
 

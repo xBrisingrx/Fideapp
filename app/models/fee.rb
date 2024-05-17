@@ -304,9 +304,7 @@ class Fee < ApplicationRecord
 
   def verify_number_of_fees_to_add
     # metodo que uso cuando agrego cuotas de forma manual, desde la vista de pagar cuotas
-    puts "\n\n #{self.number_of_fees_to_add}====================================================== \n\n\n"
     return if self.number_of_fees_to_add.nil?
-    byebug
     fees_to_add = self.number_of_fees_to_add.to_i - 1
     if fees_to_add > 0
       due_date = self.due_date += 1.month

@@ -8,6 +8,7 @@ sale.due_day = document.getElementById('sale_due_day').value
 
 if(sale.precio != 0){
 	document.getElementById('sale_price').value = `${string_to_currency( document.getElementById('sale_price').value )}`
+	document.getElementById('total_pagado_en_cuotas').value = `${string_to_currency( document.getElementById('sale_price').value )}`
 }
 
 document.getElementById('sale_price').disabled = sale.precio != 0
@@ -166,21 +167,21 @@ function sumar_entregas(entrega) {
 }
 /*END JS payments*/
 
-document.getElementById('sale_number_of_payments').addEventListener('change', function(event) {
-	event.target.classList.toggle('is-invalid', event.target.value =='')
-	calular_valor_cuota()
-	generate_fees()
-})
+// document.getElementById('sale_number_of_payments').addEventListener('change', function(event) {
+// 	event.target.classList.toggle('is-invalid', event.target.value =='')
+// 	calular_valor_cuota()
+// 	generate_fees()
+// })
 
-document.getElementById('sale_due_day').addEventListener('change', function(event) {
-	event.target.classList.toggle('is-invalid', event.target.value =='')
-	generate_fees()
-})
+// document.getElementById('sale_due_day').addEventListener('change', function(event) {
+// 	event.target.classList.toggle('is-invalid', event.target.value =='')
+// 	generate_fees()
+// })
 
-document.getElementById('sale_fee_start_date').addEventListener('change', function(event) {
-	event.target.classList.toggle('is-invalid', event.target.value =='')
-	generate_fees()
-})
+// document.getElementById('sale_fee_start_date').addEventListener('change', function(event) {
+// 	event.target.classList.toggle('is-invalid', event.target.value =='')
+// 	generate_fees()
+// })
 
 function calular_valor_cuota() {
 	sale.cuotas = document.getElementById('sale_number_of_payments').value
@@ -299,7 +300,7 @@ function validaciones_sale_form() {
 
 function populate_land_sale_confirm(){
 	populate_land_sale_data('Valor del lote', `$${numberFormat.format(sale.precio)}`)
-	populate_land_sale_data('Saldo a pagar', `$${numberFormat.format(get_sale_price())}`)
+	populate_land_sale_data('Saldo a pagar en cuotas', `$${numberFormat.format(get_sale_price())}`)
 	populate_land_sale_data('Fecha de la compra', format_date(sale.form.get("sale[date]")))
 	populate_land_sale_data('Compradores', get_clients_names() )
 	populate_land_sale_data('Primer entrega', `$${numberFormat.format(sale.entrega)}` )
