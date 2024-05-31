@@ -21,7 +21,6 @@ $(document).ready(function(){
     noty_alert(msj.status, msj.msg)
     $("#modal-disable-urbanization").modal('hide')
   }).on("ajax:error", function(event) {
-    console.log('error')
     let msj = JSON.parse( event.detail[2].response )
     $.each( msj, function( key, value ) {
       $(`#form-urbanization #urbanization_${key}`).addClass('is-invalid')

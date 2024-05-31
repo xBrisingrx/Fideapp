@@ -1,11 +1,17 @@
 $("#modal").html("<%= j (render partial: 'modal_edit' ) %>")
+
 set_currency_fn()
 sale.reset()
 sale.due_day = document.querySelector('.due_day').value
-sale.precio = string_to_float_with_value(document.querySelector('#sale_project_price').value) 
+sale.precio = string_to_float_with_value(document.querySelector('#sale_project_price').value)
+sale.resto = string_to_float_with_value(document.querySelector('#sale_project_price').value)
+document.getElementById('total_pagado_en_cuotas').value = `${string_to_currency( float_to_string( sale.resto ) )}`
+setInputDate("#sale_date")
+
 $("#modal").modal('show')
 
 document.getElementById('payment_plan_option').addEventListener('change', (event) => {
+  sale.valor_cuota = string_to_float_with_value(document.querySelector('#sale_project_price').value)
   document.getElementById('custom_payment_plan').classList.toggle('d-none', event.target.value !== 'custom')
 })
 
