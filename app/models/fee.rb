@@ -325,12 +325,12 @@ class Fee < ApplicationRecord
   end
 
   def greater_than_previous_fee
-    last_fee = self.sale.fees.order(number: 'ASC').no_cero.last
-    if !last_fee.blank?
-      if self.due_date <= last_fee.due_date
-        error(:due_date, "Esta cuota debe tener un vencimiento posterior a la cuota anterior")
-      end
-    end
+    # last_fee = self.sale.fees.order(number: 'ASC').no_cero.last
+    # if !last_fee.blank?
+    #   if self.due_date <= last_fee.due_date
+    #     error(:due_date, "Esta cuota debe tener un vencimiento posterior a la cuota anterior")
+    #   end
+    # end
   end
 
 end
