@@ -28,6 +28,7 @@ class Sale < ApplicationRecord
 	has_many :payments, dependent: :destroy
 	has_many :credit_notes, dependent: :destroy
 
+
 	before_create :set_attributes 
 	after_create :verify_is_a_land_sale, :create_payed, :register_activity
 	accepts_nested_attributes_for :sale_clients, :sale_products, :fees, :payments
@@ -198,21 +199,23 @@ class Sale < ApplicationRecord
 	def has_expires_fees?
 		today = Date.today
 		date = "#{today.year}-#{today.month}-#{today.day}"
-		!self.fees.no_payed.where("due_date <= ?", date).actives.empty?
+		!self.fees.no_payed.where("due_date <= ?", date).actives.blank?
 	end
 
-	def primer_cuota_impaga 
-		# es importante tenes la primer cuota impaga para calcular los intereses y la deuda
-		self.fees.no_payed.order(:number).first
+	def date_first_fee_no_payed
+		# obtenemos el vencimiento de la primer cuota impaga
+		# a partir de esa fecha es que corre el vencimiento de mi venta
+		self.fees.no_payed.actives.order(:number).first&.due_date
 	end
 
-	def fecha_inicio_interes
-		date = self.primer_cuota_impaga.due_date
-		"#{date.year}-#{date.month}-01"
-	end
+	# def primer_cuota_impaga 
+	# 	# es importante tener la primer cuota impaga para calcular los intereses y la deuda
+	# 	self.fees.no_payed.order(:number).first
+	# end
 
-	# def fees_for_month 
-	# 	fees = self.fees.actives.select("fees.id, fees.due_date, extract(month from fees.due_date) as month, fees.value").group("month")
+	# def fecha_inicio_interes
+	# 	date = self.primer_cuota_impaga.due_date
+	# 	"#{date.year}-#{date.month}-01"
 	# end
 
 	def get_increments
@@ -240,7 +243,6 @@ class Sale < ApplicationRecord
 		payment_plans = PaymentPlan.where( project_id: project_id, option: option )
 		i = 1
 		payment_plans.each do |plan|
-			self.update( status: :approved )
 			self.fees.create!(
 				due_date: plan.date, 
 				value: plan.price, 
@@ -249,17 +251,16 @@ class Sale < ApplicationRecord
 			)
 			i+=1
 		end
-		self.update(number_of_payments: self.fees.count)
+		self.update(number_of_payments: self.fees.count, status: :approved)
 		total = payment_plans.sum(:price)
 		land_project = LandProject.where( land_id: self.land.id, project_id: project_id ).first
     land_project.update(price: total)
 	end
 
-	def approved_sale option
+	def set_payment_plan option
+		project_id = self.sale_products.first.product.id
 		ActiveRecord::Base.transaction do
-			project = Project.find self.sale_products.first.product.id
-			land_project = LandProject.find_by( project: project, land_id: self.land.id )
-			self.generate_fees( project.id ,option )
+			self.generate_fees( project_id ,option )
 		end
 	end
 
@@ -270,7 +271,32 @@ class Sale < ApplicationRecord
 		end
 		sale_value
 	end
-	
+
+	def date_last_payment
+		# get date to last payment 
+		date = self.payments.actives.no_first_pay.order(date: :desc).first&.date
+		date_last_payment = (date) ? date.strftime('%d-%m-%y') : 'No hay pago registrado'
+		date_last_payment
+	end
+
+	def update_payment_status
+    payment = Payment.where(sale_id: self.id).no_first_pay.actives.sum(:total)
+    fees = Fee.where(sale_id: self.id).order('id ASC')
+    fees.first.reset # seteamos las cuotas como pendientes y no pagadas
+    fees.each do |fee|
+      return if payment <= 0.0
+      owes = fee.total_value
+      if payment >= owes
+        # el pago supera el valor de la cuota, eso quiere decir q se cancela entera
+        fee.update(pay_status: :pagado, payed: true, payment: owes)
+      else
+        # no se pago entera, solo se pago lo que quedo en payment
+        fee.update(pay_status: :pago_parcial, payed: true, payment: payment )
+      end
+      payment -= owes
+    end
+  end
+
 	private
 
 	def register_activity
@@ -305,6 +331,26 @@ class Sale < ApplicationRecord
 				comment: "Cancela tierra.",
 				date: self.date,
 			)
+		end
+	end
+
+	def self.update_status
+		Sale.all.each do |sale|
+			sale.update_payment_status
+			if sale.total_value > sale.saldo_pagado
+				status = :approved
+			else
+				status = :payed
+			end
+			sale.update(status: status)
+		end
+	end
+
+	def self.apply_update_payment_status
+		Sale.all.each do |sale|
+			if sale.fees.count > 0
+				sale.update_payment_status
+			end
 		end
 	end
 end

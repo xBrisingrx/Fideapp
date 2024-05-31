@@ -19,7 +19,11 @@ module ApplicationHelper
 		end
 	end
 
-	def class_current_month month
+	def class_gb_current_month month
 		"g-bg-lightblue-v3" if month == Date.today.month
+	end
+
+	def class_brd_current_month month
+		"g-brd-primary" if month == Date.today.month
 	end
 end

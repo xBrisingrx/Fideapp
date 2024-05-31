@@ -8,74 +8,59 @@ payment.date = document.getElementById('payment_date').value
 payment.valor_cuota = 0
 payment.adeuda = parseFloat(<%= @total_to_pay %>)
 
-$("#modal-sale-product").modal('show')
-
-document.getElementById('payment_porcent').addEventListener('change', e => {
-	const porcent = e.target.value
-	// Sumamos la deuda + ajuste por inflacion
-	const owes_with_arrear = roundToTwo( ( ( payment.adeuda * porcent ) / 100 ) + payment.adeuda )
-	document.
-})
-
-
-document.getElementById('payment_adjust').addEventListener('change', function(event) {
-	payment.ajuste = parseFloat( this.value )
-	if (!isNaN( payment.ajuste )) {
-		addClassValid(this)
-		document.getElementById('payment_total_to_pay').innerHTML = `$${numberFormat.format(payment.total_to_pay())}`
-	} else {
-		payment.ajuste = 0.0
-		document.getElementById('payment_adjust').value = payment.ajuste
-		document.getElementById('payment_total_to_pay').innerHTML = `$${numberFormat.format(payment.sumar_sin_ajuste())}`
-	}
-})
-
-function set_exchange(){
-  const select = event.target
-  const nodo = event.target.parentElement.parentElement
-  const selected = select.options[select.selectedIndex]
-  const tomado_en = nodo.querySelector('#payment_value_in_pesos')
-  const calculo_en_pesos = nodo.querySelector('#payment_calculo_en_pesos')
-  if (selected.dataset.exchange == "true") {
-    tomado_en.value = ''
-    tomado_en.placeholder = `1 ${selected.dataset.currency} en $`
-    tomado_en.style.display = 'block'
-    calculo_en_pesos.style.display = 'block'
-  } else {
-    tomado_en.value = 1
-    tomado_en.style.display = 'none'
-    calculo_en_pesos.style.display = 'none'
-  }
-
-  if ( valid_number(parseFloat(tomado_en.value)) || valid_number( parseFloat(nodo.querySelector('#payment_payment').value) ) ) {
-    calc_valor_en_pesos()
-  }
+if (!<%= @has_expires_fees %>) {
+	project.recargo = 0
+	document.querySelector('#expired').classList.add('d-none')
 }
 
-function calc_valor_en_pesos(){
-	const payment_value = parseFloat(document.getElementById('payment_payment').value)
-	const exchange_value = parseFloat(document.getElementById('payment_value_in_pesos').value)
+$("#modal-sale-product").modal('show')
+
+function set_exchange(event) {
+	const select = event.target
+	const nodo = event.target.parentElement.parentElement
+	const selected = select.options[select.selectedIndex]
+	const tomado_en = nodo.querySelector('#payment_value_in_pesos')
+	const calculo_en_pesos = nodo.querySelector('#payment_calculo_en_pesos')
+	if (selected.dataset.exchange == "true") {
+		tomado_en.value = ''
+		tomado_en.placeholder = `1 ${selected.dataset.currency} en $`
+		tomado_en.style.display = 'block'
+		calculo_en_pesos.style.display = 'block'
+	} else {
+		tomado_en.value = 1
+		tomado_en.style.display = 'none'
+		calculo_en_pesos.style.display = 'none'
+	}
+
+	if (valid_number(parseFloat(tomado_en.value)) || valid_number(parseFloat(nodo.querySelector('#payment_payment').value))) {
+		calc_valor_en_pesos()
+	}
+}
+
+function calc_valor_en_pesos() {
+	const payment_value = string_to_float_with_value(document.getElementById('payment_payment').value)
+	const exchange_value = string_to_float_with_value(document.getElementById('payment_value_in_pesos').value)
 	const calculo_en_pesos = document.getElementById('payment_calculo_en_pesos')
-	if ( !valid_number(exchange_value) || !valid_number(payment_value) ) {
+	if (!valid_number(exchange_value) || !valid_number(payment_value)) {
 		calculo_en_pesos.value = 0
 		return
 	}
-	calculo_en_pesos.value = payment_value*exchange_value
+	calculo_en_pesos.value = payment_value * exchange_value
 }
 
-document.getElementById('payment_payment').addEventListener('change', function(e) {
-	payment_pay( e,this, 'payment' )
+document.getElementById('payment_payment').addEventListener('change', function (e) {
+	payment_pay(e, this, 'payment')
 })
 
-document.getElementById('payment_value_in_pesos').addEventListener('change', function(e) {
-	payment_pay( e,this, 'tomado_en' )
+document.getElementById('payment_value_in_pesos').addEventListener('change', function (e) {
+	payment_pay(e, this, 'tomado_en')
 })
 
-function payment_pay( event, input, atributo ) {
+function payment_pay(event, input, atributo) {
 	// ingresa monto pagado o en cuanto toma una moneda 
 	// en caso de error seteo clase invalid
-	let data = parseFloat(event.target.value)
-	if (isNaN( data )) {
+	let data = string_to_float_with_value(event.target.value)
+	if (isNaN(data)) {
 		data = 0.0
 		addClassInvalid(input)
 	} else {
@@ -91,142 +76,136 @@ function payment_pay( event, input, atributo ) {
 }
 
 
-document.getElementById('submit-form-payment').addEventListener('click', function(e){
+document.getElementById('submit-form-payment').addEventListener('click', function (e) {
 	e.preventDefault()
 	e.stopPropagation()
-	payment.sale_id = <%= @sale_id %>;
+	payment.sale_id = document.getElementById('payment_sale_id').value
 	payment.form_data = new FormData()
-	payment.form_data.append("payment[sale_id]", document.getElementById('payment_sale_id').value)
+	payment.form_data.append("payment[sale_id]", payment.sale_id)
 	payment.form_data.append("payment[date]", document.getElementById('payment_date').value)
 	payment.form_data.append("payment[payments_currency_id]", document.getElementById('payments_currency_id').value)
-	payment.form_data.append("payment[comment]", document.getElementById('payment_name_pay').value)
-	payment.form_data.append("payment[payment]", parseFloat( document.getElementById('payment_payment').value ) )
-	payment.form_data.append("payment[taken_in]", parseFloat( document.getElementById('payment_value_in_pesos').value ) )
+	payment.form_data.append("payment[comment]", document.getElementById('payment_comment').value)
+	payment.form_data.append("payment[payment]", string_to_float_with_value(document.getElementById('payment_payment').value))
+	payment.form_data.append("payment[taken_in]", string_to_float_with_value(document.getElementById('payment_value_in_pesos').value))
 	// intereses por mora aplicados
-	payment.form_data.append("interest", parseFloat( document.getElementById('payment_interest').value ) )
+	payment.form_data.append("payment[porcent_interest]", document.querySelector('#payment_porcent').value)
+	payment.form_data.append("payment[interest]", payment.recargo)
 	// ajuste aplicado
-	payment.form_data.append("adjust",  parseFloat( document.getElementById('payment_adjust').value ) )
-	payment.form_data.append("comment_adjust", document.getElementById('payment_comment_adjust').value )
+	payment.form_data.append("payment[adjust]", payment.ajuste)
+	payment.form_data.append("payment[comment_adjust]", document.getElementById('payment_comment_adjust').value)
 
-	let files = document.getElementById('payment-images')
-  let totalFiles = files.files.length
-  if (totalFiles > 0) {
-  	for (let i = 0; i < totalFiles; i++) {
-	    payment.form_data.append("payments[images][]", files.files[i])
-	  }
-  }
+	let files = document.getElementById('payment_images')
+	let totalFiles = files.files.length
+	if (totalFiles > 0) {
+		for (let i = 0; i < totalFiles; i++) {
+			payment.form_data.append("payments[images][]", files.files[i])
+		}
+	}
 
-  if (!form_payment_validation()) {
-  	return
-  }
+	if (!form_payment_validation()) {
+		return
+	}
 
-  $("#modal-pay-confirm").html("<%= j (render 'modal_confirm') %>")
+	$("#modal-pay-confirm").html("<%= j (render 'modal_confirm') %>")
 
-  let pay_data = document.querySelector('#pay-data')
+	let pay_data = document.querySelector('#pay-data')
 
-  pay_data.innerHTML += `<tr><td><b>Fecha de pago:</b> ${ format_date(payment.form_data.get('payment[date]')) }</td></tr>` 
-  if (document.getElementById('payment_aply_interest').checked) {
-  	pay_data.innerHTML += `<tr><td><b>Interes:</b> $${ numberFormat.format( payment.form_data.get('interest') )}</td></tr>` 
-  }
-  if ( payment.form_data.get('adjust') > 0 ) {
-  	pay_data.innerHTML += `<tr><td><b>Ajuste:</b> $${ numberFormat.format( payment.form_data.get('adjust') )}</td></tr>` 
-  }
+	pay_data.innerHTML += `<tr><td><b>Fecha de pago:</b> ${format_date(payment.form_data.get('payment[date]'))}</td></tr>`
+	if (payment.form_data.get('payment[interest]') > 0) {
+		pay_data.innerHTML += `<tr><td><b>Interes:</b> $${numberFormat.format(payment.form_data.get('payment[interest]'))}</td></tr>`
+	}
+	if (payment.form_data.get('payment[adjust]') > 0) {
+		pay_data.innerHTML += `<tr><td><b>Ajuste:</b> $${numberFormat.format(payment.form_data.get('payment[adjust]'))}</td></tr>`
+	}
 
-  let currency_selected = document.getElementById('payments_currency_id').options[document.getElementById('payments_currency_id').selectedIndex]
-  let currency_name = currency_selected.text
+	let currency_selected = document.getElementById('payments_currency_id').options[document.getElementById('payments_currency_id').selectedIndex]
+	let currency_name = currency_selected.text
 
-  pay_data.innerHTML += `
+	pay_data.innerHTML += `
   		<tr><td><b>Forma de pago:</b> ${currency_name}</td></tr>
-  		<tr><td><b>Ingresado:</b>  $${numberFormat.format( payment.form_data.get('payment[payment]') )}</td></tr>
-  	` 
-  if( currency_selected.dataset.exchange == 'true' ) {
-  	pay_data.innerHTML += `
-  		<tr><td><b>Tomado en:</b>  $${numberFormat.format( payment.form_data.get('payment[taken_in]') )}</td></tr>
-  		<tr><td><b>Valor en pesos:</b>  ${numberFormat.format( document.getElementById('payment_calculo_en_pesos').value )}</td></tr>
-  	` 
-  }
-  pay_data.innerHTML += `<tr><td><b>Detalle:</b> ${payment.form_data.get('payment[comment]')} </td></tr>`
+  		<tr><td><b>Ingresado:</b>  $${numberFormat.format(payment.form_data.get('payment[payment]'))}</td></tr>
+  	`
+	if (currency_selected.dataset.exchange == 'true') {
+		pay_data.innerHTML += `
+  		<tr><td><b>Tomado en:</b>  $${numberFormat.format(payment.form_data.get('payment[taken_in]'))}</td></tr>
+  		<tr><td><b>Valor en pesos:</b>  ${numberFormat.format(document.getElementById('payment_calculo_en_pesos').value)}</td></tr>
+  	`
+	}
+	pay_data.innerHTML += `<tr><td><b>Detalle:</b> ${payment.form_data.get('payment[comment]')} </td></tr>`
 
 	$("#modal-pay-confirm").modal('show')
 })
 
 function form_payment_validation() {
 	if (document.getElementById('payments_currency_id').value == '0') {
-  	addClassInvalid(document.getElementById('payments_currency_id'))
-  	noty_alert('error', 'Debe seleccionar un tipo de pago')
-  	return false
-  } else {
-  	addClassValid(document.getElementById('payments_currency_id'))
-  }
-
-  if ( !valid_number( payment.form_data.get('payment[payment]') ) ) {
-  	noty_alert('error', 'El pago no es valido')
-  	addClassInvalid(document.getElementById('payment_payment'))
-  	return false
-  }
-
-  if ( !valid_number( payment.form_data.get('payment[taken_in]') ) ) {
-  	noty_alert('error', 'El valor no es valido')
-  	addClassInvalid(document.getElementById('payment_value_in_pesos'))
-  	return false
-  }
-
-  if (<%= @apply_arrear %>) {
-  	if ( isNaN( payment.form_data.get('interest') ) ) {
-	  	noty_alert('error', 'El valor de interes ingresado no es valido')
-	  	addClassInvalid(document.getElementById('payment_interest'))
-	  	return false
-	  }
-  }
-  // si corresponde aplicar interes debe ser mayor a cero
-  if ( document.getElementById('payment_aply_interest').checked && payment.form_data.get('interest') <= 0 ) {
-  	noty_alert('error', 'Debe ingresar un valor en interes')
-  	addClassInvalid(document.getElementById('payment_interest'))
-  	return false
-  }
-  // por las dudas chequeo el calculo a pesos
-  if ( !valid_number( parseFloat( document.getElementById('payment_calculo_en_pesos').value ) ) ) {
-  	noty_alert('error', 'Datos invalidos')
-  	addClassInvalid(document.getElementById('payment_calculo_en_pesos'))
-  	return false
-  }
-  // fecha requerida
-  if ( payment.form_data.get('payment[date]') == ''  ) {
-  	noty_alert('error', 'Debe ingresar una fecha')
-  	addClassInvalid(document.getElementById('payment_date'))
-  	return false
-  }
-
-  return true
-}
-
-function send_payment(){
-	fetch(`/payments`, {
-      method: 'POST',
-      headers: {           
-        'X-CSRF-Token': document.getElementsByName('csrf-token')[0].content,
-      },
-      body: payment.form_data,
-    }
-  )
-  .then( response => response.json() )
-  .then( response => {
-  	if (response.status === 'success') {
-  		location.reload()
-  	}
-  	noty_alert(response.status, response.msg)
-  } )
-  .catch( error => noty_alert('error', 'Ocurrio un error, no se pudo registrar el pago') )
-}
-
-document.getElementById('payment_date').addEventListener('change', e => {
-	if (<%= @apply_arrear %>) {
-		const interes_diario = <%= @interes_diario %>;
-		const end_date = new Date(e.target.value)
-		const start_date = new Date(document.getElementById('payment_start_date_owes').value)
-		const diffInDays = Math.floor((end_date - start_date) / (1000 * 60 * 60 * 24));
-		payment.recargo_sugerido = parseFloat( (interes_diario * diffInDays).toFixed(2) )
-		document.getElementById("payment_interest").value = payment.recargo_sugerido
-		document.getElementById('payment_total_to_pay').innerHTML = `$${numberFormat.format(payment.total_to_pay())}`
+		addClassInvalid(document.getElementById('payments_currency_id'))
+		noty_alert('error', 'Debe seleccionar un tipo de pago')
+		return false
+	} else {
+		addClassValid(document.getElementById('payments_currency_id'))
 	}
-})
+
+	if (!valid_number(payment.form_data.get('payment[payment]'))) {
+		noty_alert('error', 'El pago no es valido')
+		addClassInvalid(document.getElementById('payment_payment'))
+		return false
+	}
+
+	if (!valid_number(payment.form_data.get('payment[taken_in]'))) {
+		noty_alert('error', 'El valor no es valido')
+		addClassInvalid(document.getElementById('payment_value_in_pesos'))
+		return false
+	}
+
+	// si se ingresa un % de interes, debe haber un valor
+	if ( document.getElementById('payment_porcent').value > 0 && payment.form_data.get('payment[interest]') <= 0 ) {
+		noty_alert('error', 'Debe ingresar un valor de mora.')
+		addClassInvalid(document.getElementById('payment_interest'))
+		return false
+	}
+	// por las dudas chequeo el calculo a pesos
+	if (!valid_number(parseFloat(document.getElementById('payment_calculo_en_pesos').value))) {
+		noty_alert('error', 'Datos invalidos')
+		addClassInvalid(document.getElementById('payment_calculo_en_pesos'))
+		return false
+	}
+	// fecha requerida
+	if (payment.form_data.get('payment[date]') == '') {
+		noty_alert('error', 'Debe ingresar una fecha')
+		addClassInvalid(document.getElementById('payment_date'))
+		return false
+	}
+
+	return true
+}
+
+function send_payment() {
+	fetch(`/payments`, {
+		method: 'POST',
+		headers: {
+			'X-CSRF-Token': document.getElementsByName('csrf-token')[0].content,
+		},
+		body: payment.form_data,
+	}
+	)
+	.then(response => response.json())
+	.then(response => {
+		if (response.status === 'success') {
+			location.reload()
+		} else {
+			for(const text of document.querySelectorAll('#form-payment .text-danger')) {
+				text.innerHTML = ''
+			}
+			for(const input of document.querySelectorAll('#form-payment .is-invalid')) {
+				input.classList.remove('is-invalid') 
+			}
+			for(let key in response.msg) {
+				document.getElementById(`payment_${key}`).classList.add('is-invalid')
+				document.querySelector(`.payment_${key}_err`).innerHTML = response.msg[key]
+			}
+		}
+	})
+	.catch(error => {
+		noty_alert('error', 'Ocurrio un error, no se pudo registrar el pago')
+	})
+}

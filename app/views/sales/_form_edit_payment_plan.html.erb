@@ -1,16 +1,33 @@
-<%= form_with( model: @sale, id: 'form-sale', 
-  remote:true,  
+<%= form_with( model: @sale, id: 'form-select-plan-data', remote:true,  
   class: 'needs-validation g-brd-around g-brd-gray-light-v4 g-pa-10 g-mb-10' ) do |form| %>
   <div class="form-group row">
-    <div class="col-4">
+    <div class="col-6 col-md-4 col-lg-3 col-xl-2">
+      <%= form.label :project_price, 'Valor del proyecto $: '%>
+    </div>
+    <div class="col-6 col-md-4">
+      <%= form.text_field :project_price, class: 'form-control', value: format_currency(@project_price), disabled:true%>
+    </div>
+  </div>
+  <div class="form-group row">
+    <div class="col-6 col-md-4 col-lg-3 col-xl-2">
+      <%= form.label :date, 'Fecha de la compra (*)' %>
+    </div>
+    <div class="form-group col-6 col-md-4">
+      <%= form.date_field :date, class: 'form-control rounded-0 col-6', required: true %>
+    </div>
+    <div class="invalid-feedback msg_fecha_compra"></div>
+  </div>
+  <div class="form-group row">
+    <div class="col-6 col-md-4 col-lg-3 col-xl-2">
       <label for="">Opcion de pago:</label>
     </div>
-    <div class="col-6">
+    <div class="col-6 col-md-4">
       <select name="payment_plan[option]" id="payment_plan_option" class="form-control" required>
         <option value="">Seleccione plan de pago</option>
          <% for i in 1..@quantity_plans do %>
           <option value="<%= i %>"><%= i %></option>
          <% end %>
+         <option value="custom">Personalizado</option>
       </select>
     </div>
   </div>
@@ -68,6 +85,11 @@
       <hr class="w-50 g-my-20">
     </div>
   <% end %>
+
+  <div id="custom_payment_plan" class='d-none'>
+    <%= render( partial: 'sales/first_pay', locals: { form: form})%>
+  </div>
+  <div class="payment_plan_data"></div>
 
   <div class="actions">
     <%= form.submit 'Financiar', class: "btn u-btn-blue" %>

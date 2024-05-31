@@ -731,14 +731,6 @@ let project = {
 			} // if apple.checked
 			land_list == ''
 		}
-		
-		// let apple_detail = `${$( "#project_urbanization_id option:selected" ).text()} ${$( "#sector_list option:selected" ).data('name')} ${$("#apple_list option:selected").text()}`
-		
-
-		//  console.log(land_list)
-
-		
-		// this.calculate_price_land()
 	},
 	remove_apple(apple_id){
 		document.getElementById(`apple-${apple_id}`).remove()
@@ -775,7 +767,6 @@ let project = {
 			price.pop()
 			let pesos = price.reduce( (el, acum) => el + acum, '' )
 			price = pesos+'.'+centavos
-			console.log(price)
 		}
 	},
 	calculate_value_iva({provider_iva, provider_price_calculate}) {

@@ -27,6 +27,12 @@ class Fee < ApplicationRecord
   has_many :adjusts, dependent: :destroy
   has_many :interests, dependent: :destroy
 
+  attr_accessor :number_of_fees_to_add
+
+  validates :due_date, :number, :value, presence: true
+  validates :value, numericality: { greater_than: 0 }
+  validate :greater_than_previous_fee, on: :create
+
   scope :actives, -> { where(active: true) }
   scope :no_cero, -> { where( "number > 0" ) }
   scope :no_payed, -> { where.not(pay_status: :pagado) }
@@ -35,18 +41,21 @@ class Fee < ApplicationRecord
   enum pay_status: [:pendiente, :pagado, :pago_parcial, :refinancied]
   enum type_fee: [ :no_valid ,:first_pay, :quote]
   
+  after_create :verify_number_of_fees_to_add
   def calcular_primer_pago
     primer_pago = self.fee_payments.sum(:total)
     self.update( payment: primer_pago , value: primer_pago )
   end
 
   def interes_diario 
-    ( (self.sale.arrear/100) * self.value )
+    # ( (self.sale.arrear/100) * self.value )
+    0
   end
 
   def calcular_interes date = nil
     # la ultima cuota vencida es toda cuota que no este en estado PAGADO
-    interes_diario = ( (self.sale.arrear/100) * self.value)
+    # interes_diario = ( (self.sale.arrear/100) * self.value)
+    interes_diario = 0
     primer_cuota_vencida = self.sale.fees.actives.no_payed.order(:number).first
     if primer_cuota_vencida.blank?
       0
@@ -66,6 +75,7 @@ class Fee < ApplicationRecord
     # en realidad, si la cuota no esta pagada , no importa que hayan pagos ese mes, seguiria vencida
     there_is_payment_this_month = Payment.where( 'extract(month from date) = ?', self.due_date.month ).where(sale_id: self.sale_id).actives.no_first_pay
     self.expired? && there_is_payment_this_month.empty?
+
   end
 
   def is_last_fee? #verificamos si esta es la ultima cuota de esta venta
@@ -83,7 +93,6 @@ class Fee < ApplicationRecord
     # y los restamos por el valor de las cuotas para saber cuanto se debe
     # hasta ese mes 
     end_month = Date.today.end_of_month()
-    # fees = Fee.where(sale_id: self.sale_id).where('number <= ?', self.number)
     fees = Fee.where(sale_id: self.sale_id).where('due_date <= ?', end_month)
     #obtenemos los pagos realizados en las cuotas, omitimos la primer entrega
     paymets = Payment.where( sale_id: self.sale_id ).actives.no_first_pay.sum(:total)
@@ -121,37 +130,6 @@ class Fee < ApplicationRecord
     # self.update(total_value: total_value)
     # UPDATE TOTAL VALUE
     total_value
-  end
-
- ##### AJUSTE ####
-  def increase_adjust adjust, comment
-    self.adjusts.create( value: adjust, comment: comment )
-    # ya no hace falta actualizar valores
-    # OWES y TOTAL VALUE son calculados
-
-    # self.total_value = self.value + self.get_adjusts + self.interest
-    # self.owes = self.total_value - self.fee_payments.sum(:valor_acarreado)
-
-    # self.save
-  end
-
-  def apply_adjust_one_fee adjust, comment
-    self.increase_adjust(adjust, comment)
-  end
-
-  def apply_adjust_include_fee adjust, comment
-    cuotas = Fee.where(["sale_id = ? and number >= ?", self.sale_id, self.number ])
-    cuotas.each do |cuota|
-      cuota.increase_adjust(adjust, comment)
-    end
-  end
-############# AJUSTE
-  
-  def apply_adjust adjust, comment # aplicamos ajuste a partir de la cuota indicada (inclusive)
-    cuotas = Fee.where(["sale_id = ? and number >= ?", self.sale_id, self.number ])
-    cuotas.each do |cuota|
-      cuota.adjusts.create(value:  adjust, comment: comment)
-    end
   end
 
   def get_adjusts
@@ -322,6 +300,37 @@ class Fee < ApplicationRecord
     if self.pay_status != :pagado
       self.update(pay_status: :refinancied)
     end
+  end
+
+  def verify_number_of_fees_to_add
+    # metodo que uso cuando agrego cuotas de forma manual, desde la vista de pagar cuotas
+    return if self.number_of_fees_to_add.nil?
+    fees_to_add = self.number_of_fees_to_add.to_i - 1
+    if fees_to_add > 0
+      due_date = self.due_date += 1.month
+      number = self.number += 1
+      fees_to_add.times do
+        Fee.create(
+          due_date: due_date,
+          value: self.value,
+          number: number,
+          sale: self.sale
+        )
+        due_date += 1.month
+        number += 1
+      end
+    end
+    self.sale.calculate_total_value!
+    self.sale.update(status: :approved) # si la venta habia sido pagada por completo hay que cambiar el estado
+  end
+
+  def greater_than_previous_fee
+    # last_fee = self.sale.fees.order(number: 'ASC').no_cero.last
+    # if !last_fee.blank?
+    #   if self.due_date <= last_fee.due_date
+    #     error(:due_date, "Esta cuota debe tener un vencimiento posterior a la cuota anterior")
+    #   end
+    # end
   end
 
 end

@@ -1,5 +1,5 @@
 class SalesController < ApplicationController
-  before_action :set_sale, only: %i[ show edit update destroy ]
+  before_action :set_sale, only: %i[ show edit update destroy set_payment_plan ]
 
   def index
     @sales = Sale.all
@@ -9,7 +9,7 @@ class SalesController < ApplicationController
 
   def new
     @cant = 0
-    @clients = Client.select(:id, :name, :last_name).where(active: true)
+    @clients = Client.select(:id, :name, :last_name).where(active: true).order(:name)
     @currencies = Currency.select(:id, :name).where(active: true)
     @payments_types = PaymentsType.actives
     @cp = PaymentsCurrency.actives
@@ -55,13 +55,23 @@ class SalesController < ApplicationController
 
   def edit
     project = Project.find @sale.sale_products.first.product.id
+    @project_price = project.land_price
     @quantity_plans = project.payment_plans.group(:option).count.count
     @first_pays = project.payment_plans.where( category: 1 )
     @quotes = project.payment_plans.where( category: 2 )
+    @cp = PaymentsCurrency.actives
   end
 
   def update
-    if @sale.approved_sale( params[:payment_plan][:option] )
+    if @sale.update( sale_params )
+      render json: {status: 'success', msg: 'Proyecto financiado.'}, status: :ok
+    else
+      render json: {status: 'errors', msg: 'No se pudo financiar el proyecto'}, status: :unprocessable_entity
+    end
+  end
+
+  def set_payment_plan
+    if @sale.set_payment_plan( params[:payment_plan][:option] )
       render json: {status: 'success', msg: 'Proyecto financiado.'}, status: :ok
     else
       render json: {status: 'errors', msg: 'No se pudo financiar el proyecto'}, status: :unprocessable_entity

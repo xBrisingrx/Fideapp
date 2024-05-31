@@ -1,0 +1,37 @@
+$("#modal").html("<%= j (render partial: 'shared/modal', locals:{ size: 'lg' }) %>")
+set_currency_fn()
+$("#modal").modal('show')
+
+document.getElementById('adjust_apply_to_many_fees').addEventListener('click', function(e){
+	const fee_input = document.querySelector('#form-adjust .fee_number_label')
+	
+	if (e.target.checked) {
+		fee_input.innerHTML = 'Aplicar ajuste a partir de la cuota:'
+	} else {
+		fee_input.innerHTML = 'Aplicar ajuste a la cuota:'
+	}
+})
+
+document.getElementById('form-adjust').addEventListener('submit', event => {
+  event.preventDefault()
+  event.stopImmediatePropagation()
+  const form = new FormData()
+  form.append('adjust[value]', string_to_float('adjust_value'))
+  form.append('adjust[comment]', document.getElementById('adjust_comment').value)
+  form.append('adjust[apply_to_many_fees]', document.getElementById('adjust_apply_to_many_fees').checked)
+  form.append('adjust[fee_id]', document.getElementById('adjust_fee_id').value)
+  fetch(event.target.action, {
+    method: 'POST',
+    headers: {           
+      'X-CSRF-Token': event.target.querySelector("input[name='authenticity_token']").value,
+    },
+    body: form
+  })
+  .then(response => response.json())
+  .then(response => {
+    if (response.status === 'success') {
+      noty_alert(response.status, response.msg)
+      setTimeout( location.reload() , 1500)
+    }
+  })
+})

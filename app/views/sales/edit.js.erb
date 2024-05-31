@@ -1,8 +1,63 @@
 $("#modal").html("<%= j (render partial: 'modal_edit' ) %>")
+
+set_currency_fn()
+sale.reset()
+sale.due_day = document.querySelector('.due_day').value
+sale.precio = string_to_float_with_value(document.querySelector('#sale_project_price').value)
+sale.resto = string_to_float_with_value(document.querySelector('#sale_project_price').value)
+document.getElementById('total_pagado_en_cuotas').value = `${string_to_currency( float_to_string( sale.resto ) )}`
+setInputDate("#sale_date")
+
 $("#modal").modal('show')
 
-$("#form-sale").on("ajax:success", function(event) {
-  location.reload();
-}).on("ajax:error", function(event) {
-  console.warn('algo salio mal')
+document.getElementById('payment_plan_option').addEventListener('change', (event) => {
+  sale.valor_cuota = string_to_float_with_value(document.querySelector('#sale_project_price').value)
+  document.getElementById('custom_payment_plan').classList.toggle('d-none', event.target.value !== 'custom')
+})
+
+document.getElementById('form-select-plan-data').addEventListener('submit', (event) => {
+  event.preventDefault()
+  event.stopImmediatePropagation()
+  sale.form = new FormData()
+  const payment_plan = document.getElementById('payment_plan_option').value
+  if ( payment_plan === 'custom' ) {
+    sale.form.append('sale[status]', 'approved')
+    sale.add_paymentos_to_form()
+    sale.add_fees_to_form()
+  } else {
+    sale.form.append('payment_plan[option]', document.getElementById('payment_plan_option').value)
+  }
+  
+  if( document.getElementById('payment_plan_option').value == '' ) {
+    noty_alert('info', 'Debe seleccionar un plan de pagos')
+    return
+  }
+
+  if( document.getElementById('payment_plan_option').value == 'custom' && document.getElementsByClassName('fee_added').length == 0 ) {
+    noty_alert('info', 'No se generaron cuotas')
+    return
+  }
+  const url = ( payment_plan === 'custom' ) ? event.target.action : `${event.target.action}/set_payment_plan`
+  fetch( url,{
+    method: 'PATCH',
+    headers: {           
+      'X-CSRF-Token': document.getElementsByName('authenticity_token')[0].value,
+    },
+    body: sale.form
+  } )
+  .then( response => response.json())
+  .then( response => {
+    if (response.status === 'success') {
+      location.reload();
+    } else {
+      console.error('error')
+    }
+  } )
+})
+
+document.getElementById('add-payment').addEventListener('click', (event) => {
+  sale.cant_payments++
+  sale.cant_payment_files++
+  $('#payment-list').append("<%= j ( render partial: 'input_pay', locals: { cp: @cp, first_label: false } ) %>")
+  set_currency_fn()
 })
