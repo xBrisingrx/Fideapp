@@ -51,7 +51,6 @@
               <th>IVA</th>
               <th>Valor IVA</th>
               <th>TOTAL</th>
-              <th>% representa subtotal</th>
               <th>% representa TOTAL </th>
             </thead>
             <tbody>
@@ -63,7 +62,6 @@
                   <td><%= provider.iva %></td>
                   <td><%= "#{provider.value_iva}%" %></td>
                   <td><%= "$#{format_currency(provider.price_calculate)}" %></td>
-                  <td><%= "#{provider.porcent}%" %></td>
                   <td><%= "#{provider.porcent}%" %></td>
                 </tr>
               <% end %>
@@ -78,7 +76,7 @@
             <thead>
               <th>Interviniente</th>
               <th>Función</th>
-              <th>Precio</th>
+              <th>%</th>
               <th>IVA</th>
               <th>Valor IVA</th>
               <th>TOTAL</th>
@@ -89,7 +87,7 @@
                 <tr>
                   <td><%= provider.provider.name %></td>
                   <td><%= provider.provider_role.name %></td>
-                  <td><%= format_currency(provider.price) %></td>
+                  <td><%= provider.price %>% de <%= provider.porcent_from%></td>
                   <td><%= provider.iva %></td>
                   <td><%= "#{provider.value_iva}%" %></td>
                   <td><%= "$#{format_currency(provider.price_calculate)}" %></td>
