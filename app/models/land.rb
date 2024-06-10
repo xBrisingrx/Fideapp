@@ -24,6 +24,7 @@ class Land < ApplicationRecord
   has_many :sales
   has_many :sale_products, through: :sales
   has_many :sale_clients, through: :sales 
+  has_many :clients, through: :sale_clients 
   has_many :land_projects
   has_one_attached :blueprint
 

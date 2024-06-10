@@ -207,8 +207,7 @@ let sale = {
     if( !valid_number(this.cuotas) ) {
       return
     }
-    this.valor_cuota = roundToTwo( string_to_float_with_value(this.resto)/this.cuotas )
-    console.log(this.resto, this.cuotas, this.valor_cuota)
+    this.valor_cuota = roundToTwo( this.resto/this.cuotas )
   },
   generate_fees(){
     if (!valid_number(this.valor_cuota) && !valid_number(this.cuotas) ) {
