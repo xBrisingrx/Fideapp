@@ -58,7 +58,7 @@ class ProjectsController < ApplicationController
     def project_params
       params.require(:project).permit(:number, :name, :active, :price, :total, :status,:final_price,:subtotal,:description,:project_type_id, 
         :land_corner_price, :land_price, :date, :finalized, :first_pay_required, :first_pay_price,
-        project_providers_attributes: [:id, :provider_id,:provider_role_id,:payment_method_id,:price,:iva,:value_iva,:price_calculate,:porcent,:type_total],
+        project_providers_attributes: [:id, :provider_id,:provider_role_id,:payment_method_id,:price,:iva,:value_iva,:price_calculate,:porcent,:type_total, :porcent_from],
         project_materials_attributes: [:id, :material_id,:type_units,:units,:price],
         payment_plans_attributes: [ :id, :number, :category, :price, :date, :option ],
         apple_projects_attributes: [:id, :apple_id],

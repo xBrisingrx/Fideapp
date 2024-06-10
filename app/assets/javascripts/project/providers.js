@@ -19,12 +19,20 @@ let project_providers = {
 			provider.name = $(`#project_${provider_type}_id option:selected`).text()
 			provider.role_name =  $(`#project_${provider_type}_role option:selected`).text()
 			provider.provider_price_text = ( provider.payment_method_id == 1 ) ? `$${numberFormat.format(provider.provider_price)}` : `${provider.provider_price}%`
-			provider.provider_price_calculate = this.calculate_price( provider )
-			provider.value_iva = this.calculate_value_iva(provider)
 			provider.provider_porcent = 0
-			provider.total = roundToTwo(provider.value_iva + provider.provider_price_calculate)
 			provider.list_id = `${provider.provider_id}_${provider.provider_role}_${type_total}`
 
+			if (provider_type == 'other_provider') {
+				provider.porcent_from = $(`#porcent_from option:selected`).text()
+				provider.value_to_porcent = parseFloat($(`#porcent_from option:selected`).data('total'))
+			} else {
+				provider.porcent_from = ''
+				provider.value_to_porcent = ''
+			}
+
+			provider.provider_price_calculate = this.calculate_price( provider )
+			provider.value_iva = this.calculate_value_iva(provider)
+			provider.total = roundToTwo(provider.value_iva + provider.provider_price_calculate)
 			this.list.push( provider )
 			
 			$('.select-2-project-provider').val('').trigger('change')
@@ -33,9 +41,10 @@ let project_providers = {
 			document.getElementById('project_provider_price').value = ''
 
 			project.calculate_subtotal()
+			this.porcent_from_select()
 		}
   },
-  validations({provider_id, provider_role,provider_price, provider_iva, list_id}){
+  validations({provider_id, provider_role,provider_price, provider_iva, list_id, type_total}){
 		if (isNaN(provider_id)) {
 			noty_alert('warning', 'Debe seleccionar un proveedor')
 			return false
@@ -58,6 +67,11 @@ let project_providers = {
       noty_alert('info', 'Este interviniente ya se encuentra agregado con la misma función.')
       return false
     }
+
+		if (type_total == 'other_provider' && document.getElementById('porcent_from').value == '' ) {
+			noty_alert('info', 'Debe seleccionar de donde toma el porcentaje.')
+      return false
+		}
 		return true
 	},
   update_table(selector_id, type_total){
@@ -111,6 +125,7 @@ let project_providers = {
 		this.list = this.list.filter( p => p.list_id != list_id )
 		document.getElementById(list_id).remove()
 		project.calculate_subtotal()
+		this.porcent_from_select()
 	},
   exist(list_id){
 		// we check that this provider doesn't exit in provider_list with same rol and type
@@ -118,10 +133,10 @@ let project_providers = {
 		let provider_find = this.list.find( element => element.list_id == list_id )
 		return provider_find !== undefined
 	},
-  calculate_price({payment_method_id,provider_price}){
+  calculate_price({payment_method_id,provider_price, value_to_porcent}){
 		if (payment_method_id == 2) { // porcent
 			const porcent = provider_price/100
-			return roundToTwo(project.subtotal * porcent)
+			return roundToTwo(value_to_porcent * porcent)
 		} else { // valor fijo
 			return roundToTwo(provider_price)
 		}
@@ -162,7 +177,22 @@ let project_providers = {
 			project.form.append( `project[project_providers_attributes][${i}][price_calculate]` , this.list[i].provider_price_calculate)
 			project.form.append( `project[project_providers_attributes][${i}][porcent]` , this.list[i].provider_porcent)
 			project.form.append( `project[project_providers_attributes][${i}][type_total]` , this.list[i].type_total)
+			project.form.append( `project[project_providers_attributes][${i}][porcent_from]` , this.list[i].porcent_from)
 		}
+	},
+	porcent_from_select(){
+		// dibujamos el selector
+		const options = []
+		options.push("<option value=''>Porcentaje tomado de </option>")
+		options.push(`<option value='Subtotal' data-total='${project.subtotal}'>Subtotal</option>`)
+		this.list.map( (provider) => {
+			if(provider.type_total == 'price') {
+				options.push(`<option value='${provider.name} ${provider.role_name}' data-total='${provider.total}' >${provider.name} ${provider.role_name}</option>`)
+			}
+		} )
+		const select = document.getElementById('porcent_from')
+		select.innerHTML = ''
+		options.map( option => select.innerHTML += option )
 	},
   update_value_of_others_providers(){
 		this.list.forEach( provider => {
