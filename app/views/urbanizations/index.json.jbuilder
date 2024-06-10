@@ -1,5 +1,6 @@
 json.data @urbanizations do |u|
 	json.name u.name
+	json.sectors u.sectors.count
 	json.actions "#{link_to '<i class="hs-admin-pencil"></i>'.html_safe, edit_urbanization_path(u), 
   								 remote: true, class: 'u-link-v5 g-color-gray-dark-v2 g-color-secondary--hover g-text-underline--none--hover g-ml-12', title: 'Editar'}
   							<a class='u-link-v5 g-color-gray-dark-v2 g-color-secondary--hover g-text-underline--none--hover g-ml-12' 

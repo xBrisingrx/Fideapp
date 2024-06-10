@@ -11,6 +11,7 @@ $(document).ready(function(){
     'columns': [
     {'data': 'name'},
     {'data': 'urbanization'},
+    {'data': 'apples'},
     {'data': 'actions'}
     ],
     'language': {'url': "/assets/plugins/datatables_lang_spa.json"}
