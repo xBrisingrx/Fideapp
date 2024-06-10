@@ -218,6 +218,10 @@
     <div class="col-2">
        <%= form.number_field :other_provider_price, class: 'form-control', step:'0.01', placeholder: '%' %>
     </div>
+    <div class="form-group col-2">
+      <select name="porcent_from" id="porcent_from" class="form-control select-2-payment-method">
+      </select>
+    </div>
     <div class="col-1">
       <button id="add-other-provider" class="btn u-btn-teal" onclick="project_providers.add('subtotal')"><i class="fa fa-plus"></i></button>
     </div>

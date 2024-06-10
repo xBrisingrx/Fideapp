@@ -34,7 +34,7 @@ let sale = {
   update_number_of_payments(event){
     const valor_valido = valid_number( parseInt(event.target.value) )
     if( valor_valido ){
-      this.cuotas = event.target.value
+      this.cuotas = parseInt(event.target.value)
       this.calcular_valor_cuota()
       this.generate_fees()
     } else {

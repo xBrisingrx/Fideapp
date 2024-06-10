@@ -17,7 +17,7 @@ set_currency_fn()
 $("#modal-land").modal('show')
 
 sale.cuotas = 0
-sale.resto =  document.getElementById('sale_price').value
+sale.resto = string_to_float_with_value(document.querySelector('#sale_price').value)
 sale.cant_payments = 0;
 sale.cant_payment_files = 0;
 sale.entrega = 0;
