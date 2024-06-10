@@ -34,7 +34,7 @@ let sale = {
   update_number_of_payments(event){
     const valor_valido = valid_number( parseInt(event.target.value) )
     if( valor_valido ){
-      this.cuotas = event.target.value
+      this.cuotas = parseInt(event.target.value)
       this.calcular_valor_cuota()
       this.generate_fees()
     } else {
@@ -207,7 +207,8 @@ let sale = {
     if( !valid_number(this.cuotas) ) {
       return
     }
-    this.valor_cuota = roundToTwo( this.resto/this.cuotas )
+    this.valor_cuota = roundToTwo( string_to_float_with_value(this.resto)/this.cuotas )
+    console.log(this.resto, this.cuotas, this.valor_cuota)
   },
   generate_fees(){
     if (!valid_number(this.valor_cuota) && !valid_number(this.cuotas) ) {
