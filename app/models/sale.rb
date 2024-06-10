@@ -333,4 +333,24 @@ class Sale < ApplicationRecord
 			)
 		end
 	end
+
+	def self.update_status
+		Sale.all.each do |sale|
+			sale.update_payment_status
+			if sale.total_value > sale.saldo_pagado
+				status = :approved
+			else
+				status = :payed
+			end
+			sale.update(status: status)
+		end
+	end
+
+	def self.apply_update_payment_status
+		Sale.all.each do |sale|
+			if sale.fees.count > 0
+				sale.update_payment_status
+			end
+		end
+	end
 end
