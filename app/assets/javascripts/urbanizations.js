@@ -10,6 +10,7 @@ $(document).ready(function(){
     'ajax':'urbanizations',
     'columns': [
     {'data': 'name'},
+    {'data': 'sectors'},
     {'data': 'actions'}
     ],
     'language': {'url': datatables_lang}

@@ -1,6 +1,7 @@
 json.data @sectors do |s|
 	json.urbanization s.urbanization.name
 	json.name s.name
+	json.apples s.apples.count
 	json.actions "#{link_to '<i class="hs-admin-pencil"></i>'.html_safe, edit_sector_path(s), 
   								 :remote => true, 'data-toggle' =>  'modal',
       							'data-target' => '#modal-sector', 
