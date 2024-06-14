@@ -1,6 +1,8 @@
 Rails.application.routes.draw do
   resources :reports, only: [:index] do
     get 'land_payments', on: :collection
+    get 'apple_payments', on: :collection
+
   end
 
   resources :refinancied_sales, only: [:index, :new, :create]

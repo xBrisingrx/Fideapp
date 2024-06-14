@@ -1,0 +1,34 @@
+wb = xlsx_package.workbook
+wb.styles do |style|
+	grey_background = style.add_style(bg_color: "C4C4C4", border: Axlsx::STYLE_THIN_BORDER)
+	white_background = style.add_style(border: Axlsx::STYLE_THIN_BORDER)
+	no_bg_cell = style.add_style(border: Axlsx::STYLE_THIN_BORDER, :alignment => { :horizontal=> :center })
+	title_cell = style.add_style( :b => true, :sz => 12, :bg_color => "4BE9FF",
+		:alignment => { :horizontal=> :center }, 
+		border: Axlsx::STYLE_THIN_BORDER )
+
+	wb.add_worksheet(name: "Pagos") do |sheet|
+		sheet.add_row [@title], style: title_cell
+		sheet.add_row @column_titles, style: title_cell
+		sheet.merge_cells("A1:#{@letter_title}1")
+    index = 0
+    @lands.each do |land|
+      payments = land.get_payments()
+      payments.each do |payment|
+        land = payment.sale.land
+        sheet.add_row [
+          land.sector.urbanization.name,
+          land.sector.name,
+          date_format(payment.date),
+          land.apple.code,
+          land.code,
+          payment.sale.product_name,
+          land.owners,
+          "$ #{format_currency(payment.total)}"
+        ],
+        style: (index.odd?) ? grey_background : white_background
+        index += 1
+      end
+    end
+	end
+end

@@ -13,6 +13,19 @@ class ReportsController < ApplicationController
 		end
   end
 
+  def apple_payments
+    apple = Apple.find(params[:apple_id])
+    @lands = apple.lands
+    @column_titles = ['Urbanizacion', 'Sector', 'Fecha', 'Manzana', 'Lote', 'Que pago' , 'Cliente', 'Monto']
+    @letter_title = get_letter( @column_titles.count )
+    @title = "Pagos lote #{apple.code}"
+    respond_to do |format|
+			format.xlsx {
+		    render xlsx: "reports/apple_payments", disposition: "attachment", filename: "pagos_manzana_#{apple.code}.xlsx"
+		  }
+		end
+  end
+
   def get_letter number
 		h = {}
 		('A'..'ZZZ').each_with_index{|w, i| h[i+1] = w }
