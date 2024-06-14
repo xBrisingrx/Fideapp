@@ -56,7 +56,7 @@
   <%= render(partial: 'card_pay', locals: { color:  ( @land.owes_this_month > 0 ) ? 'red' : 'green', paid: @land.owes_this_month, detail: "Saldo #{I18n.t("date.month_names")[Date.today.month]}" })%>
   <%= render(partial: 'card_pay', locals: { color: 'deeporange', paid: @land.paid_this_month, detail: "Haber #{I18n.t("date.month_names")[Date.today.month]}" })%>
 </div>
-
+<%= link_to 'Reporte de pagos', land_payments_reports_path(land_id: @land.id, format: :xlsx), class: 'btn btn-primary' %>
 <hr>
 
 <% @land.sales.where.not(status: :not_approved).each do |sale| %>

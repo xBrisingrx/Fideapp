@@ -114,4 +114,26 @@ class Land < ApplicationRecord
     land_value
   end
 
+  def get_payments start_date = nil, end_date = nil
+    ids = self.sales.pluck(:id)
+    payments = Payment.where(sale_id: ids)
+    payments = payments.where( 'date >=', start_date ) unless start_date.blank?
+    payments = payments.where( 'date <=', end_date ) unless end_date.blank?
+    payments
+  end
+
+  def owners
+    clients = self.clients
+    names = ''
+    if clients.count > 1
+      names = clients.first.fullname
+    else
+      clients.each do |c|
+        names += "#{c.fullname}, "
+      end
+      names.chop!
+      names.chop!
+    end
+    names
+  end
 end
