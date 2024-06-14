@@ -21,6 +21,7 @@
              locals: { color: 'deeporange', paid: @apple.paid_this_month, detail: "Haber #{I18n.t("date.month_names")[Date.today.month]}" }) %>
 </div>
 
+<%= link_to 'Reporte de pagos', apple_payments_reports_path(apple_id: @apple.id, format: :xlsx), class: 'btn btn-primary' %>
 <table id="lands_table" class="table hover dt-responsive w-100">
   <thead>
     <tr>
