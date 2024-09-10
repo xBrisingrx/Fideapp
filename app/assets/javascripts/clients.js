@@ -29,7 +29,6 @@ $(document).ready(function(){
     $("#modal-disable-client").modal('hide')
   }).on("ajax:error", function(event) {
     let msg = JSON.parse( event.detail[2].response )
-    console.log(event.detail[2].response)
     $.each( msg, function( key, value ) {
       $(`#form-client #client_${key}`).addClass('is-invalid')
       $(`#form-client .client_${key}`).text( value ).show('slow')

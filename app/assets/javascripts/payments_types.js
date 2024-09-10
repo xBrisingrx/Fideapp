@@ -23,7 +23,6 @@ $(document).ready(function(){
     $("#modal-disable-payment_type").modal('hide')
   }).on("ajax:error", function(event) {
     let msj = JSON.parse( event.detail[2].response )
-    console.log(event.detail[2].response)
     $.each( msj, function( key, value ) {
       $(`#form-payment_type #payment_type_${key}`).addClass('is-invalid')
       $(`#form-payment_type .payment_type_${key}`).text( value ).show('slow')

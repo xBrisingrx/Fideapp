@@ -23,16 +23,23 @@ class Payment < ApplicationRecord
   belongs_to :payments_currency
   has_one :currency, through: :payments_currency
   has_one :payments_type, through: :payments_currency
-  has_one :adjust
-  has_one :interest
+  has_one :adjust, dependent: :destroy
+  has_one :interest, dependent: :destroy
   has_many_attached :files
   has_one :credit_note, dependent: :destroy
+  attr_accessor :interest
+  attr_accessor :porcent_interest
+  attr_accessor :adjust
+  attr_accessor :comment_adjust
 
-  validates :taken_in,:date, :payment, :total, presence: true
+  validates :taken_in,:date, :payment, :total ,presence: true
   validates :taken_in, :payment, :total, numericality: true
+  validate :interest_presence
 
   before_validation :check_attributes
-  # after_create :apply_payment_to_fees
+
+  after_create :add_interest_to_fee, :add_adjust_to_fee
+  after_create :apply_payment_to_fees
 
   scope :actives, -> { where(active: true) }
   scope :no_first_pay, -> { where(first_pay: false) }
@@ -64,6 +71,7 @@ class Payment < ApplicationRecord
   end
 
   def apply_payment_to_fees
+    # hice una copia de este metodo en sale_model#update_payment_status
     return if self.first_pay?
     payment = Payment.where(sale_id: self.sale.id).no_first_pay.actives.sum(:total)
     fees = Fee.where(sale_id: self.sale.id).order('id ASC')
@@ -89,6 +97,29 @@ class Payment < ApplicationRecord
     self.total = self.payment * self.taken_in
   end
 
-  
+  def add_adjust_to_fee #si al pago se le aplico un ajuste se lo agrego a la cuota vigente
+    if self.adjust.to_f > 0
+      fee = Fee.current_fee( self.sale_id, self.date.to_time )
+      fee.adjusts.create( value: self.adjust.to_f, 
+        date: self.date,
+        payment: self,
+        comment: self.comment_adjust )
+    end
+  end
 
+  def add_interest_to_fee#si al pago se le aplico mora se la agrego a la cuota vigente
+    if self.interest.to_f > 0
+      fee = Fee.current_fee( self.sale_id, self.date.to_time )
+      interest = fee.interests.create( value: self.interest.to_f,
+        date: self.date,
+        payment: self,
+        comment: 'Mora por pago fuera de termino.' )
+    end
+  end
+
+  def interest_presence
+    if self.porcent_interest.to_f > 0 && self.interest.to_f <= 0
+      errors.add(:interest, "Debe ingresar un valor de mora.")
+    end
+  end
 end

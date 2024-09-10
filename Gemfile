@@ -58,3 +58,7 @@ group :test do
   # gem 'chromedriver-helper'
   gem "webdrivers"
 end
+
+
+gem 'caxlsx'
+gem 'caxlsx_rails'

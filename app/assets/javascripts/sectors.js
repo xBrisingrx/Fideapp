@@ -11,6 +11,7 @@ $(document).ready(function(){
     'columns': [
     {'data': 'name'},
     {'data': 'urbanization'},
+    {'data': 'apples'},
     {'data': 'actions'}
     ],
     'language': {'url': "/assets/plugins/datatables_lang_spa.json"}
@@ -23,7 +24,6 @@ $(document).ready(function(){
     $("#modal-disable-sector").modal('hide')
   }).on("ajax:error", function(event) {
     let msj = JSON.parse( event.detail[2].response )
-    console.log(event.detail[2].response)
     $.each( msj, function( key, value ) {
       $(`#form-sector #sector_${key}`).addClass('is-invalid')
       $(`#form-sector .sector_${key}`).text( value ).show('slow')

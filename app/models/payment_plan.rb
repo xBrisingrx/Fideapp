@@ -14,4 +14,5 @@
 #
 class PaymentPlan < ApplicationRecord
   belongs_to :project
+  validates :number, :option, :category, :price, :date, presence: true
 end

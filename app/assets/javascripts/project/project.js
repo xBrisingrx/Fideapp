@@ -54,14 +54,8 @@ let project = {
 		this.form.append('project[description]', document.getElementById('project_description').value )
 		this.form.append('project[number_of_payments]', 0 )
 		this.form.append('project[finalized]', document.getElementById('project_finalized').checked )
-		
-		if( document.getElementById('project_finalized').checked ){
-			this.form.append('project[land_price]', string_to_float('project_land_price') )
-			this.form.append('project[land_corner_price]', string_to_float('project_land_corner_price') )
-		} else {
-			this.form.append('project[land_price]', 0 )
-			this.form.append('project[land_corner_price]', 0 )
-		}
+		this.form.append('project[land_price]', string_to_float('project_land_price') )
+		this.form.append('project[land_corner_price]', string_to_float('project_land_corner_price') )
 		
 		
 		project_providers.add_to_form()
@@ -69,7 +63,7 @@ let project = {
 		project_apples.add_apples_to_form()
 		project_apples.add_lands_to_form()
 		if( !document.getElementById('project_finalized').checked ) {
-			payment_plan.add_to_form()
+			payment_plan.add_to_form(this.form,'project[payment_plans_attributes]')
 		}
 		fetch('/projects/', {
       method: 'POST',
@@ -153,17 +147,7 @@ let project = {
 		if(!payment_plan.valid_form_data()){
 			return false
 		}
-
-		// if(!project_providers.valid_form_data()){
-		// 	return false
-		// }
-
-		// if(!project_apples.valid_form_data()){
-		// 	return false
-		// }
-
 		return true
-
 	},
 	disabled_and_reset_select(select_id, select_class){
 		$(`#${select_id} option:selected`).attr('disabled', 'disabled')
@@ -310,7 +294,12 @@ let project = {
 			project_apples.calculate_price_land()
 		}
 	},
-	
+	check_all() {		
+		let apples_added = document.getElementsByClassName("apple-added")
+		for (let checkbox in apples_added) {
+			apples_added[checkbox].checked = event.target.checked
+		}
+	},
 }
 
 $(document).ready(function(){

@@ -159,7 +159,6 @@ function all_payments(form_data) {
     	return
     }
 
-    console.log('valor en pesos y en cuanto lo toma => ',exchange_value,valor_en_pesos)
     form_data.append( `payment_currency_id_${i}`, payment_currency_id )
     form_data.append( `payment_${i}`, paid );
     form_data.append( `tomado_en_${i}`, exchange_value )
@@ -177,7 +176,6 @@ function all_payments(form_data) {
 		}
 	}
 	form_data.append('num_pays', i )
-	console.log('llego al fin de recolectar pagos')
 	return
 }
 /*END JS payments*/
@@ -239,7 +237,6 @@ function get_cuotas_manual() {
 
 document.getElementById('apply_arrear').addEventListener('click', function(e){
 	document.getElementById('arrear').required = this.checked
-	console.log(this.checked)
 })
 
 document.getElementById('submit-form-project-sale').addEventListener('click', (event) => {

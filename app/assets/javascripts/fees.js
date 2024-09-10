@@ -11,7 +11,6 @@ let fee_data = {
 	form_data: '',
 	id: '',
 	sumar_todo(){
-		console.log(this.ajuste, this.adeuda, this.recargo_sugerido, this.valor_cuota)
 		return this.ajuste + this.adeuda + this.recargo_sugerido + this.valor_cuota
 	},
 	sumar_sin_recargo() {

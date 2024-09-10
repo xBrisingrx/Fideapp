@@ -1,10 +1,29 @@
 $("#modal-sale-product").html("<%= j (render 'modal_add_fee' ) %>")
+set_currency_fn()
 
 $("#modal-sale-product").modal('show')
 
-$("#form-fee").on("ajax:success", function(event) {
-    location.reload()
-    $("#modal").modal('hide')
-  }).on("ajax:error", function(event) {
-	noty_alert('error', 'No se pudo registrar la cuota')
+
+document.getElementById('form-fee').addEventListener('submit', event => {
+  event.preventDefault()
+  event.stopImmediatePropagation()
+  const form = new FormData()
+  form.append('fee[sale_id]', document.getElementById('fee_sale_id').value)
+  form.append('fee[due_date]', document.getElementById('fee_due_date').value)
+  form.append('fee[value]', string_to_float('fee_value'))
+  form.append('fee[number_of_fees_to_add]', parseInt(document.getElementById('fee_number_of_fees_to_add').value))
+  fetch(event.target.action, {
+    method: 'POST',
+    headers: {           
+      'X-CSRF-Token': event.target.querySelector("input[name='authenticity_token']").value,
+    },
+    body: form
+  })
+  .then(response => response.json())
+  .then(response => {
+    if (response.status === 'success') {
+      noty_alert(response.status, response.msg)
+      setTimeout( location.reload() , 1500)
+    }
+  })
 })

@@ -9,7 +9,7 @@ class ApplesController < ApplicationController
   end
 
   def filter_for_sector
-    @apples = Apple.where( sector_id: params[:sector_id] ).where( active: true )
+    @apples = Apple.where( sector_id: params[:sector_id] ).where( active: true ).order(:code)
   end
 
   def new

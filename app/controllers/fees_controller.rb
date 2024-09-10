@@ -8,25 +8,23 @@ class FeesController < ApplicationController
 	end
 
   def new
-    @fee = Fee.new(sale_id: params[:sale_id])
+    @title_modal = "Agregar cuotas"
+    sale = Sale.find(params[:sale_id])
+    last_fee = sale.fees.order(number: 'ASC').no_cero.last
+    due_date = (last_fee.blank?) ? Date.today.strftime('%d-%m-%y') : last_fee.due_date += 1.month
+    @fee = Fee.new(sale: sale, due_date: due_date)
   end
 
   def create
-    sale = Sale.find( params[:fee][:sale_id])
+    fee = Fee.new(fee_params) 
+    sale = fee.sale
     last_fee = sale.fees.order(number: 'ASC').last
-    number = (last_fee.blank?) ? 1 : last_fee.number #excenario donde no hayan agregado cuotas
-    due_date = last_fee.due_date
-    for i in 1..params[:fee][:number_of_fees].to_i do 
-      number += 1
-      due_date += 1.month
-      sale.fees.create(
-        due_date: due_date, 
-        value: params[:fee][:value], 
-        number: number
-      )
+    fee.number = (last_fee.blank?) ? 1 : last_fee.number + 1 #excenario donde no hayan agregado cuotas
+    if fee.save
+      render json: { status: 'success', msg: 'Cuotas agregadas' }, status: :created
+    else
+      render json: { status: 'error', msg: 'No se pudo agregar la cuota' }, status: :unprocessable_entity
     end
-    sale.calculate_total_value!
-    render json: { status: 'success', msg: 'Cuotas agregadas' }
   end
 
 	def show
@@ -161,30 +159,6 @@ class FeesController < ApplicationController
       render json: { status: 'error', msg: 'No se pudo registrar el pago' }, status: 402
   end
 
-  def modal_apply_adjust
-    @title_modal = "Aplicar ajuste"
-    @sale = Sale.find params[:sale_id]
-    @fees = @sale.fees.actives.no_cero.no_payed
-  end
-
-  def apply_adjust
-    sale = Sale.find params[:sale_id]
-    fee = Fee.where(sale_id: sale.id, number: params[:fee_number]).first
-    ActiveRecord::Base.transaction do 
-      if params[:apply_to_one_fee].to_i == 1
-        fee.apply_adjust_one_fee(params[:adjust].to_f, params[:comment])
-      else
-        fee.apply_adjust_include_fee(params[:adjust].to_f, params[:comment])
-      end
-      sale.calculate_total_value!
-      render json: { status: 'success', msg: 'Datos actualizados' }, status: :ok
-    end
-    rescue => e
-      puts "Excepcion => #{e.message}"
-      @response = e.message.split(':')
-      render json: {status: 'error', msg: 'No se pudo registrar el ajuste'}, status: 402
-  end
-
   def details
     @cuota = Fee.find(params[:id])
     if @cuota.is_last_fee?
@@ -193,5 +167,10 @@ class FeesController < ApplicationController
       @payments = Payment.by_month( @cuota.sale_id,@cuota.due_date )
     end
     @title_modal = 'Detalle del pago realizado'
+  end
+
+  private
+  def fee_params
+    params.require(:fee).permit(:sale_id, :value, :due_date, :number, :number_of_fees_to_add)
   end
 end
