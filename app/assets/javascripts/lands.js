@@ -33,6 +33,7 @@ $(document).ready(function(){
     {'data': 'blueprint'},
     {'data': 'actions'}
     ],
+    'order': [[1, 'asc']],
     'language': { 'url': datatables_lang }
 	})
 
