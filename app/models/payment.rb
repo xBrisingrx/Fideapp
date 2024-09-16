@@ -36,7 +36,7 @@ class Payment < ApplicationRecord
   validates :taken_in, :payment, :total, numericality: true
   validate :interest_presence
 
-  before_validation :check_attributes
+  before_validation :check_attributes, on: :create
 
   after_create :add_interest_to_fee, :add_adjust_to_fee
   after_create :apply_payment_to_fees
@@ -89,6 +89,13 @@ class Payment < ApplicationRecord
       payment -= owes
     end
   end
+
+  def self.land_payments ids, start_date = nil, end_date = nil
+		# obtenemos los pagos de las ventas que tenga un lote, sale_ids lo sacamos de un lote
+    self.where(sale_id: ids)
+    self.where( 'date >=', start_date ) unless start_date.nil?
+    self.where( 'date <=', end_date ) unless end_date.nil?
+	end
 
   private 
 

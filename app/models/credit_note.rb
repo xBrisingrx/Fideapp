@@ -21,11 +21,11 @@ class CreditNote < ApplicationRecord
 
   validates :description, presence: true
 
-  before_create :disable_payment 
+  after_create :disable_payment 
 
   private
 
   def disable_payment
-    self.payment.disable  
+    self.payment.disable
   end
 end
