@@ -53,7 +53,7 @@
                 <td><%= "$#{format_currency( payment.taken_in )}" %></td>
                 <td><%= "$#{format_currency( payment.total )}" %></td>
                 <td>
-                  <% payment.images.each do |image| %>
+                  <% payment.files.each do |image| %>
                     <%= link_to '<i class="hs-admin-image"></i>'.html_safe, image, target: '_blank', class: 'btn u-btn-teal' %>
                   <% end %>
                 </td>
