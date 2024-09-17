@@ -4,7 +4,8 @@
   apples_path, class: 'btn u-btn-blue mb-2 mr-2'%>
 <%= link_to '<i class= "hs-admin-back-left"></i> Volver a lotes'.html_safe, 
   apple_lands_path(@land.apple), class: 'btn u-btn-primary mb-2 mr-2'%>
-
+<%= link_to '<i class= "hs-admin-user"></i> Agregar comprador/a'.html_safe, 
+  apple_lands_path(@land.apple), class: 'btn u-btn-outline-blue u-btn-hover-v1-2 g-font-weight-600 g-letter-spacing-0_5 g-brd-2 g-rounded-10 g-ml-40 g-mr-10 g-mb-10'%>
 <div class="row">
   <% @land_sale.sale.clients.each do |client| %>
     <div class="g-brd-blue-left u-shadow-v2 g-brd-around g-brd-gray-light-v4 g-line-height-2 g-pa-10 g-mb-30 col-3 g-mr-5">
