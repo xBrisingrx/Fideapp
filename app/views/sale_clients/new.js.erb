@@ -1,0 +1,15 @@
+$("#modal").html("<%= j (render partial: 'shared/modal', locals:{ size: 'lg' } ) %>")
+
+$('.select-2-clients').select2({ width: '100%',theme: "bootstrap4" })
+
+$("#modal").modal('show')
+
+$("#form-sale-client").on("ajax:success", function(event) {
+    location.reload()
+  }).on("ajax:error", function(event) {
+	let msj = JSON.parse( event.detail[2].response )
+	$.each( msj, function( key, value ) {
+		$(`#form-sale-client #sale_client_${key}`).addClass('is-invalid')
+		$(`#form-sale-client .client_id`).text( value ).show('slow')
+	})
+})

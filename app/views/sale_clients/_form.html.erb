@@ -1,0 +1,20 @@
+<%= form_with(model: @sale_client, id: 'form-sale-client', class: 'needs-validation g-brd-around g-brd-gray-light-v4 g-pa-30 g-mb-30') do |form| %>
+
+  <div class="form-group row">
+    <div class="col-4 col-lg-3">
+      <%= form.label :client_id, 'Quien compra (*)' %>
+    </div>
+    <div class="form-group col-8 col-lg-6">
+      <%= form.select(:client_id, @clients.collect {|c| ["#{c.last_name} #{c.name}", c.id]}, 
+                      {:include_blank => "Seleccione comprador"},
+                      class: 'select-2-clients') %>
+      <div class="invalid-feedback client_id"></div>
+    </div>
+
+  </div>
+
+  <div class="mt-4">
+    <%= form.submit 'Guardar', class: 'btn u-btn-teal mr-2'  %>
+    <button type="button" class="btn u-btn-darkred" data-dismiss="modal">Cerrar</button>
+  </div>
+<% end %>

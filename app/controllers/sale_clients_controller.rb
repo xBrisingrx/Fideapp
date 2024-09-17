@@ -7,11 +7,21 @@ class SaleClientsController < ApplicationController
   def show;end
 
   def new
+    @title_modal = "Agregar comprador/a al lote"
     @sale_client = SaleClient.new
+    @clients = Client.actives
   end
 
   def create
-    
+    @sale_client = SaleClient.new(sale_params)
+    @sale_client.sale_id = params[:sale_id]
+    respond_to do |format|
+      if @sale_client.save
+        format.json { render json: {status: 'success', msg: 'Comprador agregado'} , status: :created }
+      else
+        format.json { render json: @sale_client.errors, status: :unprocessable_entity }
+      end
+    end
   end
 
 

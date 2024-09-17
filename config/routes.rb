@@ -42,8 +42,10 @@ Rails.application.routes.draw do
     get 'payment_summary', on: :member
     patch 'set_payment_plan', on: :member
     resources :adjusts, only: [:new, :create]
-    resources :sale_clients, only: [:new, :create]
   end
+  get '/sales/:sale_id/sale_clients/new', to: 'sale_clients#new', as: 'new_sale_client'
+  post '/sales/:sale_id/sale_clients', to: 'sale_clients#create', as: 'sale_clients'
+
   post 'disable_sale', to: 'sales#disable', as: 'disable_sale'
   resources :project_types
   post 'disable_project_type', to: 'project_types#disable', as: 'disable_project_type'
