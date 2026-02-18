@@ -188,7 +188,6 @@ class Sale < ApplicationRecord
 	def paid_this_month
 		# obtenemos los pagos ingresados en este mes
 		# return 0 if self.refinanced
-
 		date = Time.new
     from_date = "#{date.year}-#{date.month}-01"
     to_date = "#{date.year}-#{date.month}-#{date.end_of_month.day}"

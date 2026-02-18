@@ -23,6 +23,8 @@ class Apple < ApplicationRecord
   validates :code, presence: true,
     uniqueness: {  scope: :sector_id, case_sensitive: false, message: "Ya existe una manzana con esta denominación en este sector" }
 
+  after_rollback :log_failure
+
   scope :actives, -> { where(active: true) }
 
   def has_corner
@@ -87,5 +89,10 @@ class Apple < ApplicationRecord
       apple_value += land.get_value
     end
     apple_value
+  end
+
+  private 
+  def log_failure
+    Rails.logger.error "Failed to proccess apple #{id}: #{errors.full_messages.join(', ')}"
   end
 end
